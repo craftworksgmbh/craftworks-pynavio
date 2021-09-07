@@ -5,7 +5,7 @@ Credits
 Development Lead
 ----------------
 
-* navio <tatevik.gharagyozyan@craftworks.at>
+* craftworks <dev-accounts@craftworks.at>
 
 Contributors
 ------------

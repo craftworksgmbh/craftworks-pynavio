@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 
-"""Tests for `navio` package."""
+"""Tests for `pynavio` package."""
 
 import pytest
 
 
-from navio import navio
+from pynavio import pynavio
 
 
 @pytest.fixture

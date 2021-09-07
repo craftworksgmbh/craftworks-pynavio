@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=navio
+set SPHINXPROJ=pynavio
 
 if "%1" == "" goto help
 

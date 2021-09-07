@@ -1,1 +1,1 @@
-"""Unit test package for navio."""
+"""Unit test package for pynavio."""

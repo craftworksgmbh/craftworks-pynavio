@@ -2,6 +2,6 @@
 Usage
 =====
 
-To use navio in a project::
+To use pynavio in a project::
 
-    import navio
+    import pynavio

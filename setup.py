@@ -15,8 +15,8 @@ requirements = [ ]
 test_requirements = ['pytest>=3', ]
 
 setup(
-    author="navio",
-    author_email='tatevik.gharagyozyan@craftworks.at',
+    author="craftworks",
+    author_email='dev-accounts@craftworks.at',
     python_requires='>=3.6',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -33,12 +33,12 @@ setup(
     license="MIT license",
     long_description=readme + '\n\n' + history,
     include_package_data=True,
-    keywords='navio',
-    name='navio',
-    packages=find_packages(include=['navio', 'navio.*']),
+    keywords='pynavio',
+    name='pynavio',
+    packages=find_packages(include=['pynavio', 'pynavio.*']),
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/tatevikgharagyozyan/navio',
-    version='0.1.1',
+    url='https://github.com/craftworksgmbh/pynavio',
+    version='0.0.1',
     zip_safe=False,
 )

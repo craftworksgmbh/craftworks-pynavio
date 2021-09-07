@@ -1,4 +1,4 @@
-Welcome to navio's documentation!
+Welcome to pynavio's documentation!
 ======================================
 
 .. toctree::

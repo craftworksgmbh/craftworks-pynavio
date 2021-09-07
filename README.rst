@@ -1,16 +1,16 @@
-=====
-navio
-=====
+=======
+pynavio
+=======
 
 
-.. image:: https://img.shields.io/pypi/v/navio.svg
-        :target: https://pypi.python.org/pypi/navio
+.. image:: https://img.shields.io/pypi/v/pynavio.svg
+        :target: https://pypi.python.org/pypi/pynavio
 
-.. image:: https://img.shields.io/travis/tatevikgharagyozyan/navio.svg
-        :target: https://travis-ci.com/tatevikgharagyozyan/navio
+.. image:: https://img.shields.io/travis/craftworksgmbh/pynavio.svg
+        :target: https://travis-ci.com/craftworksgmbh/pynavio
 
-.. image:: https://readthedocs.org/projects/navio/badge/?version=latest
-        :target: https://navio.readthedocs.io/en/latest/?version=latest
+.. image:: https://readthedocs.org/projects/pynavio/badge/?version=latest
+        :target: https://pynavio.readthedocs.io/en/latest/?version=latest
         :alt: Documentation Status
 
 
@@ -20,7 +20,7 @@ Python lib for navio
 
 
 * Free software: MIT license
-* Documentation: https://navio.readthedocs.io.
+* Documentation: https://pynavio.readthedocs.io.
 
 
 Features
