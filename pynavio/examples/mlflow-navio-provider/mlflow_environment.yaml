@@ -1,0 +1,12 @@
+channels:
+- defaults
+dependencies:
+- python=3.7
+- pip
+- pip:
+  - mlflow
+  - scikit-learn
+  - xgboost==1.0.0
+  - numpy
+  - nb_conda_kernels
+name: mlflow
