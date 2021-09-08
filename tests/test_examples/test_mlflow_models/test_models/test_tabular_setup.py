@@ -21,12 +21,9 @@ def test_setup_predict():
     model_output = model.predict(model_input)
 
     expecpted_keys = [PREDICTION]
-    print(model_output)
+
     for key in expecpted_keys:
         assert key in model_output
 
     for key in expecpted_keys:
         assert len(model_output[key]) == model_input.shape[0]
-
-
-
