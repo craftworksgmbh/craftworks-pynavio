@@ -1,4 +1,4 @@
-pip==21.1.1
+pip==21.1.2
 bump2version==0.5.11
 wheel==0.33.6
 watchdog==0.9.0
@@ -8,14 +8,18 @@ coverage==4.5.4
 Sphinx==1.8.5
 twine==1.14.0
 
-mlflow==1.20.0
 numpy==1.20.2
 pandas==1.2.4
-plotly==4.14.3
 pytest==6.2.4
-requests==2.26.0
-scikit-learn==0.24.2
-
+mlflow==1.15.0
+scikit-learn==0.24.1
+shap==0.39.0
+plotly==4.14.3
+ipython==7.22.0
+matplotlib==3.4.1
+Pillow==8.2.0
+isort==5.8.0
+yapf==0.31.0
 
 
 

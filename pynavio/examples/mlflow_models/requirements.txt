@@ -7,7 +7,6 @@ plotly==4.14.3
 ipython==7.22.0
 matplotlib==3.4.1
 Pillow==8.2.0
-tensorflow==2.5.1
 isort==5.8.0
 yapf==0.31.0
 
