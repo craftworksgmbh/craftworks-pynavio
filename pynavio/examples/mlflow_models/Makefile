@@ -38,7 +38,7 @@ $(MODEL_DIR)/%: | $(MODEL_DIR)
 
 	# from previous directory, to check that everything works when
 	# local module directories are not visible
-	cd .. && python $(CWD)/utils/test.py $(CWD)/$@
+	cd .. && python $(CWD)/../../utils/test.py $(CWD)/$@
 
 code-style:
 	python -m isort main.py models/ utils/

@@ -4,8 +4,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
-from models import (additional_fields, error_model, image, minimal, tabular,
-                    timeseries, trainer)
+from examples.mlflow_models.models import (tabular)
 
 # names of imported submodules of the models module
 MODELS = [

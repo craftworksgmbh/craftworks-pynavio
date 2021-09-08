@@ -11,6 +11,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from utils.common import make_example_request, prediction_call, to_mlflow, get_module_path
 from .explainer_traits import TabularExplainerTraits
+
 import utils
 import models
 

@@ -1,7 +1,7 @@
 import tempfile
 import mlflow.pyfunc
 
-import models.tabular
+from models import tabular
 from test_examples.test_mlflow_models.test_models.tabular_example_request import example_request
 
 PREDICTION = 'prediction'
@@ -12,8 +12,8 @@ def test_setup_predict():
     Tests that setup stores a model that can be loaded by mlflow
     """
 
-    with tempfile.TemporaryDirectory() as model_path:
-        models.tabular.setup(with_data=False, with_oodd=False, explanations=None, path=model_path)
+    with tempfile.TemporaryDirectory() as model_path:        
+        tabular.setup(with_data=False, with_oodd=False, explanations=None, path=model_path)
 
         model = mlflow.pyfunc.load_model(model_path)
 
