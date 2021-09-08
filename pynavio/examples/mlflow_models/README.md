@@ -2,10 +2,7 @@
 
 Available models and their respective data sets:
 
-- minimal - randoly generated data
 - tabular - iris.csv (available via scikit-learn)
-- timeseries - activity_recognition.csv (available on nexus, see [datasets](../../datasets/README.md))
-- image - MNIST (available via tensorflow)
 
 ## Setup
 
@@ -28,12 +25,6 @@ make
 ```
 
 The created zip files in `model_files` directory are the usable MLFlow models.
-
-## Tresor
-
-Created models and the necessary data should be stored in 
-`/volume1/projects/craftworks navio/Data/example-data/mlflow` 
-on [Tresor](https://kb.craftworks.at/x/5YBh).
 
 ## Plotly Explanations
 
