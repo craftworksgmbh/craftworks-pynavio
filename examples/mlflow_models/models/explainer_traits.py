@@ -2,7 +2,7 @@ import json
 
 import pandas as pd
 
-from utils.styling import HEATMAP_COLOR_SCALE
+from pynavio.utils.styling import HEATMAP_COLOR_SCALE
 
 
 class TabularExplainerTraits:

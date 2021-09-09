@@ -9,10 +9,10 @@ import sklearn
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
-from utils.common import make_example_request, prediction_call, to_mlflow, get_module_path
+from pynavio.utils.common import make_example_request, prediction_call, to_mlflow, get_module_path
 from .explainer_traits import TabularExplainerTraits
 
-import utils
+import pynavio
 import models
 
 TARGET = 'target'
@@ -100,7 +100,7 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='tabular-data', path=data_path)
 
-        dependencies = [np, pd, sklearn, get_module_path(models), get_module_path(utils)]
+        dependencies = [np, pd, sklearn, get_module_path(models), get_module_path(pynavio)]
 
         if explanations == 'plotly':
             import plotly
@@ -116,4 +116,3 @@ def setup(with_data: bool,
                   path=path,
                   dataset=dataset,
                   oodd='default' if with_oodd else 'disabled')
-
