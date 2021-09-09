@@ -4,7 +4,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
-from examples.mlflow_models.models import (tabular)
+from examples.mlflow_models.models import tabular
 
 # names of imported submodules of the models module
 MODELS = [

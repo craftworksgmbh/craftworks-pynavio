@@ -95,4 +95,3 @@ def _check_model_serving(model_path):
 if __name__ == '__main__':
     model_path = sys.argv[1]
     _check_model_serving(model_path)
-

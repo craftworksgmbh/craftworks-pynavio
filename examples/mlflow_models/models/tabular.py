@@ -3,17 +3,18 @@ from typing import Optional
 
 import joblib
 import mlflow
+import models
 import numpy as np
 import pandas as pd
 import sklearn
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
-from pynavio.utils.common import make_example_request, prediction_call, to_mlflow, get_module_path
-from .explainer_traits import TabularExplainerTraits
-
 import pynavio
-import models
+from pynavio.utils.common import (get_module_path, make_example_request,
+                                  prediction_call, to_mlflow)
+
+from .explainer_traits import TabularExplainerTraits
 
 TARGET = 'target'
 
@@ -49,8 +50,8 @@ class Tabular(mlflow.pyfunc.PythonModel, TabularExplainerTraits):
 
     @prediction_call
     def predict(self, context, model_input):
-        if (self._explanation_format in [None, 'default'] or
-                not self.has_background(model_input)):
+        if (self._explanation_format in [None, 'default']
+                or not self.has_background(model_input)):
             return self._predict(model_input)
 
         background = self.select_data(model_input, True)
@@ -60,9 +61,8 @@ class Tabular(mlflow.pyfunc.PythonModel, TabularExplainerTraits):
         explanations = self._explain(predictions, data, background)
 
         return {
-            'prediction': [
-                self._classes[prediction] for prediction in predictions
-            ],
+            'prediction':
+            [self._classes[prediction] for prediction in predictions],
             'explanation': [
                 self.draw_plotly_explanation(row)
                 for _, row in explanations.iterrows()
@@ -100,7 +100,11 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='tabular-data', path=data_path)
 
-        dependencies = [np, pd, sklearn, get_module_path(models), get_module_path(pynavio)]
+        dependencies = [
+            np, pd, sklearn,
+            get_module_path(models),
+            get_module_path(pynavio)
+        ]
 
         if explanations == 'plotly':
             import plotly

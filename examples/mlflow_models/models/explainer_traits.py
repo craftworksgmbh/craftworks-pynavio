@@ -21,7 +21,8 @@ class TabularExplainerTraits:
 
         return True
 
-    def select_data(self, data: pd.DataFrame, background: bool) -> pd.DataFrame:
+    def select_data(self, data: pd.DataFrame,
+                    background: bool) -> pd.DataFrame:
         return data.loc[data[self.BG_COLUMN] == background] \
                    .drop(self.BG_COLUMN, axis=1)
 
@@ -38,7 +39,6 @@ class TabularExplainerTraits:
 
 
 class TimeSeriesExplainerTraits(TabularExplainerTraits):
-
     def draw_plotly_explanation(self, data: pd.DataFrame) -> dict:
         import plotly.express as px
 

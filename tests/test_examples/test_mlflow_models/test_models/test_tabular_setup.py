@@ -1,10 +1,11 @@
 import tempfile
+
 import mlflow.pyfunc
 import pandas as pd
 import pytest
-
 from models import tabular
-from scripts.test import _fetch_data, _check_model_serving
+
+from scripts.test import _check_model_serving, _fetch_data
 
 PREDICTION = 'prediction'
 
@@ -20,7 +21,10 @@ def test_setup_predict():
     """
 
     with tempfile.TemporaryDirectory() as model_path:
-        tabular.setup(with_data=False, with_oodd=False, explanations=None, path=model_path)
+        tabular.setup(with_data=False,
+                      with_oodd=False,
+                      explanations=None,
+                      path=model_path)
 
         model = mlflow.pyfunc.load_model(model_path)
         model_input = _get_example_request_df(model_path)
@@ -38,4 +42,3 @@ def test_setup_predict():
             _check_model_serving(model_path)
         except Exception:
             pytest.fail("Error in the model serving/prediction")
-

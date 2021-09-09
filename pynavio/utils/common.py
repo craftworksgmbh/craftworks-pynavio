@@ -5,14 +5,12 @@ import platform
 import shutil
 import traceback
 from functools import wraps
-from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from types import ModuleType
 from typing import Any, Dict, List, Optional, Union
 
 import mlflow
-import numpy as np
 import pip
 import yaml
 
@@ -54,7 +52,6 @@ def _make_mlflow_config(
         dependencies: list,
         conda_packages: List[str] = None,
         artifacts: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
-
     def _module_name(module: ModuleType) -> str:
         return {
             'sklearn': 'scikit-learn',
@@ -70,15 +67,16 @@ def _make_mlflow_config(
         'conda_env': {
             'channels': ['defaults', 'anaconda', 'pytorch'],
             'dependencies': [
-                f'python={platform.python_version()}', f'pip={pip.__version__}',
-                *(conda_packages or []), {
+                f'python={platform.python_version()}',
+                f'pip={pip.__version__}', *(conda_packages or []), {
                     'pip': [
                         f'{_module_name(module)}=={module.__version__}'
                         for module in [mlflow, *modules]
                     ]
                 }
             ],
-            'name': 'venv'
+            'name':
+            'venv'
         },
         'code_path': code if code else None
     }
@@ -189,8 +187,7 @@ def make_example_request(row: Dict[str, Any],
 
     example = {
         "featureColumns": [
-            _column_spec(name)
-            for name in row.keys()
+            _column_spec(name) for name in row.keys()
             if name != target and name != datetime_column
         ],
         "targetColumns": [_column_spec(target)]
