@@ -1,0 +1,12 @@
+numpy==1.20.2
+pandas==1.2.4
+mlflow==1.15.0
+scikit-learn==0.24.1
+shap==0.39.0
+plotly==4.14.3
+ipython==7.22.0
+matplotlib==3.4.1
+Pillow==8.2.0
+isort==5.8.0
+yapf==0.31.0
+
