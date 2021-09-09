@@ -52,6 +52,7 @@ def _organize_dependencies(deps: List[Any]) -> tuple:
 def _make_mlflow_config(
         tmp_dir: str,
         dependencies: list,
+        conda_packages: List[str] = None,
         artifacts: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
 
     def _module_name(module: ModuleType) -> str:
@@ -67,10 +68,10 @@ def _make_mlflow_config(
             **(artifacts or {})
         },
         'conda_env': {
-            'channels': ['defaults'],
+            'channels': ['defaults', 'anaconda', 'pytorch'],
             'dependencies': [
                 f'python={platform.python_version()}', f'pip={pip.__version__}',
-                {
+                *(conda_packages or []), {
                     'pip': [
                         f'{_module_name(module)}=={module.__version__}'
                         for module in [mlflow, *modules]
@@ -94,7 +95,8 @@ def _check_data_spec(spec: dict) -> None:
 def _add_metadata(model_path: str,
                   dataset: Optional[dict] = None,
                   explanations: Optional[str] = None,
-                  oodd: Optional[str] = None) -> None:
+                  oodd: Optional[str] = None,
+                  num_gpus: Optional[int] = 0) -> None:
     path = Path(model_path) / 'MLmodel'
     with path.open('r') as file:
         cfg = yaml.safe_load(file)
@@ -117,6 +119,10 @@ def _add_metadata(model_path: str,
         f'oodd config must be one of {accepted_values}'
     cfg['metadata'].update(oodDetection=oodd)
 
+    assert num_gpus >= 0, 'num_gpus cannot be negative'
+    if num_gpus > 0:
+        cfg['metadata'].update(gpus=num_gpus)
+
     with path.open('w') as file:
         yaml.dump(cfg, file)
 
@@ -128,10 +134,12 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
               example_request: ExampleRequest,
               dependencies: List[Any],
               path: Union[str, Path],
+              conda_packages: List[str] = None,
               artifacts: Optional[Dict[str, str]] = None,
               dataset: Optional[dict] = None,
               explanations: Optional[str] = None,
-              oodd: Optional[str] = None) -> Path:
+              oodd: Optional[str] = None,
+              num_gpus: Optional[int] = 0) -> Path:
 
     path = str(path)
 
@@ -142,7 +150,8 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
             artifacts.update(dataset=dataset['path'])
             dataset.update(path=f'artifacts/{Path(dataset["path"]).parts[-1]}')
 
-        config = _make_mlflow_config(tmp_dir, dependencies, artifacts)
+        config = _make_mlflow_config(tmp_dir, dependencies, conda_packages,
+                                     artifacts)
 
         with open(config['artifacts']['example_request'], 'w') as file:
             json.dump(example_request, file, indent=4)
@@ -152,7 +161,8 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
         _add_metadata(path,
                       dataset=dataset,
                       explanations=explanations,
-                      oodd=oodd)
+                      oodd=oodd,
+                      num_gpus=num_gpus)
 
     model = mlflow.pyfunc.load_model(path)  # test load
     shutil.make_archive(path, 'zip', path)
