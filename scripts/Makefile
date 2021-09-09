@@ -41,6 +41,6 @@ $(MODEL_DIR)/%: | $(MODEL_DIR)
 	cd .. && python $(CWD)/test.py $(CWD)/$@
 
 code-style:
-	python -m isort main.py models/ utils/
-	python -m yapf -rip main.py models/ utils/
+	python -m isort main.py test.py ../examples
+	python -m yapf -rip main.py test.py ../examples
 
