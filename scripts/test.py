@@ -75,8 +75,7 @@ def mlflow_to_navio(data: dict) -> dict:
     return {'rows': [dict(zip(data['columns'], row)) for row in data['data']]}
 
 
-if __name__ == '__main__':
-    model_path = sys.argv[1]
+def _check_model_serving(model_path):
     process = subprocess.Popen(
         f'mlflow models serve -m {model_path} -p 5001 --no-conda'.split())
 
@@ -91,3 +90,9 @@ if __name__ == '__main__':
         print(response.json())
         subprocess.run('pkill -f gunicorn'.split())
         time.sleep(2)
+
+
+if __name__ == '__main__':
+    model_path = sys.argv[1]
+    _check_model_serving(model_path)
+
