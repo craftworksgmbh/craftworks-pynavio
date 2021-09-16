@@ -3,7 +3,6 @@ from typing import Optional
 
 import joblib
 import mlflow
-import models
 import numpy as np
 import pandas as pd
 import sklearn
@@ -14,12 +13,13 @@ import pynavio
 from pynavio.utils.common import (get_module_path, make_example_request,
                                   prediction_call, to_mlflow)
 
-from .explainer_traits import TabularExplainerTraits
+from .. import models
 
 TARGET = 'target'
 
 
-class Tabular(mlflow.pyfunc.PythonModel, TabularExplainerTraits):
+class Tabular(mlflow.pyfunc.PythonModel,
+              pynavio.traits.TabularExplainerTraits):
     BG_COLUMN = 'is_background'
 
     def __init__(self, classes, column_order, explanation_format=None):
@@ -50,8 +50,8 @@ class Tabular(mlflow.pyfunc.PythonModel, TabularExplainerTraits):
 
     @prediction_call
     def predict(self, context, model_input):
-        if (self._explanation_format in [None, 'default']
-                or not self.has_background(model_input)):
+        if (self._explanation_format in [None, 'default'] or
+                not self.has_background(model_input)):
             return self._predict(model_input)
 
         background = self.select_data(model_input, True)
@@ -61,8 +61,9 @@ class Tabular(mlflow.pyfunc.PythonModel, TabularExplainerTraits):
         explanations = self._explain(predictions, data, background)
 
         return {
-            'prediction':
-            [self._classes[prediction] for prediction in predictions],
+            'prediction': [
+                self._classes[prediction] for prediction in predictions
+            ],
             'explanation': [
                 self.draw_plotly_explanation(row)
                 for _, row in explanations.iterrows()

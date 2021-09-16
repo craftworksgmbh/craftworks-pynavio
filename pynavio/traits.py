@@ -39,6 +39,7 @@ class TabularExplainerTraits:
 
 
 class TimeSeriesExplainerTraits(TabularExplainerTraits):
+
     def draw_plotly_explanation(self, data: pd.DataFrame) -> dict:
         import plotly.express as px
 

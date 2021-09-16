@@ -1,9 +1,7 @@
 CWD:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 MODEL_DIR:=model_files
 
-misc:=images background explanations
-
-models:=minimal tabular image timeseries
+models:=tabular
 
 stems:= \
 	$(models) \
@@ -14,16 +12,13 @@ stems:= \
 targets:= \
 	$(stems) \
 	$(addsuffix _default, $(stems)) \
-	$(addsuffix _plotly, $(stems)) \
-	trainer \
-	error_model \
-	additional_fields
+	$(addsuffix _plotly, $(stems))
 
 all: $(targets)
 
 clean:
-	rm -rf $(MODEL_DIR) $(misc)
-	find . -maxdepth 2 -name "__pycache__" -exec rm -rf {} \;
+	rm -rf $(MODEL_DIR)
+	find .. -maxdepth 3 -name "__pycache__" -exec rm -rf {} \;
 
 $(MODEL_DIR):
 	mkdir -p $(MODEL_DIR)
@@ -34,13 +29,8 @@ $(targets): %: $(MODEL_DIR)/%
 # the | is important - without it the all target doesn't correctly ignore
 # targets which were run already
 $(MODEL_DIR)/%: | $(MODEL_DIR)
-	python main.py $@
+	PYTHONPATH=.. python main.py $@
 
 	# from previous directory, to check that everything works when
 	# local module directories are not visible
 	cd .. && python $(CWD)/test.py $(CWD)/$@
-
-code-style:
-	python -m isort main.py test.py ../examples
-	python -m yapf -rip main.py test.py ../examples
-

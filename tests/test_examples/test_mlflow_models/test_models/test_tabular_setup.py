@@ -3,8 +3,8 @@ import tempfile
 import mlflow.pyfunc
 import pandas as pd
 import pytest
-from models import tabular
 
+from examples.models import tabular
 from scripts.test import _check_model_serving, _fetch_data
 
 PREDICTION = 'prediction'
