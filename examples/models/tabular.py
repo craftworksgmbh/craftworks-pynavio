@@ -13,8 +13,6 @@ import pynavio
 from pynavio.utils.common import (get_module_path, make_example_request,
                                   prediction_call, to_mlflow)
 
-from .. import models
-
 TARGET = 'target'
 
 
@@ -102,8 +100,7 @@ def setup(with_data: bool,
             dataset = dict(name='tabular-data', path=data_path)
 
         dependencies = [
-            np, pd, sklearn,
-            get_module_path(models),
+            np, pd, sklearn, '../examples',
             get_module_path(pynavio)
         ]
 
