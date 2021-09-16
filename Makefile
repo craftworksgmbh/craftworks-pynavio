@@ -51,13 +51,13 @@ lint/flake8: ## check style with flake8
 	flake8 pynavio tests
 
 code-style:
-	python -m isort pynavio tests
-	python -m yapf pynavio tests
+	python -m isort pynavio tests examples scripts
+	python -m yapf -rip pynavio tests examples scripts
 
 lint: lint/flake8 ## check style
 
 test: ## run tests quickly with the default Python
-	pytest
+	python -m pytest tests/
 
 test-all: ## run tests on every Python version with tox
 	tox

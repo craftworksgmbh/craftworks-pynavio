@@ -57,8 +57,6 @@ Installation for development
         username: pipy-user
         password: <available in 1PW>
 
-
-
 Versioning
 ==========
 
@@ -75,6 +73,13 @@ Run (replace part with either major, minor or patch)::
     $ git push
     $ git push --tags
     $ make release
+
+Examples
+==========
+
+To build all example models, use::
+
+    $ cd scripts && make
 
 
 Credits

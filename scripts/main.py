@@ -4,12 +4,12 @@ from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
-from examples.mlflow_models.models import tabular
+from examples.models import tabular
 
 # names of imported submodules of the models module
 MODELS = [
     name for name, obj in globals().items()
-    if isinstance(obj, ModuleType) and obj.__name__.split('.')[0] == 'models'
+    if isinstance(obj, ModuleType) and obj.__name__.startswith('examples')
 ]
 
 

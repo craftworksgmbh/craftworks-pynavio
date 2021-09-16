@@ -52,6 +52,7 @@ def _make_mlflow_config(
         dependencies: list,
         conda_packages: List[str] = None,
         artifacts: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+
     def _module_name(module: ModuleType) -> str:
         return {
             'sklearn': 'scikit-learn',
@@ -75,8 +76,7 @@ def _make_mlflow_config(
                     ]
                 }
             ],
-            'name':
-            'venv'
+            'name': 'venv'
         },
         'code_path': code if code else None
     }
@@ -187,7 +187,8 @@ def make_example_request(row: Dict[str, Any],
 
     example = {
         "featureColumns": [
-            _column_spec(name) for name in row.keys()
+            _column_spec(name)
+            for name in row.keys()
             if name != target and name != datetime_column
         ],
         "targetColumns": [_column_spec(target)]

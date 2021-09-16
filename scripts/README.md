@@ -1,24 +1,12 @@
-# Example MLFlow Models
+# pynavio Scripts
+
+## Example Models
 
 Available models and their respective data sets:
 
 - tabular - iris.csv (available via scikit-learn)
 
-## Setup
-
-1. Create a directory named `data` in this folder
-2. Copy `activity_recognition.csv` into `data`
-3. Create a python (v3.7 or above) env via:
-    ```sh
-    python3 -m venv venv
-    source venv/bin/activate
-    pip install -r requirements.txt
-    ```
-
-## Creating Models
-
-Make sure the python env is active (i.e. `source venv/bin/activate` has been run)
-and run:
+To build the models, run:
 
 ```sh
 make
@@ -26,7 +14,7 @@ make
 
 The created zip files in `model_files` directory are the usable MLFlow models.
 
-## Plotly Explanations
+### Models with Plotly Explanations
 
 Explanations are generated when the following conditions are fulfilled
 
