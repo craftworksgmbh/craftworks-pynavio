@@ -99,8 +99,10 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='tabular-data', path=data_path)
 
+        import examples
         dependencies = [
-            np, pd, sklearn, '../examples',
+            np, pd, sklearn,
+            get_module_path(examples),
             get_module_path(pynavio)
         ]
 
