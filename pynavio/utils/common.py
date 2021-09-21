@@ -53,14 +53,14 @@ def _make_artifact(tmp_dir, example_request, artifacts):
     return artifacts
 
 
-def _safe_code_path(code_path):   
+def _safe_code_path(code_path):
     if code_path is not None:
         assert all(Path(p).is_dir() for p in code_path), \
             'All code dependencies must be directories'
         assert not any(Path(p).resolve().absolute() == Path.cwd().absolute()
                        for p in code_path), \
             'Code paths must not contain the current directory'
- # deleting __pycache__, otherwise MLFlow adds it to the code directory
+        # deleting __pycache__, otherwise MLFlow adds it to the code directory
         for path in code_path:
             for cache_dir in Path(path).glob('**/__pycache__'):
                 shutil.rmtree(cache_dir, ignore_errors=True)
@@ -115,19 +115,19 @@ def _add_metadata(model_path: str,
 ExampleRequest = Dict[str, List[Dict[str, Any]]]
 
 
-def to_mlflow(model: mlflow.pyfunc.PythonModel,
-              example_request: ExampleRequest,
-              path: Union[str, Path],
-              pip_packages: List[str],
-              code_path: List = None,
-              conda_packages: List[str] = None,
-              conda_channels: List[str] = None,
-              conda_env: str = None,
-              artifacts: Optional[Dict[str, str]] = None,
-              dataset: Optional[dict] = None,
-              explanations: Optional[str] = None,
-              oodd: Optional[str] = None,
-              num_gpus: Optional[int] = 0) -> Path:
+def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
+                    example_request: ExampleRequest,
+                    path: Union[str, Path],
+                    pip_packages: List[str],
+                    code_path: List = None,
+                    conda_packages: List[str] = None,
+                    conda_channels: List[str] = None,
+                    conda_env: str = None,
+                    artifacts: Optional[Dict[str, str]] = None,
+                    dataset: Optional[dict] = None,
+                    explanations: Optional[str] = None,
+                    oodd: Optional[str] = None,
+                    num_gpus: Optional[int] = 0) -> Path:
 
     path = str(path)
 
