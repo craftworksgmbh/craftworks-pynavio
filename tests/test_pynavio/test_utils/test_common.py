@@ -65,5 +65,4 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
      })])
 def test_make_conda_env_positive(args, expected):
     conda_env = _make_conda_env(**args)
-    print(conda_env)
     assert conda_env == expected
