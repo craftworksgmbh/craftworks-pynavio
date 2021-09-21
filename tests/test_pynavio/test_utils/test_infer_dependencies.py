@@ -8,7 +8,7 @@ def test_read_requirements_txt(tmp_path):
                       pandas==1.2.4
                       numpy
     '''
-    file_path = tmp_path/'requirements.txt'
+    file_path = tmp_path / 'requirements.txt'
     with open(file_path, 'w') as f:
         f.write(fixture_text)
 
