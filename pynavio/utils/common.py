@@ -79,7 +79,7 @@ def _construct_conda_env(conda_channels, conda_packages, modules, requirements,
                          package_name_map):
     return {
         'channels': [
-            'defaults', 'anaconda', 'pytorch', *(conda_channels or [])
+            'defaults', 'conda-forge', *(conda_channels or [])
         ],
         'dependencies': [
             f'python={platform.python_version()}', f'pip={pip.__version__}',
