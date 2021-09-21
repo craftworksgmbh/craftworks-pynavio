@@ -100,6 +100,7 @@ def setup(with_data: bool,
             dataset = dict(name='tabular-data', path=data_path)
 
         import examples
+        import PIL  #temporary fix, will add it to the pip_packages argument
         dependencies = [get_module_path(examples), get_module_path(pynavio)]
 
         if explanations == 'plotly':
