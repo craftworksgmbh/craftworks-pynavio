@@ -12,6 +12,7 @@ from sklearn.ensemble import RandomForestClassifier
 import pynavio
 from pynavio.utils.common import (get_module_path, make_example_request,
                                   prediction_call, to_mlflow)
+from pynavio.utils.infer_dependencies import infer_external_dependencies
 
 TARGET = 'target'
 
@@ -100,20 +101,23 @@ def setup(with_data: bool,
             dataset = dict(name='tabular-data', path=data_path)
 
         import examples
-        import PIL  #temporary fix, will add it to the pip_packages argument
-        dependencies = [get_module_path(examples), get_module_path(pynavio)]
+
+        code_path = [get_module_path(examples), get_module_path(pynavio)]
+        pip_packages = [
+            *infer_external_dependencies(str(Path(__file__).parent)),
+            'Pillow==8.3.2'  #TODO: rm this in the final example of using installed pynavio lib, as this is a dependency of pynavio
+        ]
 
         if explanations == 'plotly':
             import plotly
-            import shap
 
         to_mlflow(Tabular(data[TARGET].cat.categories.tolist(), column_order,
                           explanations),
                   example_request,
-                  dependencies=dependencies,
                   explanations=explanations,
                   artifacts={'model': model_path},
                   path=path,
-                  model_module_path=str(Path(__file__).parent),
+                  pip_packages=pip_packages,
+                  code_path=code_path,
                   dataset=dataset,
                   oodd='default' if with_oodd else 'disabled')
