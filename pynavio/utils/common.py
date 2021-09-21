@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import mlflow
 import pip
+import pkg_resources
 import yaml
 
 from pynavio.utils.infer_dependencies import infer_external_dependencies
@@ -49,15 +50,14 @@ def _organize_dependencies(deps: List[Any]) -> tuple:
     return code, modules
 
 
-def _make_mlflow_config(
-    tmp_dir: str,
-    dependencies: list,
-    conda_packages: List[str] = None,
-    conda_channels: List[str] = None,
-    artifacts: Optional[Dict[str, str]] = None,
-    model_module_path: str = None,
-    conda_env: str = None,
-) -> Dict[str, Any]:
+def _make_mlflow_config(tmp_dir: str,
+                        dependencies: list,
+                        conda_packages: List[str] = None,
+                        conda_channels: List[str] = None,
+                        artifacts: Optional[Dict[str, str]] = None,
+                        model_module_path: str = None,
+                        conda_env: str = None,
+                        package_name_map: Dict = None) -> Dict[str, Any]:
 
     code, modules = _organize_dependencies(dependencies)
     requirements = infer_external_dependencies(model_module_path)
@@ -67,15 +67,16 @@ def _make_mlflow_config(
             **(artifacts or {})
         },
         'conda_env':
-            conda_env or _construct_conda_env(conda_channels, conda_packages,
-                                              modules, requirements),
+            conda_env
+            or _construct_conda_env(conda_channels, conda_packages, modules,
+                                    requirements, package_name_map),
         'code_path':
             code if code else None
     }
 
 
-def _construct_conda_env(conda_channels, conda_packages, modules,
-                         requirements):
+def _construct_conda_env(conda_channels, conda_packages, modules, requirements,
+                         package_name_map):
     return {
         'channels': [
             'defaults', 'anaconda', 'pytorch', *(conda_channels or [])
@@ -83,27 +84,39 @@ def _construct_conda_env(conda_channels, conda_packages, modules,
         'dependencies': [
             f'python={platform.python_version()}', f'pip={pip.__version__}',
             *(conda_packages or []), {
-                'pip': _construct_dependencies(modules, requirements)
+                'pip':
+                    _construct_dependencies(modules, requirements,
+                                            package_name_map)
             }
         ],
         'name': 'venv'
     }
 
 
-def _construct_dependencies(modules, requirements):
+def _construct_dependencies(modules, requirements, package_name_map):
 
-    def _module_name(module: ModuleType) -> str:
-        return {
+    def _module_name(module: ModuleType, pkg_name_map: Dict = None) -> str:
+        if pkg_name_map is None:
+            pkg_name_map = {}
+
+        pkg_name_map = {
             'sklearn': 'scikit-learn',
-            'PIL': 'Pillow'
-        }.get(module.__name__, module.__name__)
+            'PIL': 'Pillow',
+            **pkg_name_map,
+        }
+
+        return pkg_name_map.get(module.__name__, module.__name__)
 
     if requirements is None:
         modules = [mlflow, *modules]
 
     dependencies = [
-        f'{_module_name(module)}=={module.__version__}' for module in modules
+        f'{module.project_name}=={module.version}'
+        for module in pkg_resources.working_set
+        if module.project_name in
+        [_module_name(mod, package_name_map) for mod in modules]
     ]
+
     dependencies.extend(requirements)
     return dependencies
 
@@ -162,6 +175,7 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
               conda_channels: List[str] = None,
               model_module_path: str = None,
               conda_env: str = None,
+              package_name_map: Dict = None,
               artifacts: Optional[Dict[str, str]] = None,
               dataset: Optional[dict] = None,
               explanations: Optional[str] = None,
@@ -179,7 +193,8 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
 
         config = _make_mlflow_config(tmp_dir, dependencies, conda_packages,
                                      conda_channels, artifacts,
-                                     model_module_path, conda_env)
+                                     model_module_path, conda_env,
+                                     package_name_map)
 
         with open(config['artifacts']['example_request'], 'w') as file:
             json.dump(example_request, file, indent=4)
