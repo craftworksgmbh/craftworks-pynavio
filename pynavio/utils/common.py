@@ -118,7 +118,7 @@ ExampleRequest = Dict[str, List[Dict[str, Any]]]
 def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
                     example_request: ExampleRequest,
                     path: Union[str, Path],
-                    pip_packages: List[str],
+                    pip_packages: List[str] = None,
                     code_path: List = None,
                     conda_packages: List[str] = None,
                     conda_channels: List[str] = None,
@@ -128,6 +128,28 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
                     explanations: Optional[str] = None,
                     oodd: Optional[str] = None,
                     num_gpus: Optional[int] = 0) -> Path:
+    """
+    create a .zip mlflow model file for navio
+    @param model: model to save
+    @param example_request: example_request for the given model
+    @param path: path of where model .zip file needs to be saved
+    @param pip_packages: list of pip packages(optionally with versions) with the syntax of a requirements.txt file, e.g.
+    ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].
+    Tip: For most cases  pynavio.utils.infer_dependencies.infer_external_dependencies() is good enough to infer those.
+    @param code_path:  A list of local filesystem paths to Python file dependencies (or directories containing file dependencies)
+    @param conda_packages: list of conda packages
+    @param conda_channels: list of conda channels
+    @param conda_env: the path of a conda.yaml file to use. If specified, the values of conda_channels, conda_packages and pip_packages would be ignored.
+    @param artifacts:
+    @param dataset:
+    @param explanations:
+    @param oodd:
+    @param num_gpus:
+    @return: path to the .zip model file
+    """
+
+    assert any(item is not None for item in [pip_packages, conda_env]),\
+        "either 'pip_packages' or 'conda_env' need to be set"
 
     path = str(path)
 

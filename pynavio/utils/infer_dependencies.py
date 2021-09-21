@@ -2,11 +2,22 @@ import logging
 import subprocess
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import List
 
 import pkg_resources
 
 
-def infer_external_dependencies(model_module_path):
+def infer_external_dependencies(model_module_path: str) -> List[str]:
+    """
+    infers pip requirement strings.
+    known edge cases and limitations:
+     -in case of some libs, e.g. for pytorch, the pip package name does not match the conda one,
+    and would result in a broken conda env
+     -it might not be able to detect all the required dependencies,
+     in which case the user could append/extend the list manually
+    @param model_module_path:
+    @return: list of inferred pip requirements, e.g. ['mlflow==1.15.0', 'scikit_learn == 0.24.1']
+    """
     with TemporaryDirectory() as tmp_dir:
         requirements_txt_file = Path(tmp_dir) / 'requirements.txt'
         pigar_generate_requirements = f"yes N|pigar -P {model_module_path} -p " \
