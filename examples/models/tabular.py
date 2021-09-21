@@ -1,3 +1,4 @@
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Optional
 
@@ -5,7 +6,6 @@ import joblib
 import mlflow
 import numpy as np
 import pandas as pd
-import sklearn
 from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
@@ -100,16 +100,11 @@ def setup(with_data: bool,
             dataset = dict(name='tabular-data', path=data_path)
 
         import examples
-        dependencies = [
-            np, pd, sklearn,
-            get_module_path(examples),
-            get_module_path(pynavio)
-        ]
+        dependencies = [get_module_path(examples), get_module_path(pynavio)]
 
         if explanations == 'plotly':
             import plotly
             import shap
-            dependencies.extend([plotly, shap])
 
         to_mlflow(Tabular(data[TARGET].cat.categories.tolist(), column_order,
                           explanations),
@@ -118,5 +113,6 @@ def setup(with_data: bool,
                   explanations=explanations,
                   artifacts={'model': model_path},
                   path=path,
+                  model_module_path=str(Path(__file__).parent),
                   dataset=dataset,
                   oodd='default' if with_oodd else 'disabled')

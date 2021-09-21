@@ -14,6 +14,8 @@ import mlflow
 import pip
 import yaml
 
+from pynavio.utils.infer_dependencies import infer_external_dependencies
+
 
 def get_module_path(module: ModuleType) -> str:
     """ Use for local (non pip installed) modules only.
@@ -48,10 +50,47 @@ def _organize_dependencies(deps: List[Any]) -> tuple:
 
 
 def _make_mlflow_config(
-        tmp_dir: str,
-        dependencies: list,
-        conda_packages: List[str] = None,
-        artifacts: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    tmp_dir: str,
+    dependencies: list,
+    conda_packages: List[str] = None,
+    conda_channels: List[str] = None,
+    artifacts: Optional[Dict[str, str]] = None,
+    model_module_path: str = None,
+    conda_env: str = None,
+) -> Dict[str, Any]:
+
+    code, modules = _organize_dependencies(dependencies)
+    requirements = infer_external_dependencies(model_module_path)
+    return {
+        'artifacts': {
+            'example_request': f'{tmp_dir}/example_request.json',
+            **(artifacts or {})
+        },
+        'conda_env':
+            conda_env or _construct_conda_env(conda_channels, conda_packages,
+                                              modules, requirements),
+        'code_path':
+            code if code else None
+    }
+
+
+def _construct_conda_env(conda_channels, conda_packages, modules,
+                         requirements):
+    return {
+        'channels': [
+            'defaults', 'anaconda', 'pytorch', *(conda_channels or [])
+        ],
+        'dependencies': [
+            f'python={platform.python_version()}', f'pip={pip.__version__}',
+            *(conda_packages or []), {
+                'pip': _construct_dependencies(modules, requirements)
+            }
+        ],
+        'name': 'venv'
+    }
+
+
+def _construct_dependencies(modules, requirements):
 
     def _module_name(module: ModuleType) -> str:
         return {
@@ -59,27 +98,14 @@ def _make_mlflow_config(
             'PIL': 'Pillow'
         }.get(module.__name__, module.__name__)
 
-    code, modules = _organize_dependencies(dependencies)
-    return {
-        'artifacts': {
-            'example_request': f'{tmp_dir}/example_request.json',
-            **(artifacts or {})
-        },
-        'conda_env': {
-            'channels': ['defaults', 'anaconda', 'pytorch'],
-            'dependencies': [
-                f'python={platform.python_version()}',
-                f'pip={pip.__version__}', *(conda_packages or []), {
-                    'pip': [
-                        f'{_module_name(module)}=={module.__version__}'
-                        for module in [mlflow, *modules]
-                    ]
-                }
-            ],
-            'name': 'venv'
-        },
-        'code_path': code if code else None
-    }
+    if requirements is None:
+        modules = [mlflow, *modules]
+
+    dependencies = [
+        f'{_module_name(module)}=={module.__version__}' for module in modules
+    ]
+    dependencies.extend(requirements)
+    return dependencies
 
 
 def _check_data_spec(spec: dict) -> None:
@@ -133,6 +159,9 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
               dependencies: List[Any],
               path: Union[str, Path],
               conda_packages: List[str] = None,
+              conda_channels: List[str] = None,
+              model_module_path: str = None,
+              conda_env: str = None,
               artifacts: Optional[Dict[str, str]] = None,
               dataset: Optional[dict] = None,
               explanations: Optional[str] = None,
@@ -149,13 +178,15 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
             dataset.update(path=f'artifacts/{Path(dataset["path"]).parts[-1]}')
 
         config = _make_mlflow_config(tmp_dir, dependencies, conda_packages,
-                                     artifacts)
+                                     conda_channels, artifacts,
+                                     model_module_path, conda_env)
 
         with open(config['artifacts']['example_request'], 'w') as file:
             json.dump(example_request, file, indent=4)
 
         shutil.rmtree(path, ignore_errors=True)
         mlflow.pyfunc.save_model(path=path, python_model=model, **config)
+
         _add_metadata(path,
                       dataset=dataset,
                       explanations=explanations,
