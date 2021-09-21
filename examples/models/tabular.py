@@ -103,10 +103,14 @@ def setup(with_data: bool,
         import examples
 
         code_path = [get_module_path(examples), get_module_path(pynavio)]
-        pip_packages = [
-            *infer_external_dependencies(str(Path(__file__).parent)),
-            'Pillow==8.3.2'  #TODO: rm this in the final example of using installed pynavio lib, as this is a dependency of pynavio
-        ]
+
+        pip_packages = list(
+            set([
+                *infer_external_dependencies(str(Path(__file__).parent)),
+                *infer_external_dependencies(
+                    get_module_path(pynavio)
+                )  #TODO: rm this in the final example of using installed pynavio lib, as this is a dependency of pynavio
+            ]))
 
         if explanations == 'plotly':
             import plotly
