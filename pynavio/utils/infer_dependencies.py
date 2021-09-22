@@ -11,7 +11,7 @@ def infer_external_dependencies(model_module_path: str) -> List[str]:
     """
     infers pip requirement strings.
     known edge cases and limitations:
-     -in case of some libs, e.g. for pytorch, the pip package name does not match the conda one,
+     - in case of some libs, e.g. for pytorch, installing via pip is not recommended when using conda
     and would result in a broken conda env
      -it might not be able to detect all the required dependencies,
      in which case the user could append/extend the list manually
