@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pynavio.utils.infer_dependencies import (infer_external_dependencies,
                                               read_requirements_txt)
 
@@ -16,13 +18,15 @@ def test_read_requirements_txt(tmp_path):
 
 
 def test_infer_external_dependencies():
+    # import packages to generate requirements for this file
+    # and make sure those are correctly identified as dependencies
     import numpy
     import pandas as pd
     if False:
         import mlflow
         exec("exec('import sklearn')")
 
-    pip_requirements = infer_external_dependencies('.')
+    pip_requirements = infer_external_dependencies(Path(__file__).parent)
 
     assert any('pandas' in item for item in pip_requirements)
     assert any('numpy' in item for item in pip_requirements)
