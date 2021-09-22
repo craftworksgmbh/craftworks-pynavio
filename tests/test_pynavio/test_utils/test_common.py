@@ -1,3 +1,6 @@
+import platform
+
+import pip
 import pytest
 
 from pynavio.utils.common import _make_conda_env
@@ -32,7 +35,7 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
     }, {
         'channels': ['defaults', 'conda-forge'],
         'dependencies': [
-            'python=3.8.10', 'pip=21.1.2', {
+            f'python={platform.python_version()}', f'pip={pip.__version__}', {
                 'pip': ['numpy==1.20.2', 'mlflow']
             }
         ],
@@ -44,7 +47,7 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
      }, {
          'channels': ['defaults', 'conda-forge', 'pytorch'],
          'dependencies': [
-             'python=3.8.10', 'pip=21.1.2', {
+             f'python={platform.python_version()}', f'pip={pip.__version__}', {
                  'pip': ['numpy==1.20.2', 'mlflow']
              }
          ],
@@ -57,7 +60,8 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
      }, {
          'channels': ['defaults', 'conda-forge', 'pytorch'],
          'dependencies': [
-             'python=3.8.10', 'pip=21.1.2', 'sample_conda_pkg', {
+             f'python={platform.python_version()}', f'pip={pip.__version__}',
+             'sample_conda_pkg', {
                  'pip': ['numpy==1.20.2', 'mlflow']
              }
          ],
