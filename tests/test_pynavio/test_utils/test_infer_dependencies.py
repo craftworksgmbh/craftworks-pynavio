@@ -20,10 +20,10 @@ def test_read_requirements_txt(tmp_path):
 def test_infer_external_dependencies():
     # import packages to generate requirements for this file
     # and make sure those are correctly identified as dependencies
-    import numpy
-    import pandas as pd
+    import numpy         # noqa: F401
+    import pandas as pd  # noqa: F401
     if False:
-        import mlflow
+        import mlflow    # noqa: F401
         exec("exec('import sklearn')")
 
     pip_requirements = infer_external_dependencies(Path(__file__).parent)
