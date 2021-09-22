@@ -20,18 +20,18 @@ def infer_external_dependencies(model_module_path: str) -> List[str]:
     """
     with TemporaryDirectory() as tmp_dir:
         requirements_txt_file = Path(tmp_dir) / 'requirements.txt'
-        pigar_generate_requirements = f"yes N|pigar -P {model_module_path} -p " \
-                                      f"{requirements_txt_file} --without-referenced-comments"
 
-        process = subprocess.Popen(pigar_generate_requirements,
-                                   stdout=subprocess.PIPE,
-                                   shell=True)
-        output, error = process.communicate()
-        assert not error, f"please create and provide requirements.txt, as there was an error using pigar" \
-                          f" to auto-generate requirements.txt" \
-                          f" with the following command '{pigar_generate_requirements}' "
-        logging.info(output)
-
+        yes = subprocess.Popen(('yes', 'N'), stdout=subprocess.PIPE)
+        assert Path(
+            model_module_path).exists(), f"{model_module_path} does not exist"
+        result = subprocess.call(
+            ('pigar', '-P', f'{model_module_path}', '-p',
+             f'{requirements_txt_file}', '--without-referenced-comments'),
+            stdin=yes.stdout)
+        if result != 0:
+            logging.error(f"please create and provide requirements.txt, as there was an error using pigar" \
+                          f" to auto-generate requirements.txt")
+            raise AssertionError
         requirements = read_requirements_txt(requirements_txt_file)
     return requirements
 
