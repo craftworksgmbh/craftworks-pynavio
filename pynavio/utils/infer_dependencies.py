@@ -52,7 +52,8 @@ def infer_external_dependencies(
     known edge cases and limitations:
      - in case of some libs, e.g. for pytorch, installing via pip is not recommended when using conda
     and would result in a broken conda env
-     -it might not be able to detect all the required dependencies,
+     - it might add packages, that are not being used ( e.g. import statements under conditional operators, with false condition)
+     - it might not be able to detect all the required dependencies,
      in which case the user could append/extend the list manually
     @param module_path:
     @param to_ignore_paths: list of paths to ignore.

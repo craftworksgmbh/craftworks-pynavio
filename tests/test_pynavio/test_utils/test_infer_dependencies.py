@@ -20,11 +20,14 @@ def test_read_requirements_txt(tmp_path):
 def test_infer_external_dependencies():
     # import packages to generate requirements for this file
     # and make sure those are correctly identified as dependencies
-    import numpy         # noqa: F401
-    import pandas as pd  # noqa: F401
+
+    import mlflow  # noqa: F401
+    import numpy  # noqa: F401
+
+    # this is to demonstrate, that even if the import statement will never be executed, it will still be in the output
     if False:
-        import mlflow    # noqa: F401
-        exec("exec('import sklearn')")
+        import pandas as pd  # noqa: F401
+        exec('import sklearn')
 
     pip_requirements = infer_external_dependencies(Path(__file__).parent)
 

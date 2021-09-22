@@ -28,9 +28,8 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
     assert conda_env == expected
 
 
-@pytest.mark.parametrize(
-    "args, expected",
-    [({
+@pytest.mark.parametrize("args, expected", [
+    ({
         'pip_packages': ['numpy==1.20.2', 'mlflow']
     }, {
         'channels': ['defaults', 'conda-forge'],
@@ -41,32 +40,19 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
         ],
         'name': 'venv'
     }),
-     ({
-         'pip_packages': ['numpy==1.20.2', 'mlflow'],
-         'conda_channels': ['pytorch']
-     }, {
-         'channels': ['defaults', 'conda-forge', 'pytorch'],
-         'dependencies': [
-             f'python={platform.python_version()}', f'pip={pip.__version__}', {
-                 'pip': ['numpy==1.20.2', 'mlflow']
-             }
-         ],
-         'name': 'venv'
-     }),
-     ({
-         'pip_packages': ['numpy==1.20.2', 'mlflow'],
-         'conda_channels': ['pytorch'],
-         'conda_packages': ['sample_conda_pkg']
-     }, {
-         'channels': ['defaults', 'conda-forge', 'pytorch'],
-         'dependencies': [
-             f'python={platform.python_version()}', f'pip={pip.__version__}',
-             'sample_conda_pkg', {
-                 'pip': ['numpy==1.20.2', 'mlflow']
-             }
-         ],
-         'name': 'venv'
-     })])
+    ({
+        'pip_packages': ['numpy==1.20.2', 'mlflow'],
+        'conda_channels': ['pytorch']
+    }, {
+        'channels': ['defaults', 'conda-forge', 'pytorch'],
+        'dependencies': [
+            f'python={platform.python_version()}', f'pip={pip.__version__}', {
+                'pip': ['numpy==1.20.2', 'mlflow']
+            }
+        ],
+        'name': 'venv'
+    }),
+])
 def test_make_conda_env_positive(args, expected):
     conda_env = _make_conda_env(**args)
     assert conda_env == expected
