@@ -22,64 +22,63 @@ def get_module_path(module: ModuleType) -> str:
     return str(Path(inspect.getfile(module)).parent)
 
 
-def _organize_dependencies(deps: List[Any]) -> tuple:
-    """ Dependencies can be module objects or paths
+def _make_conda_env(
+    pip_packages: List[str] = None,
+    conda_packages: List[str] = None,
+    conda_channels: List[str] = None,
+    conda_env: str = None,
+) -> Dict[str, Any]:
     """
-    assert all(isinstance(d, (str, Path, ModuleType)) for d in deps), \
-        'Dependencies can only be modules or code paths'
+    makes the value for the mlflow.pyfunc.save_model()'s conda_env argument
+    Usage: either pip_packages or conda_env need to be set.
+    @param pip_packages:
+    @param conda_packages:
+    @param conda_channels:
+    @param conda_env: the path of a conda.yaml file to use. If specified, the values of conda_channels, conda_packages and pip_packages would be ignored.
+    @return:
+    """
+    assert any(item is not None for item in [pip_packages, conda_env]),\
+        "either 'pip_packages' or 'conda_env' need to be set"
 
-    code, modules = ([*filter(lambda d: isinstance(d, (str, Path)), deps)],
-                     [*filter(lambda d: isinstance(d, ModuleType), deps)])
-
-    code_paths = list(map(Path, code))
-
-    assert all(p.is_dir() for p in code_paths), \
-        'All code dependencies must be directories'
-    assert not any(p.resolve().absolute() == Path.cwd().absolute()
-                   for p in code_paths), \
-        'Code paths must not contain the current directory'
-
-    # deleting __pycache__, otherwise MLFlow adds it to the code directory
-    for path in code_paths:
-        for cache_dir in path.glob('**/__pycache__'):
-            shutil.rmtree(cache_dir, ignore_errors=True)
-
-    return code, modules
-
-
-def _make_mlflow_config(
-        tmp_dir: str,
-        dependencies: list,
-        conda_packages: List[str] = None,
-        artifacts: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
-
-    def _module_name(module: ModuleType) -> str:
-        return {
-            'sklearn': 'scikit-learn',
-            'PIL': 'Pillow'
-        }.get(module.__name__, module.__name__)
-
-    code, modules = _organize_dependencies(dependencies)
-    return {
-        'artifacts': {
-            'example_request': f'{tmp_dir}/example_request.json',
-            **(artifacts or {})
-        },
-        'conda_env': {
-            'channels': ['defaults', 'anaconda', 'pytorch'],
+    if conda_env is None:
+        conda_env = {
+            'channels': ['defaults', 'conda-forge', *(conda_channels or [])],
             'dependencies': [
                 f'python={platform.python_version()}',
                 f'pip={pip.__version__}', *(conda_packages or []), {
-                    'pip': [
-                        f'{_module_name(module)}=={module.__version__}'
-                        for module in [mlflow, *modules]
-                    ]
+                    'pip': pip_packages
                 }
             ],
             'name': 'venv'
-        },
-        'code_path': code if code else None
+        }
+
+    return conda_env
+
+
+def _make_artifact(tmp_dir, example_request, artifacts):
+    artifacts = {
+        'example_request': f'{tmp_dir}/example_request.json',
+        **(artifacts or {})
     }
+    with open(artifacts['example_request'], 'w') as file:
+        json.dump(example_request, file, indent=4)
+    return artifacts
+
+
+def _safe_code_path(code_path):
+    if code_path is not None:
+        assert all(Path(p).is_dir() for p in code_path), \
+            'All code dependencies must be directories'
+        assert not any(Path(p).resolve().absolute() == Path.cwd().absolute()
+                       for p in code_path), \
+            'Code paths must not contain the current directory'
+        # deleting __pycache__, otherwise MLFlow adds it to the code directory
+        for path in code_path:
+            for cache_dir in Path(path).glob('**/__pycache__'):
+                shutil.rmtree(cache_dir, ignore_errors=True)
+    else:
+        code_path = None
+    return code_path
 
 
 def _check_data_spec(spec: dict) -> None:
@@ -128,16 +127,40 @@ def _add_metadata(model_path: str,
 ExampleRequest = Dict[str, List[Dict[str, Any]]]
 
 
-def to_mlflow(model: mlflow.pyfunc.PythonModel,
-              example_request: ExampleRequest,
-              dependencies: List[Any],
-              path: Union[str, Path],
-              conda_packages: List[str] = None,
-              artifacts: Optional[Dict[str, str]] = None,
-              dataset: Optional[dict] = None,
-              explanations: Optional[str] = None,
-              oodd: Optional[str] = None,
-              num_gpus: Optional[int] = 0) -> Path:
+def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
+                    example_request: ExampleRequest,
+                    path: Union[str, Path],
+                    pip_packages: List[str] = None,
+                    code_path: List = None,
+                    conda_packages: List[str] = None,
+                    conda_channels: List[str] = None,
+                    conda_env: str = None,
+                    artifacts: Optional[Dict[str, str]] = None,
+                    dataset: Optional[dict] = None,
+                    explanations: Optional[str] = None,
+                    oodd: Optional[str] = None,
+                    num_gpus: Optional[int] = 0) -> Path:
+    """
+    create a .zip mlflow model file for navio
+    Usage: either pip_packages or conda_env need to be set.
+
+    @param model: model to save
+    @param example_request: example_request for the given model
+    @param path: path of where model .zip file needs to be saved
+    @param pip_packages: list of pip packages(optionally with versions) with the syntax of a requirements.txt file, e.g.
+    ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].
+    Tip: For most cases  pynavio.utils.infer_dependencies.infer_external_dependencies() is good enough to infer those.
+    @param code_path:  A list of local filesystem paths to Python file dependencies (or directories containing file dependencies)
+    @param conda_packages: list of conda packages
+    @param conda_channels: list of conda channels
+    @param conda_env: the path of a conda.yaml file to use. If specified, the values of conda_channels, conda_packages and pip_packages would be ignored.
+    @param artifacts:
+    @param dataset:
+    @param explanations:
+    @param oodd:
+    @param num_gpus:
+    @return: path to the .zip model file
+    """
 
     path = str(path)
 
@@ -148,14 +171,20 @@ def to_mlflow(model: mlflow.pyfunc.PythonModel,
             artifacts.update(dataset=dataset['path'])
             dataset.update(path=f'artifacts/{Path(dataset["path"]).parts[-1]}')
 
-        config = _make_mlflow_config(tmp_dir, dependencies, conda_packages,
-                                     artifacts)
+        conda_env = _make_conda_env(pip_packages, conda_packages,
+                                    conda_channels, conda_env)
 
-        with open(config['artifacts']['example_request'], 'w') as file:
-            json.dump(example_request, file, indent=4)
+        code_path = _safe_code_path(code_path)
+
+        artifacts = _make_artifact(tmp_dir, example_request, artifacts)
 
         shutil.rmtree(path, ignore_errors=True)
-        mlflow.pyfunc.save_model(path=path, python_model=model, **config)
+        mlflow.pyfunc.save_model(path=path,
+                                 python_model=model,
+                                 conda_env=conda_env,
+                                 artifacts=artifacts,
+                                 code_path=code_path)
+
         _add_metadata(path,
                       dataset=dataset,
                       explanations=explanations,
