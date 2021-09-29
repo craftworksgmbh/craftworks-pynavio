@@ -117,7 +117,7 @@ def setup(with_data: bool,
 
         to_navio_mlflow(Tabular(data[TARGET].cat.categories.tolist(),
                                 column_order, explanations),
-                        example_request,
+                        example_request=example_request,
                         explanations=explanations,
                         artifacts={'model': model_path},
                         path=path,
