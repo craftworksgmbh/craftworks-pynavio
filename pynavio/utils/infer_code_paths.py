@@ -1,5 +1,4 @@
 import inspect
-import pathlib
 import re
 import sys
 import types
@@ -38,7 +37,6 @@ def infer_imported_code_path(path,
         name = module.name
         moduleobj = sys.modules.get(name, None)
 
-        print("__: ", name, inspect.ismodule(moduleobj), " _end")
         if inspect.ismodule(moduleobj) and getattr(moduleobj, '__file__',
                                                    None):
             if Path(root_path) in Path(get_module_path(
@@ -57,10 +55,7 @@ def infer_imported_code_path(path,
         path_parts = Path(m).parts
         # TODO: improve getting the path or document that will return the last occurrence of module name in the path
         index_of_folder_name_in_the_path = next(
-            i for i in reversed(range(len(path_parts))) if path_parts[i] == n
-        )  # raise if more than two or take last by default?
-        print("!!!", n, module_name,
-              Path(*path_parts[:index_of_folder_name_in_the_path + 1]))
+            i for i in reversed(range(len(path_parts))) if path_parts[i] == n)
         code_paths.append(
             f'{Path( *path_parts[:index_of_folder_name_in_the_path+1])}')
     return list(set(code_paths))
