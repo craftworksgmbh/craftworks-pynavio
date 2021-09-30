@@ -1,3 +1,4 @@
+import os
 import re
 from argparse import ArgumentParser
 from pathlib import Path
@@ -24,10 +25,9 @@ def main(path: str,
          oodd: Optional[str] = None,
          explanations: Optional[str] = None) -> None:
 
-    #TODO fix the roothpath to not hardcode if possible
-    code_path = list(
-        infer_imported_code_path(
-            Path(__file__).parent, '/home/tatevik/pr/pynavio/navio'))
+    scripts_path = Path(os.path.abspath(__file__)).parent
+    code_path = infer_imported_code_path(path=f'{scripts_path}',
+                                         root_path=f'{scripts_path.parent}')
 
     globals()[name].setup(with_data=bool(data),
                           with_oodd=bool(oodd),
