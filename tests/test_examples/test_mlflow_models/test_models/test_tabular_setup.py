@@ -17,13 +17,12 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
-def test_setup_predict():
+def test_setup_predict(tests_rootpath):
     """
     Tests that setup stores a model that can be loaded by mlflow
     """
-    # TODO fix the roothpath to not hardcode
-    code_path = infer_imported_code_path(
-        Path(__file__).parent, '/home/tatevik/pr/pynavio/navio')
+    code_path = infer_imported_code_path(f'{Path(__file__).parent}',
+                                         f'{Path(tests_rootpath).parent}')
 
     with tempfile.TemporaryDirectory() as model_path:
         tabular.setup(with_data=False,
