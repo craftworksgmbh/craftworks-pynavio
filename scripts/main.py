@@ -5,6 +5,7 @@ from types import ModuleType
 from typing import Optional
 
 from examples.models import tabular
+from pynavio.utils.infer_code_paths import infer_imported_code_path
 
 # names of imported submodules of the models module
 MODELS = [
@@ -23,10 +24,16 @@ def main(path: str,
          oodd: Optional[str] = None,
          explanations: Optional[str] = None) -> None:
 
+    #TODO fix the roothpath to not hardcode if possible
+    code_path = list(
+        infer_imported_code_path(
+            Path(__file__).parent, '/home/tatevik/pr/pynavio/navio'))
+
     globals()[name].setup(with_data=bool(data),
                           with_oodd=bool(oodd),
                           explanations=explanations or 'disabled',
-                          path=path)
+                          path=path,
+                          code_path=code_path)
 
 
 if __name__ == '__main__':
