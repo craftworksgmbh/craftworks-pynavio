@@ -57,7 +57,10 @@ code-style:
 lint: lint/flake8 ## check style
 
 test: ## run tests quickly with the default Python
-	python -m pytest tests/ --junitxml=python-test-reports/report.xml
+	python -m coverage erase
+	python -m coverage run --source=pynavio -m pytest tests \
+		--junitxml=python-test-reports/report.xml
+	python -m coverage xml -i
 
 test-all: ## run tests on every Python version with tox
 	tox
