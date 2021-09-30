@@ -6,19 +6,13 @@ from typing import List
 
 import pkg_resources
 
+from pynavio.utils.directory_utils import _generate_default_to_ignore_dirs
+
 
 def _generate_ignore_dirs_args(module_path, to_ignore_dirs):
     ignore_dirs_args = []
     if to_ignore_dirs is None:
-        to_ignore_dirs = [
-            path for path in Path(module_path).rglob("*venv*")
-            if path.is_dir()
-        ]
-        to_ignore_parent_dirs = [
-            path for path in Path(module_path).rglob("*site-packages*")
-            if path.is_dir()
-        ]
-        [to_ignore_dirs.append(path.parent) for path in to_ignore_parent_dirs]
+        to_ignore_dirs = _generate_default_to_ignore_dirs(module_path)
     else:
         for ignore_dir in to_ignore_dirs:
             assert Path(ignore_dir).exists(), f"{module_path} does not exist"
