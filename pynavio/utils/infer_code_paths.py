@@ -12,13 +12,13 @@ from pynavio.utils.directory_utils import _generate_default_to_ignore_dirs
 RE_FIRST_MODULE_NAME = re.compile('(\.*[^.]+).*')
 
 
-def _get_first_module_name(module_name: str) -> str:
+def _get_module_base(module_name: str) -> str:
     match = re.match(RE_FIRST_MODULE_NAME, module_name)
     if match:
-        first_module_name = match.groups()[0]
+        module_base = match.groups()[0]
     else:
-        first_module_name = module_name
-    return first_module_name
+        module_base = module_name
+    return module_base
 
 
 def _get_code_path(module_name: str, path: str) -> List[str]:
@@ -28,13 +28,20 @@ def _get_code_path(module_name: str, path: str) -> List[str]:
     @param path: module path
     @return: code path of the module name (highest in the import hierarchy)
     """
-    first_module_name = _get_first_module_name(module_name)
-    path_parts = Path(path).parts
-    # TODO: improve getting the path or document that will return the last occurrence of module name in the path
-    index_of_folder_name_in_the_path = next(
-        i for i in reversed(range(len(path_parts)))
-        if path_parts[i] == first_module_name)
-    return f'{Path( *path_parts[:index_of_folder_name_in_the_path+1])}'
+
+    module_base = _get_module_base(module_name)
+    if sys.modules.get(module_base):
+        path = sys.modules.get(module_base).__path__[0]
+    else:
+        # fallback solution:
+        # in case the there are more than one occurrences of a directory with the module name,
+        # the returned path will be the last occurrence
+        path_parts = Path(path).parts
+        index_of_folder_name_in_the_path = next(
+            i for i in reversed(range(len(path_parts)))
+            if path_parts[i] == module_base)
+        path = Path(*path_parts[:index_of_folder_name_in_the_path + 1])
+    return f'{path}'
 
 
 def get_name_to_module_path_map(imported_modules: List[Module], root_path: str, to_ignore_paths: List[str]) ->\
