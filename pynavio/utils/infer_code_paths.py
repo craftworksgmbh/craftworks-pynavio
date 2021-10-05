@@ -1,5 +1,4 @@
 import inspect
-import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -8,17 +7,6 @@ from pigar.parser import Module, parse_imports
 
 from pynavio.utils.common import get_module_path
 from pynavio.utils.directory_utils import _generate_default_to_ignore_dirs
-
-RE_FIRST_MODULE_NAME = re.compile('(\.*[^.]+).*')
-
-
-def _get_module_base(module_name: str) -> str:
-    match = re.match(RE_FIRST_MODULE_NAME, module_name)
-    if match:
-        module_base = match.groups()[0]
-    else:
-        module_base = module_name
-    return module_base
 
 
 def _get_code_path(module_name: str, path: str) -> List[str]:
@@ -29,7 +17,7 @@ def _get_code_path(module_name: str, path: str) -> List[str]:
     @return: code path of the module name (highest in the import hierarchy)
     """
 
-    module_base = _get_module_base(module_name)
+    module_base = next(part for part in module_name.split(".") if part)
     if sys.modules.get(module_base):
         path = sys.modules.get(module_base).__path__[0]
     else:
