@@ -25,7 +25,8 @@ def test_infer_external_dependencies():
     import mlflow  # noqa: F401
     import numpy  # noqa: F401
 
-    # this is to demonstrate, that even if the import statement will never be executed, it will still be in the output
+    # this is to demonstrate, that even if the import statement will never
+    # be executed, it will still be in the output
     if False:
         import pandas as pd  # noqa: F401
         exec('import sklearn')
@@ -47,7 +48,8 @@ def test_generate_ignore_dirs_args(tmp_path):
 
 
 def test_generate_ignore_dirs_args_with_to_ignore_dirs(tmp_path):
-    # checks that if to_ignore_dirs is specified, it will no longer ignore the default ones (e.g. *venv* in this case)
+    # checks that if to_ignore_dirs is specified, it will no longer ignore
+    # the default ones (e.g. *venv* in this case)
     folder_name_containing_venv = 'pyvenv1'
     other_path = 'other'
     (tmp_path / folder_name_containing_venv).mkdir()

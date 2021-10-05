@@ -41,7 +41,9 @@ def _make_conda_env(
     @param pip_packages:
     @param conda_packages:
     @param conda_channels:
-    @param conda_env: the path of a conda.yaml file to use. If specified, the values of conda_channels, conda_packages and pip_packages would be ignored.
+    @param conda_env: the path of a conda.yaml file to use. If specified,
+    the values of conda_channels, conda_packages and pip_packages would be
+    ignored.
     @return:
     """
     assert any(item is not None for item in [pip_packages, conda_env]),\
@@ -150,6 +152,9 @@ def _add_metadata(model_path: str,
         yaml.dump(cfg, file)
 
 
+ExampleRequest = Dict[str, List[Dict[str, Any]]]
+
+
 def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
                     path: Union[str, Path],
                     example_request: ExampleRequestType = None,
@@ -170,13 +175,18 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
     @param model: model to save
     @param path: path of where model .zip file needs to be saved
     @param example_request: example_request for the given model. If not set, needs to be present in artifacts.
-    @param pip_packages: list of pip packages(optionally with versions) with the syntax of a requirements.txt file, e.g.
+    @param pip_packages: list of pip packages(optionally with versions)
+    with the syntax of a requirements.txt file, e.g.
     ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].
-    Tip: For most cases  pynavio.utils.infer_dependencies.infer_external_dependencies() is good enough to infer those.
-    @param code_path:  A list of local filesystem paths to Python file dependencies (or directories containing file dependencies)
+    Tip: For most cases it should be enough to use
+    pynavio.utils.infer_dependencies.infer_external_dependencies().
+    @param code_path: A list of local filesystem paths to Python file
+    dependencies (or directories containing file dependencies)
     @param conda_packages: list of conda packages
     @param conda_channels: list of conda channels
-    @param conda_env: the path of a conda.yaml file to use. If specified, the values of conda_channels, conda_packages and pip_packages would be ignored.
+    @param conda_env: the path of a conda.yaml file to use. If specified,
+    the values of conda_channels, conda_packages and pip_packages would be
+    ignored.
     @param artifacts: If not set, need to set example_request
     @param dataset:
     @param explanations:
