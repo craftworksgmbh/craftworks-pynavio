@@ -21,8 +21,7 @@ def test_setup_predict(tests_rootpath):
     """
     Tests that setup stores a model that can be loaded by mlflow
     """
-    code_path = infer_imported_code_path(f'{Path(__file__).parent}',
-                                         f'{Path(tests_rootpath).parent}')
+    code_path = infer_imported_code_path(f'{Path(__file__).parent}')
 
     with tempfile.TemporaryDirectory() as model_path:
         tabular.setup(with_data=False,
