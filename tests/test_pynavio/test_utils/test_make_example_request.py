@@ -126,7 +126,8 @@ def test_make_example_request(args: dict, expected: dict) -> None:
             'target': 'x',
             'min_rows': 10,
             'data': _data('x', 't'),
-        }), ({
+        }),
+        ({
             'target': 'x',
             'min_rows': 0,
             'datetime_column': 't',
