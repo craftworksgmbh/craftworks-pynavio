@@ -1,3 +1,4 @@
+import os
 import re
 from argparse import ArgumentParser
 from pathlib import Path
@@ -5,6 +6,7 @@ from types import ModuleType
 from typing import Optional
 
 from examples.models import tabular
+from pynavio.utils.infer_code_paths import infer_imported_code_path
 
 # names of imported submodules of the models module
 MODELS = [
@@ -23,10 +25,15 @@ def main(path: str,
          oodd: Optional[str] = None,
          explanations: Optional[str] = None) -> None:
 
+    script_path = Path(os.path.abspath(__file__))
+    code_path = infer_imported_code_path(path=script_path,
+                                         root_path=script_path.parents[1])
+
     globals()[name].setup(with_data=bool(data),
                           with_oodd=bool(oodd),
                           explanations=explanations or 'disabled',
-                          path=path)
+                          path=path,
+                          code_path=code_path)
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ import pandas as pd
 import pytest
 
 from examples.models import tabular
+from pynavio.utils.infer_code_paths import infer_imported_code_path
 from scripts.test import _check_model_serving, _fetch_data
 
 PREDICTION = 'prediction'
@@ -15,16 +16,19 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
-def test_setup_predict():
+def test_setup_predict(rootpath):
     """
     Tests that setup stores a model that can be loaded by mlflow
     """
+
+    code_path = infer_imported_code_path(__file__, rootpath)
 
     with tempfile.TemporaryDirectory() as model_path:
         tabular.setup(with_data=False,
                       with_oodd=False,
                       explanations=None,
-                      path=model_path)
+                      path=model_path,
+                      code_path=code_path)
 
         model = mlflow.pyfunc.load_model(model_path)
         model_input = _get_example_request_df(model_path)
