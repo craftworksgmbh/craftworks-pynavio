@@ -1,5 +1,4 @@
 import tempfile
-from pathlib import Path
 
 import mlflow.pyfunc
 import pandas as pd

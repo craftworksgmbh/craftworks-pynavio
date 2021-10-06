@@ -11,7 +11,8 @@ from pynavio.utils.directory_utils import _generate_default_to_ignore_dirs
 
 def _get_code_path(module_name: str, path: str) -> List[str]:
     """
-    get code path of the module name that is highest in the import hierarchy (e.g. for pynavio.utils it will be the path of pynavio)
+    get code path of the module name that is highest in the import hierarchy
+    (e.g. for pynavio.utils it will be the path of pynavio)
     @param module_name: import string of the module
     @param path: module path
     @return: code path of the module name (highest in the import hierarchy)
@@ -26,7 +27,8 @@ def _get_code_path(module_name: str, path: str) -> List[str]:
             path = ''
     else:
         # fallback solution:
-        # in case the there are more than one occurrences of a directory with the module name,
+        # in case the there are more than one occurrences
+        # of a directory with the module name,
         # the returned path will be the last occurrence
         path_parts = Path(path).parts
         index_of_folder_name_in_the_path = next(
@@ -36,8 +38,8 @@ def _get_code_path(module_name: str, path: str) -> List[str]:
     return f'{path}'
 
 
-def get_name_to_module_path_map(imported_modules: List[Module], root_path: str, to_ignore_paths: List[str]) ->\
-    Dict[str, str]:
+def get_name_to_module_path_map(imported_modules: List[Module], root_path: str,
+                                to_ignore_paths: List[str]) -> Dict[str, str]:
 
     name_to_module_path = dict()
     for module in imported_modules:
@@ -78,12 +80,16 @@ def infer_imported_code_path(
         to_ignore_paths: Optional[List[str]] = None) -> List[str]:
     """
     known edge cases and limitations:
-     - Can result in duplicated copies in code_paths if the the imports are inconsistent,
-    # e.g. in one place from pynavio.utils.common import get_module_path and in other place
-    # from utils.common import get_module_path (with adding more paths to PYTHONPATH)
-    @param path: path of the module/file from which to infer the imported code paths
+     - Can result in duplicated copies in code_paths
+     if the the imports are inconsistent,
+     e.g. in one place from pynavio.utils.common import get_module_path
+     and in other place from utils.common import get_module_path
+     (with adding more paths to PYTHONPATH)
+    @param path: path of the module/file from which to infer
+     the imported code paths
     @param to_ignore_paths:  list of paths to ignore.
-     - Ignores a directory named *venv* or containing *site-packages* by default
+     - Ignores a directory named *venv* or
+     containing *site-packages* by default
     @return: list of imported code paths
     """
     path = _get_dir(path)
