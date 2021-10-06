@@ -2,11 +2,12 @@ import logging
 import subprocess
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import List
+from typing import List, Union
 
 import pkg_resources
 
-from pynavio.utils.directory_utils import _generate_default_to_ignore_dirs
+from pynavio.utils.directory_utils import (_generate_default_to_ignore_dirs,
+                                           _get_path_as_str)
 
 
 def _generate_ignore_dirs_args(module_path, to_ignore_dirs):
@@ -22,11 +23,11 @@ def _generate_ignore_dirs_args(module_path, to_ignore_dirs):
 
 
 def _generate_requirements_txt_file(requirements_txt_file,
-                                    module_path,
+                                    module_path: Union[str, Path],
                                     to_ignore_dirs=None):
     yes = subprocess.Popen(('yes', 'N'), stdout=subprocess.PIPE)
 
-    assert Path(module_path).exists(), f"{module_path} does not exist"
+    module_path = _get_path_as_str(module_path)
     ignore_dirs_args = _generate_ignore_dirs_args(module_path, to_ignore_dirs)
 
     result = subprocess.call(
@@ -41,7 +42,8 @@ def _generate_requirements_txt_file(requirements_txt_file,
 
 
 def infer_external_dependencies(
-        module_path: str, to_ignore_paths: List[str] = None) -> List[str]:
+        module_path: Union[str, Path],
+        to_ignore_paths: List[str] = None) -> List[str]:
     """
     infers pip requirement strings.
     known edge cases and limitations:

@@ -1,4 +1,15 @@
 from pathlib import Path
+from typing import Union
+
+
+def _get_path_as_str(path_like: Union[str, Path]) -> str:
+    path = Path(path_like)
+    assert path.exists(), f"{path_like} does not exist"
+    if path.is_dir():
+        path = path
+    if path.is_file():
+        path = path.parent
+    return f'{path}'
 
 
 def _generate_default_to_ignore_dirs(module_path):

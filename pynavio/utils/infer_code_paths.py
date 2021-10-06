@@ -6,7 +6,8 @@ from typing import Dict, List, Optional, Union
 from pigar.parser import Module, parse_imports
 
 from pynavio.utils.common import get_module_path
-from pynavio.utils.directory_utils import _generate_default_to_ignore_dirs
+from pynavio.utils.directory_utils import (_generate_default_to_ignore_dirs,
+                                           _get_path_as_str)
 
 
 def _get_code_path(module_name: str, path: str) -> List[str]:
@@ -64,16 +65,6 @@ def _is_not_in_ignore_paths(module, to_ignore_paths):
     ])
 
 
-def _get_dir(path_like: Union[str, Path]) -> str:
-    path = Path(path_like)
-    assert path.exists(), f"{path_like} does not exist"
-    if path.is_dir():
-        path = path
-    if path.is_file():
-        path = path.parent
-    return f'{path}'
-
-
 def infer_imported_code_path(
         path: Union[str, Path],
         root_path: Union[str, Path],
@@ -92,8 +83,8 @@ def infer_imported_code_path(
      containing *site-packages* by default
     @return: list of imported code paths
     """
-    path = _get_dir(path)
-    root_path = _get_dir(root_path)
+    path = _get_path_as_str(path)
+    root_path = _get_path_as_str(root_path)
 
     if to_ignore_paths is None:
         to_ignore_paths = []
