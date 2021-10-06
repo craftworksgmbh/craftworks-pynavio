@@ -64,7 +64,7 @@ def _make_conda_env(
     return conda_env
 
 
-def _add_example_request_artifact(
+def register_example_request(
         tmp_dir,
         example_request: ExampleRequestType = None,
         artifacts: ArtifactsType = None) -> Dict[str, str]:
@@ -214,8 +214,8 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
 
         code_path = _safe_code_path(code_path)
 
-        artifacts = _add_example_request_artifact(tmp_dir, example_request,
-                                                  artifacts)
+        artifacts = register_example_request(tmp_dir, example_request,
+                                             artifacts)
 
         shutil.rmtree(path, ignore_errors=True)
         mlflow.pyfunc.save_model(path=path,

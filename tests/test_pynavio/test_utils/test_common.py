@@ -3,8 +3,8 @@ import platform
 import pip
 import pytest
 
-from pynavio.utils.common import (ARTIFACTS, _add_example_request_artifact,
-                                  _make_conda_env)
+from pynavio.utils.common import (ARTIFACTS, _make_conda_env,
+                                  register_example_request)
 
 
 def test_make_conda_env_negative_wrong_arguments():
@@ -88,6 +88,6 @@ def test_make_conda_env_positive(args, expected):
             }
         })
     ])
-def test_add_example_request_artifact_negative(args, tmpdir):
+def testregister_example_request_negative(args, tmpdir):
     with pytest.raises(AssertionError):
-        _add_example_request_artifact(tmpdir, **args)
+        register_example_request(tmpdir, **args)
