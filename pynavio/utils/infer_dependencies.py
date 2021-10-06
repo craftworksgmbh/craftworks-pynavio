@@ -63,7 +63,7 @@ def infer_external_dependencies(
     """
     with TemporaryDirectory() as tmp_dir:
         requirements_txt_file = Path(tmp_dir) / 'requirements.txt'
-        _generate_requirements_txt_file(requirements_txt_file, module_path)
+        _generate_requirements_txt_file(requirements_txt_file, module_path, to_ignore_paths)
         requirements = read_requirements_txt(requirements_txt_file)
     return requirements
 
