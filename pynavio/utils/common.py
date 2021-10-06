@@ -70,7 +70,8 @@ def _add_example_request_artifact(
         artifacts: ArtifactsType = None) -> Dict[str, str]:
     """
     @param tmp_dir: temporary directory
-    @param example_request: example_request for the given model. If not set, needs to be present in artifacts.
+    @param example_request: example_request for the given model.
+     If not set, needs to be present in artifacts.
     @param artifacts:If not set, need to set example_request
     @return: artifacts containing example request
     """
@@ -87,7 +88,10 @@ def _add_example_request_artifact(
             json.dump(example_request, file, indent=4)
     else:
         # make sure example_request already exists in the artifacts
-        assert EXAMPLE_REQUEST in artifacts, f'if {EXAMPLE_REQUEST} argument is not set, it needs to be present in {ARTIFACTS}'
+        assert EXAMPLE_REQUEST in artifacts, f'if {EXAMPLE_REQUEST} ' \
+                                             f'argument is not set,' \
+                                             f' it needs to be present' \
+                                             f' in {ARTIFACTS}'
         assert Path(artifacts[EXAMPLE_REQUEST]).exists()
 
     return artifacts
@@ -174,7 +178,8 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
 
     @param model: model to save
     @param path: path of where model .zip file needs to be saved
-    @param example_request: example_request for the given model. If not set, needs to be present in artifacts.
+    @param example_request: example_request for the given model.
+    If not set, needs to be present in artifacts.
     @param pip_packages: list of pip packages(optionally with versions)
     with the syntax of a requirements.txt file, e.g.
     ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].

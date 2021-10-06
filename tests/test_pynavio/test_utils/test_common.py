@@ -3,8 +3,7 @@ import platform
 import pip
 import pytest
 
-from pynavio.utils.common import (ARTIFACTS, EXAMPLE_REQUEST,
-                                  _add_example_request_artifact,
+from pynavio.utils.common import (ARTIFACTS, _add_example_request_artifact,
                                   _make_conda_env)
 
 
