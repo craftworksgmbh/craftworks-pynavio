@@ -1,7 +1,7 @@
 import inspect
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pigar.parser import Module, parse_imports
 
@@ -15,7 +15,7 @@ def _get_code_path(module_name: str, path: str) -> List[str]:
     @param module_name: import string of the module
     @param path: module path
     @return: code path of the module name (highest in the import hierarchy)
-     - Note: returns empty string for builtin/stdlib modules
+     - Note: returns an empty string if path is not found
     """
 
     module_base = next(part for part in module_name.split(".") if part)
@@ -36,7 +36,7 @@ def _get_code_path(module_name: str, path: str) -> List[str]:
     return f'{path}'
 
 
-def get_name_to_module_path_map(imported_modules: List[Module], to_ignore_paths: List[str]) ->\
+def get_name_to_module_path_map(imported_modules: List[Module], root_path: str, to_ignore_paths: List[str]) ->\
     Dict[str, str]:
 
     name_to_module_path = dict()
@@ -44,10 +44,11 @@ def get_name_to_module_path_map(imported_modules: List[Module], to_ignore_paths:
         name = module.name
         sys_module_obj = sys.modules.get(name, None)
 
-        if inspect.ismodule(sys_module_obj) and name not in sys.builtin_module_names and getattr(
+        if inspect.ismodule(sys_module_obj) and getattr(
                 sys_module_obj, '__file__', None):
 
-            if _is_not_in_ignore_paths(
+            if Path(root_path) in Path(get_module_path(
+                    sys_module_obj)).parents and _is_not_in_ignore_paths(
                         sys_module_obj, to_ignore_paths):
                 name_to_module_path[module.name] = get_module_path(
                     sys_module_obj)
@@ -61,8 +62,19 @@ def _is_not_in_ignore_paths(module, to_ignore_paths):
     ])
 
 
+def _get_dir(path_like: Union[str, Path]) -> str:
+    path = Path(path_like)
+    assert path.exists(), f"{path_like} does not exist"
+    if path.is_dir():
+        path = path
+    if path.is_file():
+        path = path.parent
+    return f'{path}'
+
+
 def infer_imported_code_path(
-        path: str,
+        path: Union[str, Path],
+        root_path: Union[str, Path],
         to_ignore_paths: Optional[List[str]] = None) -> List[str]:
     """
     known edge cases and limitations:
@@ -74,25 +86,25 @@ def infer_imported_code_path(
      - Ignores a directory named *venv* or containing *site-packages* by default
     @return: list of imported code paths
     """
+    path = _get_dir(path)
+    root_path = _get_dir(root_path)
+
     if to_ignore_paths is None:
         to_ignore_paths = []
 
-    for p in [path, *to_ignore_paths]:
-        assert Path(p).exists(), f"{p} does not exist"
-
     if not to_ignore_paths:
-        to_ignore_paths = _generate_default_to_ignore_dirs(path)
-        [to_ignore_paths.extend(_generate_default_to_ignore_dirs(path_parent)) for path_parent in Path(path).parents]
-        to_ignore_paths = list(set(to_ignore_paths))
+        to_ignore_paths = _generate_default_to_ignore_dirs(root_path)
 
     imported_modules, _ = parse_imports(
         path,
         ignores=[f'{to_ignore_path}' for to_ignore_path in to_ignore_paths])
 
-    name_to_module = get_name_to_module_path_map(imported_modules, to_ignore_paths)
+    name_to_module = get_name_to_module_path_map(imported_modules, root_path,
+                                                 to_ignore_paths)
 
     code_paths = [
         _get_code_path(module_name, path)
-        for module_name, path in name_to_module.items() if _get_code_path(module_name, path)
+        for module_name, path in name_to_module.items()
+        if _get_code_path(module_name, path)
     ]
     return list(set(code_paths))

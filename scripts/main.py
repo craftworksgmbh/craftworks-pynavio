@@ -25,9 +25,9 @@ def main(path: str,
          oodd: Optional[str] = None,
          explanations: Optional[str] = None) -> None:
 
-    scripts_path = Path(os.path.abspath(__file__)).parent
-    code_path = infer_imported_code_path(path=f'{scripts_path}',
-                                         root_path=f'{scripts_path.parent}')
+    script_path = Path(os.path.abspath(__file__))
+    code_path = infer_imported_code_path(path=script_path,
+                                         root_path=script_path.parents[1])
 
     globals()[name].setup(with_data=bool(data),
                           with_oodd=bool(oodd),

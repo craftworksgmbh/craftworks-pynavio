@@ -17,11 +17,12 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
-def test_setup_predict(tests_rootpath):
+def test_setup_predict(rootpath):
     """
     Tests that setup stores a model that can be loaded by mlflow
     """
-    code_path = infer_imported_code_path(f'{Path(__file__).parent}')
+
+    code_path = infer_imported_code_path(__file__, rootpath)
 
     with tempfile.TemporaryDirectory() as model_path:
         tabular.setup(with_data=False,
