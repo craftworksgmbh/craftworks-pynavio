@@ -1,6 +1,6 @@
-from pathlib import Path
+from pathlib import PosixPath
 from tempfile import TemporaryDirectory
-from typing import Optional
+from typing import List, Optional, Union
 
 import joblib
 import mlflow
@@ -80,7 +80,8 @@ def load_data() -> pd.DataFrame:
 def setup(with_data: bool,
           with_oodd: bool,
           explanations: Optional[str] = None,
-          path: Optional[str] = None):
+          path: Optional[str] = None,
+          code_path: Optional[List[Union[str, PosixPath]]] = None):
     data = load_data()
     column_order = data.drop(TARGET, axis=1).columns.tolist()
 
@@ -100,13 +101,9 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='tabular-data', path=data_path)
 
-        import examples
-
-        code_path = [get_module_path(examples), get_module_path(pynavio)]
-
         pip_packages = list(
             set([
-                *infer_external_dependencies(str(Path(__file__).parent)),
+                *infer_external_dependencies(__file__),
                 *infer_external_dependencies(
                     get_module_path(pynavio)
                 )  #TODO: rm this in the final example of using installed pynavio lib, as this is a dependency of pynavio

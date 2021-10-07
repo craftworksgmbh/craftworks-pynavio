@@ -5,7 +5,7 @@ import platform
 import shutil
 import traceback
 from functools import wraps
-from pathlib import Path
+from pathlib import Path, PosixPath
 from tempfile import TemporaryDirectory
 from types import ModuleType
 from typing import Any, Dict, List, Optional, Union
@@ -97,7 +97,7 @@ def register_example_request(
     return artifacts
 
 
-def _safe_code_path(code_path):
+def _safe_code_path(code_path: Union[List[Union[str, PosixPath]], None]):
     if code_path is not None:
         assert all(Path(p).is_dir() for p in code_path), \
             'All code dependencies must be directories'
@@ -163,7 +163,7 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
                     path: Union[str, Path],
                     example_request: ExampleRequestType = None,
                     pip_packages: List[str] = None,
-                    code_path: List = None,
+                    code_path: Optional[List[Union[str, PosixPath]]] = None,
                     conda_packages: List[str] = None,
                     conda_channels: List[str] = None,
                     conda_env: str = None,
