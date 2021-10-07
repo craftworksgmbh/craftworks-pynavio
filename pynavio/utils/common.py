@@ -15,6 +15,12 @@ import pandas as pd
 import pip
 import yaml
 
+EXAMPLE_REQUEST = 'example_request'
+ARTIFACTS = 'artifacts'
+
+ExampleRequestType = Optional[Dict[str, List[Dict[str, Any]]]]
+ArtifactsType = Optional[Dict[str, str]]
+
 
 def get_module_path(module: ModuleType) -> str:
     """ Use for local (non pip installed) modules only.
@@ -58,13 +64,36 @@ def _make_conda_env(
     return conda_env
 
 
-def _make_artifact(tmp_dir, example_request, artifacts):
-    artifacts = {
-        'example_request': f'{tmp_dir}/example_request.json',
-        **(artifacts or {})
-    }
-    with open(artifacts['example_request'], 'w') as file:
-        json.dump(example_request, file, indent=4)
+def register_example_request(
+        tmp_dir,
+        example_request: ExampleRequestType = None,
+        artifacts: ArtifactsType = None) -> Dict[str, str]:
+    """
+    @param tmp_dir: temporary directory
+    @param example_request: example_request for the given model.
+     If not set, needs to be present in artifacts.
+    @param artifacts:If not set, need to set example_request
+    @return: artifacts containing example request
+    """
+    assert any(item is not None for item in [example_request, artifacts]),\
+        f"either {EXAMPLE_REQUEST} or {ARTIFACTS} need to be set"
+
+    if example_request:
+        # add example_request to artifacts
+        artifacts = {
+            EXAMPLE_REQUEST: f'{tmp_dir}/{EXAMPLE_REQUEST}.json',
+            **(artifacts or {})
+        }
+        with open(artifacts[EXAMPLE_REQUEST], 'w') as file:
+            json.dump(example_request, file, indent=4)
+    else:
+        # make sure example_request already exists in the artifacts
+        assert EXAMPLE_REQUEST in artifacts, f'if {EXAMPLE_REQUEST} ' \
+                                             f'argument is not set,' \
+                                             f' it needs to be present' \
+                                             f' in {ARTIFACTS}'
+        assert Path(artifacts[EXAMPLE_REQUEST]).exists()
+
     return artifacts
 
 
@@ -131,14 +160,14 @@ ExampleRequest = Dict[str, List[Dict[str, Any]]]
 
 
 def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
-                    example_request: ExampleRequest,
                     path: Union[str, Path],
+                    example_request: ExampleRequestType = None,
                     pip_packages: List[str] = None,
                     code_path: Optional[List[Union[str, PosixPath]]] = None,
                     conda_packages: List[str] = None,
                     conda_channels: List[str] = None,
                     conda_env: str = None,
-                    artifacts: Optional[Dict[str, str]] = None,
+                    artifacts: ArtifactsType = None,
                     dataset: Optional[dict] = None,
                     explanations: Optional[str] = None,
                     oodd: Optional[str] = None,
@@ -148,8 +177,9 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
     Usage: either pip_packages or conda_env need to be set.
 
     @param model: model to save
-    @param example_request: example_request for the given model
     @param path: path of where model .zip file needs to be saved
+    @param example_request: example_request for the given model.
+    If not set, needs to be present in artifacts.
     @param pip_packages: list of pip packages(optionally with versions)
     with the syntax of a requirements.txt file, e.g.
     ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].
@@ -162,7 +192,7 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
     @param conda_env: the path of a conda.yaml file to use. If specified,
     the values of conda_channels, conda_packages and pip_packages would be
     ignored.
-    @param artifacts:
+    @param artifacts: If not set, need to set example_request
     @param dataset:
     @param explanations:
     @param oodd:
@@ -184,7 +214,8 @@ def to_navio_mlflow(model: mlflow.pyfunc.PythonModel,
 
         code_path = _safe_code_path(code_path)
 
-        artifacts = _make_artifact(tmp_dir, example_request, artifacts)
+        artifacts = register_example_request(tmp_dir, example_request,
+                                             artifacts)
 
         shutil.rmtree(path, ignore_errors=True)
         mlflow.pyfunc.save_model(path=path,
@@ -208,7 +239,7 @@ def make_example_request(data: Union[Dict[str, Any], pd.DataFrame],
                          target: str,
                          datetime_column: Optional[str] = None,
                          feature_columns: Optional[List[str]] = None,
-                         min_rows: Optional[int] = None) -> ExampleRequest:
+                         min_rows: Optional[int] = None) -> ExampleRequestType:
     """ Generates a request schema for a navio MLflow model from data
     @param data: a sample of data to use for schema generation
     @param target: name of the target column
