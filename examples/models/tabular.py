@@ -1,6 +1,6 @@
-from pathlib import Path
+from pathlib import PosixPath
 from tempfile import TemporaryDirectory
-from typing import Optional
+from typing import List, Optional, Union
 
 import joblib
 import mlflow
@@ -81,7 +81,7 @@ def setup(with_data: bool,
           with_oodd: bool,
           explanations: Optional[str] = None,
           path: Optional[str] = None,
-          code_path: Optional = None):
+          code_path: Optional[List[Union[str, PosixPath]]] = None):
     data = load_data()
     column_order = data.drop(TARGET, axis=1).columns.tolist()
 
