@@ -1,10 +1,6 @@
-import json
-
 import joblib
 import mlflow
-import os
-import kaggle
-import subprocess
+import pathlib
 import pandas as pd
 from typing import List, Optional, Union
 from pathlib import PosixPath, Path
@@ -12,12 +8,14 @@ from tempfile import TemporaryDirectory
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
+from sklearn.ensemble import ExtraTreesRegressor
 
 import pynavio
 from pynavio.utils.common import (get_module_path, make_example_request,
                                   prediction_call, to_navio_mlflow)
 from pynavio.utils.infer_dependencies import infer_external_dependencies
-from sklearn.ensemble import ExtraTreesRegressor
+
+
 TARGET = 'target'
 
 CAT_COLS = ['manufacturer', 'cylinders', 'fuel', 'title_status', 'transmission',
@@ -41,7 +39,8 @@ class CarPriceModel(mlflow.pyfunc.PythonModel):
         # fill values
         model_input = model_input.fillna(self._na_fill_values)
         return pd.Series(
-                self._model.predict(transform(model_input, self._one_hot_enc, self._scaler))) \
+                self._model.predict(transform(model_input, self._one_hot_enc, self._scaler)))\
+            .round(2) \
             .pipe(lambda s: {'prediction': s.tolist()})
 
     @prediction_call
@@ -98,29 +97,11 @@ def train_car_price_model(X, y):
 
 
 def load_data():
-
-    with TemporaryDirectory() as tmp_dir:
-        data_path = f'{tmp_dir}/data_path'
-        Path(data_path).mkdir()
-        my_env = os.environ.copy()
-        my_env['KAGGLE_USERNAME'] = 'cwghar'
-        my_env['KAGGLE_KEY'] = 'd93f82fb339265fcf7bd76c013565ba2'
-        result = subprocess.check_call(
-            (
-                # credentials for kaggle api
-                'env', 'KAGGLE_USERNAME=cwghar', 'KAGGLE_KEY=d93f82fb339265fcf7bd76c013565ba2',
-                'kaggle', 'datasets', 'download', 'austinreese/craigslist-carstrucks-data',
-                '--unzip', '--path', f'{data_path}',
-              ),
-            env=my_env
-
-        )
-        if result != 0:
-            print("error during downloading the dataset")
-            raise AssertionError
-
-        df = pd.read_csv(f'{data_path}/vehicles.csv',
-                         nrows=100)  # TODO: increase it to 10 000, set to 100 for speed of testing
+    current_path = pathlib.Path(__file__).parent.resolve()
+    # downloaded the data from 
+    # https://www.kaggle.com/austinreese/craigslist-carstrucks-data
+    data_path = current_path/'data'/'vehicles.csv'
+    df = pd.read_csv(data_path, nrows=10000)
     y = df['price']
     X = df.drop(['price'], axis=1)
     return X, y

@@ -1,5 +1,4 @@
 import tempfile
-
 import mlflow.pyfunc
 import pandas as pd
 import pytest
@@ -15,8 +14,6 @@ def _get_example_request_df(model_path):
     data = _fetch_data(model_path)[0]
     return pd.DataFrame(data['data'], columns=data['columns'])
 
-# set the following env variables in the test setup (edit configurations, ENVIRONMENT VARIABLES)
-# KAGGLE_USERNAME=cwghar;KAGGLE_KEY=d93f82fb339265fcf7bd76c013565ba2
 
 def test_setup_predict(rootpath):
     """
@@ -26,7 +23,6 @@ def test_setup_predict(rootpath):
     code_path = infer_imported_code_path(__file__, rootpath)
 
     with tempfile.TemporaryDirectory() as model_path:
-        model_path = '/home/tatevik/pr/pynavio/py/craftworks-pynavio/tests/test_examples/test_mlflow_models/test_models/tcp'
         car_price_model.setup(with_data=False,
                       with_oodd=False,
                       explanations=None,
