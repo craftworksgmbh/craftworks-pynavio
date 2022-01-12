@@ -40,7 +40,7 @@ class PumpLeakageModlel(mlflow.pyfunc.PythonModel):
         return self._predict(model_input)
 
 
-def get_files(dir_path, filename):
+def read_file(dir_path, filename):
     return pd.read_csv(os.path.join(dir_path, filename), sep='\t', header=None)
 
 
@@ -52,7 +52,7 @@ def get_df(dir_path):
                      ]
     feat_dfs = []
     for file_name in feature_files:
-        feat_df = get_files(dir_path=dir_path, filename=file_name)
+        feat_df = read_file(dir_path=dir_path, filename=file_name)
 
         feat_dfs.append(pd.DataFrame(
             # take the cycle data mean
@@ -61,7 +61,7 @@ def get_df(dir_path):
 
     X = pd.concat(feat_dfs, axis=1)
 
-    profile = get_files(dir_path=dir_path, filename='profile.txt')
+    profile = read_file(dir_path=dir_path, filename='profile.txt')
     y = pd.Series(profile.iloc[:, 2])
 
     return X, y
