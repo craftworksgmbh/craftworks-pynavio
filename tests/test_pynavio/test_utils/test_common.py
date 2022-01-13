@@ -3,7 +3,7 @@ import platform
 import pip
 import pytest
 
-from pynavio.utils.common import (ARTIFACTS, _make_conda_env,
+from pynavio.mlflow_utils.common import (ARTIFACTS, _make_conda_env,
                                   register_example_request)
 
 

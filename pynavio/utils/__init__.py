@@ -1,3 +1,3 @@
-from . import common, image, styling
-
-__all__ = ['common', 'image', 'styling']
+from . import image, styling
+from .common import prediction_call
+__all__ = ['image', 'styling', 'prediction_call']

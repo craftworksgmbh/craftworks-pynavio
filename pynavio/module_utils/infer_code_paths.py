@@ -5,9 +5,9 @@ from typing import Dict, List, Optional, Union
 
 from pigar.parser import Module, parse_imports
 
-from pynavio.utils.common import get_module_path
-from pynavio.utils.directory_utils import (_generate_default_to_ignore_dirs,
-                                           _get_path_as_str)
+from pynavio.module_utils.common import (get_module_path,
+                                         _generate_default_to_ignore_dirs,
+                                         _get_path_as_str)
 
 
 def _get_code_path(module_name: str, path: str) -> List[str]:
@@ -105,3 +105,4 @@ def infer_imported_code_path(
         if _get_code_path(module_name, path)
     ]
     return list(set(code_paths))
+

@@ -6,8 +6,8 @@ from typing import List, Union
 
 import pkg_resources
 
-from pynavio.utils.directory_utils import (_generate_default_to_ignore_dirs,
-                                           _get_path_as_str)
+from pynavio.module_utils.common import (_generate_default_to_ignore_dirs,
+                                                  _get_path_as_str)
 
 
 def _generate_ignore_dirs_args(module_path, to_ignore_dirs):

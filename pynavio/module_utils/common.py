@@ -1,5 +1,14 @@
+import inspect
 from pathlib import Path
+from types import ModuleType
 from typing import Union
+
+
+def get_module_path(module: ModuleType) -> str:
+    """ Use for local (non pip installed) modules only.
+    This is useful for trainer models.
+    """
+    return str(Path(inspect.getfile(module)).parent)
 
 
 def _get_path_as_str(path_like: Union[str, Path]) -> str:

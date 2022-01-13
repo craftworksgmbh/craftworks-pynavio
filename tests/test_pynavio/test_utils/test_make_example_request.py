@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 import pandas as pd
 import pytest
 
-from pynavio.utils import common
+from pynavio.mlflow_utils import common
 
 DATA = {'x': 1, 'y': 2., 'z': 'str', 't': '2020-01-01 00:00:00'}
 

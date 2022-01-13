@@ -10,9 +10,8 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 import pynavio
-from pynavio.utils.common import (get_module_path, make_example_request,
-                                  prediction_call, to_navio_mlflow)
-from pynavio.utils.infer_dependencies import infer_external_dependencies
+from pynavio import (infer_external_dependencies, get_module_path,
+                     make_example_request, prediction_call, to_navio_mlflow)
 
 TARGET = 'target'
 
