@@ -2,14 +2,13 @@ import platform
 
 import pip
 import pytest
-
-from pynavio.mlflow_utils.common import (ARTIFACTS, _make_conda_env,
-                                  register_example_request)
+from pynavio.mlflow import ARTIFACTS, register_example_request
+from pynavio.utils import make_env
 
 
 def test_make_conda_env_negative_wrong_arguments():
     with pytest.raises(Exception):
-        _make_conda_env()
+        make_env()
 
 
 yaml_path = 'conda.yaml'
@@ -25,7 +24,7 @@ yaml_path = 'conda.yaml'
     }),
 ])
 def test_make_conda_env_positive_yaml(args, expected=yaml_path):
-    conda_env = _make_conda_env(**args)
+    conda_env = make_env(**args)
     assert conda_env == expected
 
 
@@ -66,7 +65,7 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
     }),
 ])
 def test_make_conda_env_positive(args, expected):
-    conda_env = _make_conda_env(**args)
+    conda_env = make_env(**args)
     assert conda_env == expected
 
 

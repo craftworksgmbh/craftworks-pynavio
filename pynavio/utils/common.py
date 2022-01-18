@@ -1,21 +1,35 @@
-import logging
-import traceback
-from functools import wraps
+from pathlib import Path
+from types import ModuleType
+import inspect
+from typing import Any, Dict, List, Optional, Union
+
+ExampleRequestType = Optional[Dict[str, List[Dict[str, Any]]]]
 
 
-def prediction_call(predict_fn: callable) -> callable:
-    logger = logging.getLogger('gunicorn.error')
+def get_module_path(module: ModuleType) -> str:
+    """ Use for local (non pip installed) modules only.
+    This is useful for trainer models.
+    """
+    return str(Path(inspect.getfile(module)).parent)
 
-    @wraps(predict_fn)
-    def wrapper(*args, **kwargs) -> dict:
-        try:
-            return predict_fn(*args, **kwargs)
-        except Exception as exc:
-            logger.exception('Prediction call failed')
-            return {
-                'error_code': exc.__class__.__name__,
-                'message': str(exc),
-                'stack_trace': traceback.format_exc()
-            }
 
-    return wrapper
+def _get_path_as_str(path_like: Union[str, Path]) -> str:
+    path = Path(path_like)
+    assert path.exists(), f"{path_like} does not exist"
+    if path.is_dir():
+        path = path
+    if path.is_file():
+        path = path.parent
+    return f'{path}'
+
+
+def _generate_default_to_ignore_dirs(module_path):
+    to_ignore_dirs = [
+        path for path in Path(module_path).rglob("*venv*") if path.is_dir()
+    ]
+    to_ignore_parent_dirs = [
+        path for path in Path(module_path).rglob("*site-packages*")
+        if path.is_dir()
+    ]
+    [to_ignore_dirs.append(path.parent) for path in to_ignore_parent_dirs]
+    return to_ignore_dirs

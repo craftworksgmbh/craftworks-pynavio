@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from pynavio.module_utils.infer_dependencies import (_generate_ignore_dirs_args,
-                                                     infer_external_dependencies,
-                                                     read_requirements_txt)
+from pynavio.utils.infer_dependencies import (_generate_ignore_dirs_args,
+                                              read_requirements_txt)
+from pynavio import infer_external_dependencies
 
 
 def test_read_requirements_txt(tmp_path):

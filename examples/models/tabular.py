@@ -1,7 +1,6 @@
 from pathlib import PosixPath
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Union
-
 import joblib
 import mlflow
 import numpy as np
@@ -10,8 +9,9 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 import pynavio
+from pynavio.mlflow import to_navio
 from pynavio import (infer_external_dependencies, get_module_path,
-                     make_example_request, prediction_call, to_navio_mlflow)
+                     make_example_request, prediction_call)
 
 TARGET = 'target'
 
@@ -111,13 +111,13 @@ def setup(with_data: bool,
         if explanations == 'plotly':
             import plotly
 
-        to_navio_mlflow(Tabular(data[TARGET].cat.categories.tolist(),
-                                column_order, explanations),
-                        example_request=example_request,
-                        explanations=explanations,
-                        artifacts={'model': model_path},
-                        path=path,
-                        pip_packages=pip_packages,
-                        code_path=code_path,
-                        dataset=dataset,
-                        oodd='default' if with_oodd else 'disabled')
+        to_navio(Tabular(data[TARGET].cat.categories.tolist(),
+                 column_order, explanations),
+                 example_request=example_request,
+                 explanations=explanations,
+                 artifacts={'model': model_path},
+                 path=path,
+                 pip_packages=pip_packages,
+                 code_path=code_path,
+                 dataset=dataset,
+                 oodd='default' if with_oodd else 'disabled')

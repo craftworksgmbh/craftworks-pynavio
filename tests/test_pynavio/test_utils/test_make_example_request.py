@@ -1,10 +1,10 @@
 import unittest
 from typing import Any, Dict, List
-
 import pandas as pd
 import pytest
 
-from pynavio.mlflow_utils import common
+from pynavio import make_example_request
+
 
 DATA = {'x': 1, 'y': 2., 'z': 'str', 't': '2020-01-01 00:00:00'}
 
@@ -90,7 +90,7 @@ def _schema(*keys: str) -> List[Dict[str, Any]]:
         })
     ])
 def test_make_example_request(args: dict, expected: dict) -> None:
-    result = common.make_example_request(**args)
+    result = make_example_request(**args)
     case = unittest.TestCase()
     case.maxDiff = None
     case.assertDictEqual(result, expected)
@@ -136,4 +136,4 @@ def test_make_example_request(args: dict, expected: dict) -> None:
     ])
 def test_make_example_request_assertions(args: dict) -> None:
     with pytest.raises(AssertionError):
-        common.make_example_request(**args)
+        make_example_request(**args)
