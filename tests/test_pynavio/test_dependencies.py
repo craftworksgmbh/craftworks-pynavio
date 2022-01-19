@@ -1,5 +1,7 @@
-from pynavio.utils.infer_dependencies import (_generate_ignore_dirs_args,
-                                              read_requirements_txt)
+from pathlib import Path
+from pynavio.dependencies import (infer_external_dependencies,
+                                  _generate_ignore_dirs_args,
+                                  read_requirements_txt)
 
 
 def test_read_requirements_txt(tmp_path):
@@ -34,3 +36,24 @@ def test_generate_ignore_dirs_args_with_to_ignore_dirs(tmp_path):
                                                   [tmp_path / other_path])
     assert len(ignore_dirs_args) == 2
     assert f'{ignore_dirs_args[-1]}'.endswith(other_path)
+
+
+def test_infer_external_dependencies():
+    # import packages to generate requirements for this file
+    # and make sure those are correctly identified as dependencies
+
+    import mlflow  # noqa: F401
+    import numpy  # noqa: F401
+
+    # this is to demonstrate, that even if the import statement will never
+    # be executed, it will still be in the output
+    if False:
+        import pandas as pd  # noqa: F401
+        exec('import sklearn')
+
+    pip_requirements = infer_external_dependencies(Path(__file__).parent)
+
+    assert any('pandas' in item for item in pip_requirements)
+    assert any('numpy' in item for item in pip_requirements)
+    assert any('mlflow' in item for item in pip_requirements)
+    assert any('scikit_learn' in item for item in pip_requirements)
