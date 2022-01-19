@@ -9,9 +9,9 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 import pynavio
-from pynavio.mlflow import to_navio
-from pynavio import (infer_external_dependencies, get_module_path,
+from pynavio import (get_module_path, infer_external_dependencies,
                      make_example_request, prediction_call)
+from pynavio.mlflow import to_navio
 
 TARGET = 'target'
 
@@ -111,8 +111,8 @@ def setup(with_data: bool,
         if explanations == 'plotly':
             import plotly
 
-        to_navio(Tabular(data[TARGET].cat.categories.tolist(),
-                 column_order, explanations),
+        to_navio(Tabular(data[TARGET].cat.categories.tolist(), column_order,
+                         explanations),
                  example_request=example_request,
                  explanations=explanations,
                  artifacts={'model': model_path},

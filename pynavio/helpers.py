@@ -1,15 +1,13 @@
-import pandas as pd
-from typing import Any, Dict, List, Optional, Union
-from tempfile import TemporaryDirectory
 from pathlib import Path
+from tempfile import TemporaryDirectory
+from typing import Any, Dict, List, Optional, Union
+
+import pandas as pd
 from pigar.parser import parse_imports
 
-from .utils.common import (_get_path_as_str, _generate_default_to_ignore_dirs,
-                           ExampleRequestType)
-
-from .utils.infer_code_paths import (get_name_to_module_path_map,
-                                     _get_code_path )
-
+from .utils.common import (ExampleRequestType,
+                           _generate_default_to_ignore_dirs, _get_path_as_str)
+from .utils.infer_code_paths import _get_code_path, get_name_to_module_path_map
 from .utils.infer_dependencies import (_generate_requirements_txt_file,
                                        read_requirements_txt)
 

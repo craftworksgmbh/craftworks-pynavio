@@ -1,6 +1,6 @@
+import inspect
 from pathlib import Path
 from types import ModuleType
-import inspect
 from typing import Any, Dict, List, Optional, Union
 
 ExampleRequestType = Optional[Dict[str, List[Dict[str, Any]]]]

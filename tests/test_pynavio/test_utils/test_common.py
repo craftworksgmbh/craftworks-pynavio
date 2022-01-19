@@ -2,6 +2,7 @@ import platform
 
 import pip
 import pytest
+
 from pynavio.mlflow import ARTIFACTS, register_example_request
 from pynavio.utils import make_env
 

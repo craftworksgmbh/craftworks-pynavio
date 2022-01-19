@@ -60,5 +60,3 @@ def _is_not_in_ignore_paths(module, to_ignore_paths):
         Path(to_ignore_path) in Path(get_module_path(module)).parents
         for to_ignore_path in to_ignore_paths
     ])
-
-

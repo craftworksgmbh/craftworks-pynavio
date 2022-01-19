@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 import mlflow
 import yaml
 
-from pynavio.utils import make_env, ExampleRequestType
+from pynavio.utils import ExampleRequestType, make_env
 
 EXAMPLE_REQUEST = 'example_request'
 ARTIFACTS = 'artifacts'
@@ -109,18 +109,18 @@ ExampleRequest = Dict[str, List[Dict[str, Any]]]
 
 
 def to_navio(model: mlflow.pyfunc.PythonModel,
-                    path: Union[str, Path],
-                    example_request: ExampleRequestType = None,
-                    pip_packages: List[str] = None,
-                    code_path: Optional[List[Union[str, PosixPath]]] = None,
-                    conda_packages: List[str] = None,
-                    conda_channels: List[str] = None,
-                    conda_env: str = None,
-                    artifacts: ArtifactsType = None,
-                    dataset: Optional[dict] = None,
-                    explanations: Optional[str] = None,
-                    oodd: Optional[str] = None,
-                    num_gpus: Optional[int] = 0) -> Path:
+             path: Union[str, Path],
+             example_request: ExampleRequestType = None,
+             pip_packages: List[str] = None,
+             code_path: Optional[List[Union[str, PosixPath]]] = None,
+             conda_packages: List[str] = None,
+             conda_channels: List[str] = None,
+             conda_env: str = None,
+             artifacts: ArtifactsType = None,
+             dataset: Optional[dict] = None,
+             explanations: Optional[str] = None,
+             oodd: Optional[str] = None,
+             num_gpus: Optional[int] = 0) -> Path:
     """
     create a .zip mlflow model file for navio
     Usage: either pip_packages or conda_env need to be set.
@@ -158,8 +158,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
             artifacts.update(dataset=dataset['path'])
             dataset.update(path=f'artifacts/{Path(dataset["path"]).parts[-1]}')
 
-        conda_env = make_env(pip_packages, conda_packages,
-                                    conda_channels, conda_env)
+        conda_env = make_env(pip_packages, conda_packages, conda_channels,
+                             conda_env)
 
         code_path = _safe_code_path(code_path)
 
