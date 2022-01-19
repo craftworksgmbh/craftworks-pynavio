@@ -1,13 +1,11 @@
 import logging
 import subprocess
+import pkg_resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Union
 
-import pkg_resources
-
-from pynavio.utils.directory_utils import (_generate_default_to_ignore_dirs,
-                                           _get_path_as_str)
+from .utils.common import _generate_default_to_ignore_dirs, _get_path_as_str
 
 
 def _generate_ignore_dirs_args(module_path, to_ignore_dirs):
@@ -41,6 +39,16 @@ def _generate_requirements_txt_file(requirements_txt_file,
         raise AssertionError
 
 
+def read_requirements_txt(requirements_txt_path) -> list:
+
+    with Path(requirements_txt_path).open() as requirements_txt:
+        requirements = [
+            str(requirement) for requirement in
+            pkg_resources.parse_requirements(requirements_txt)
+        ]
+    return requirements
+
+
 def infer_external_dependencies(
         module_path: Union[str, Path],
         to_ignore_paths: List[str] = None) -> List[str]:
@@ -66,14 +74,4 @@ def infer_external_dependencies(
         _generate_requirements_txt_file(requirements_txt_file, module_path,
                                         to_ignore_paths)
         requirements = read_requirements_txt(requirements_txt_file)
-    return requirements
-
-
-def read_requirements_txt(requirements_txt_path) -> list:
-
-    with Path(requirements_txt_path).open() as requirements_txt:
-        requirements = [
-            str(requirement) for requirement in
-            pkg_resources.parse_requirements(requirements_txt)
-        ]
     return requirements

@@ -5,8 +5,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
-from examples.models import tabular
-from pynavio.utils.infer_code_paths import infer_imported_code_path
+from pynavio import infer_imported_code_path
 
 # names of imported submodules of the models module
 MODELS = [

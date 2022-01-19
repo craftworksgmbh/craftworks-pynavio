@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from examples.models import tabular
-from pynavio.utils.infer_code_paths import infer_imported_code_path
+from pynavio import infer_imported_code_path
 from scripts.test import _check_model_serving, _fetch_data
 
 PREDICTION = 'prediction'

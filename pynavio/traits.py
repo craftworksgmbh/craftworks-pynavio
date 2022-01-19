@@ -1,5 +1,4 @@
 import json
-
 import pandas as pd
 
 from pynavio.utils.styling import HEATMAP_COLOR_SCALE

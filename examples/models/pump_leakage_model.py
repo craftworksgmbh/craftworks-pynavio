@@ -12,9 +12,10 @@ from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
 
 import pynavio
-from pynavio.utils.common import (get_module_path, make_example_request,
-                                  prediction_call, to_navio_mlflow)
-from pynavio.utils.infer_dependencies import infer_external_dependencies
+
+from pynavio.mlflow import to_navio
+from pynavio import (infer_external_dependencies, get_module_path,
+                     make_example_request, prediction_call)
 
 TARGET = 'target'
 
@@ -143,13 +144,13 @@ def setup(with_data: bool,
                 )  #TODO: rm this in the final example of using installed pynavio lib, as this is a dependency of pynavio
             ]))
 
-        to_navio_mlflow(PumpLeakageModlel(class_mapping, column_order),
-                        example_request=example_request,
-                        explanations=explanations,
-                        artifacts={'model': model_path,
-                                   'scaler': scaler_path},
-                        path=path,
-                        pip_packages=pip_packages,
-                        code_path=code_path,
-                        dataset=dataset,
-                        oodd='default' if with_oodd else 'disabled')
+        to_navio(PumpLeakageModlel(class_mapping, column_order),
+                 example_request=example_request,
+                 explanations=explanations,
+                 artifacts={'model': model_path,
+                            'scaler': scaler_path},
+                 path=path,
+                 pip_packages=pip_packages,
+                 code_path=code_path,
+                 dataset=dataset,
+                 oodd='default' if with_oodd else 'disabled')

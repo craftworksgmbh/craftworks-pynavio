@@ -2,12 +2,10 @@ import inspect
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-
 from pigar.parser import Module, parse_imports
 
-from pynavio.utils.common import get_module_path
-from pynavio.utils.directory_utils import (_generate_default_to_ignore_dirs,
-                                           _get_path_as_str)
+from .utils.common import (_generate_default_to_ignore_dirs,
+                           _get_path_as_str, get_module_path)
 
 
 def _get_code_path(module_name: str, path: str) -> List[str]:
