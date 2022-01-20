@@ -1,3 +1,5 @@
+# uses code parts from Open Source project
+# https://github.com/mjain72/Condition-monitoring-of-hydraulic-systems-using-xgboost-modeling
 import os
 import joblib
 import zipfile
