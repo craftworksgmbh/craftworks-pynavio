@@ -34,7 +34,7 @@ Installation for development
 * Create dedicated virtual environment: conda create --name pynavio pip python=3.6
 * run::
 
-    $ git clone git@github.com:craftworksgmbh/craftworks-pynavio.git
+    $ TODO: add git repo here
     $ make install (Uses pip to install package only in environment)
 
 * To install requirements necessary for development run::
@@ -53,9 +53,8 @@ Installation for development
         index-servers =
         nexus
         [nexus]
-        repository: https://nexus.craftworks.io/repository/pypi-internal/
-        username: pipy-user
-        password: <available in 1PW>
+        see confluence
+
 
 Versioning
 ==========
