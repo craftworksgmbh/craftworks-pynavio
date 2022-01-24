@@ -89,3 +89,9 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+
+Examples/models uses code parts from Open Source project `https://www.kaggle.com/maciejautuch/car-price-prediction`_
+
+.. _`https://www.kaggle.com/maciejautuch/car-price-prediction`: https://www.kaggle.com/maciejautuch/car-price-prediction
+
+

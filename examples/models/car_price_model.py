@@ -1,31 +1,35 @@
+# uses code parts from Open Source project
+# https://www.kaggle.com/maciejautuch/car-price-prediction
+import pathlib
+from pathlib import Path, PosixPath
+from tempfile import TemporaryDirectory
+from typing import List, Optional, Union
+
 import joblib
 import mlflow
-import pathlib
 import pandas as pd
-from typing import List, Optional, Union
-from pathlib import PosixPath, Path
-from tempfile import TemporaryDirectory
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import OneHotEncoder
 from sklearn.ensemble import ExtraTreesRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 import pynavio
 from pynavio.utils.common import (get_module_path, make_example_request,
                                   prediction_call, to_navio_mlflow)
 from pynavio.utils.infer_dependencies import infer_external_dependencies
 
-
 TARGET = 'target'
 PRICE = 'price'
-CAT_COLS = ['manufacturer', 'cylinders', 'fuel', 'title_status', 'transmission',
-            'drive', 'type', 'paint_color', 'condition', 'posting_date',
-            'state', 'model', 'region']
+CAT_COLS = [
+    'manufacturer', 'cylinders', 'fuel', 'title_status', 'transmission',
+    'drive', 'type', 'paint_color', 'condition', 'posting_date', 'state',
+    'model', 'region'
+]
 
 NUM_COLS = ['year', 'odometer']
 
 
 class CarPriceModel(mlflow.pyfunc.PythonModel):
+
     def __init__(self, columns):
         self._columns = columns
 
@@ -39,7 +43,9 @@ class CarPriceModel(mlflow.pyfunc.PythonModel):
         # fill values
         model_input = model_input.fillna(self._na_fill_values)
         return pd.Series(
-                self._model.predict(transform(model_input, self._one_hot_enc, self._scaler)))\
+                self._model.predict(transform(model_input,
+                                              self._one_hot_enc,
+                                              self._scaler)))\
             .round(2) \
             .pipe(lambda s: {'prediction': s.tolist()})
 
@@ -52,10 +58,11 @@ def transform(X, ohe, scaler):
     X_sc = scaler.transform(X[NUM_COLS])
     X_ohe = ohe.transform(X[CAT_COLS]).toarray()
 
-    return pd.concat(
-        [pd.DataFrame(X_ohe, columns=ohe.get_feature_names()),
-         pd.DataFrame(X_sc, columns=NUM_COLS)], axis=1
-    )
+    return pd.concat([
+        pd.DataFrame(X_ohe, columns=ohe.get_feature_names()),
+        pd.DataFrame(X_sc, columns=NUM_COLS)
+    ],
+                     axis=1)
 
 
 def train_car_price_model(X, y):
@@ -74,10 +81,11 @@ def train_car_price_model(X, y):
         na_fill_values[num] = numerical[num].mean()
         numerical[num] = numerical[num].fillna(na_fill_values[num])
 
-    X = pd.concat(
-        [numerical, categorical], axis=1
-    )
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=24)
+    X = pd.concat([numerical, categorical], axis=1)
+    X_train, X_test, y_train, y_test = train_test_split(X,
+                                                        y,
+                                                        test_size=0.2,
+                                                        random_state=24)
     X_train = pd.DataFrame(X_train, columns=[*NUM_COLS, *CAT_COLS])
     X_test = pd.DataFrame(X_test, columns=[*NUM_COLS, *CAT_COLS])
     ohe = OneHotEncoder(handle_unknown='ignore')
@@ -88,7 +96,10 @@ def train_car_price_model(X, y):
     X_train = transform(X_train, ohe, scaler)
     X_test = transform(X_test, ohe, scaler)
 
-    etr = ExtraTreesRegressor(random_state=0, n_estimators=250, max_features=None, min_samples_split=6)
+    etr = ExtraTreesRegressor(random_state=0,
+                              n_estimators=250,
+                              max_features=None,
+                              min_samples_split=6)
 
     etr.fit(X_train, y_train)
     print("train", etr.score(X_train, y_train))
@@ -97,18 +108,19 @@ def train_car_price_model(X, y):
 
 
 def load_data():
+
     def mock_data():
-        mock_df = pd.DataFrame(
-            {
-                PRICE: [5000]*100,
-                **{num_col: [2000]*100 for num_col in NUM_COLS},
-                **{cat_col: ["good state"]*100 for cat_col in CAT_COLS}
-            })
+        mock_df = pd.DataFrame({
+            PRICE: [5000] * 100,
+            **{num_col: [2000] * 100 for num_col in NUM_COLS},
+            **{cat_col: ["good state"] * 100 for cat_col in CAT_COLS}
+        })
         return mock_df
+
     current_path = pathlib.Path(__file__).parent.resolve()
     # downloaded the data from
     # https://www.kaggle.com/austinreese/craigslist-carstrucks-data
-    data_path = current_path/'data'/'vehicles.csv'
+    data_path = current_path / 'data' / 'vehicles.csv'
     if Path(data_path).exists():
         df = pd.read_csv(data_path, nrows=10000)
     else:
@@ -132,7 +144,8 @@ def setup(with_data: bool,
     data[TARGET] = y
 
     example_request = make_example_request(
-        data[[*NUM_COLS, *CAT_COLS, TARGET]].to_dict(orient='records')[91], TARGET)
+        data[[*NUM_COLS, *CAT_COLS, TARGET]].to_dict(orient='records')[91],
+        TARGET)
 
     one_hot_enc, scaler, na_fill_values, model = train_car_price_model(X, y)
 
@@ -160,16 +173,19 @@ def setup(with_data: bool,
                 *infer_external_dependencies(__file__),
                 *infer_external_dependencies(
                     get_module_path(pynavio)
-                )  #TODO: rm this in the final example of using installed pynavio lib, as this is a dependency of pynavio
+                )  # TODO: rm this in the final example of using
+                   # installed pynavio lib, as this is a dependency of pynavio
             ]))
 
         to_navio_mlflow(CarPriceModel([*NUM_COLS, *CAT_COLS]),
                         example_request=example_request,
                         explanations=explanations,
-                        artifacts={'model': model_path,
-                                   'scaler': scaler_path,
-                                   'one_hot_enc': one_hot_enc_path,
-                                   'na_fill_values': na_fill_values_path},
+                        artifacts={
+                            'model': model_path,
+                            'scaler': scaler_path,
+                            'one_hot_enc': one_hot_enc_path,
+                            'na_fill_values': na_fill_values_path
+                        },
                         path=path,
                         pip_packages=pip_packages,
                         code_path=code_path,
