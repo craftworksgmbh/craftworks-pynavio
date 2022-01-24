@@ -17,7 +17,7 @@ from pynavio.utils.infer_dependencies import infer_external_dependencies
 
 
 TARGET = 'target'
-
+PRICE = 'price'
 CAT_COLS = ['manufacturer', 'cylinders', 'fuel', 'title_status', 'transmission',
             'drive', 'type', 'paint_color', 'condition', 'posting_date',
             'state', 'model', 'region']
@@ -97,13 +97,25 @@ def train_car_price_model(X, y):
 
 
 def load_data():
+    def mock_data():
+        mock_df = pd.DataFrame(
+            {
+                PRICE: [5000]*100,
+                **{num_col: [2000]*100 for num_col in NUM_COLS},
+                **{cat_col: ["good state"]*100 for cat_col in CAT_COLS}
+            })
+        return mock_df
     current_path = pathlib.Path(__file__).parent.resolve()
-    # downloaded the data from 
+    # downloaded the data from
     # https://www.kaggle.com/austinreese/craigslist-carstrucks-data
     data_path = current_path/'data'/'vehicles.csv'
-    df = pd.read_csv(data_path, nrows=10000)
-    y = df['price']
-    X = df.drop(['price'], axis=1)
+    if Path(data_path).exists():
+        df = pd.read_csv(data_path, nrows=10000)
+    else:
+        df = mock_data()
+    y = df[PRICE]
+    X = df.drop([PRICE], axis=1)
+
     return X, y
 
 
