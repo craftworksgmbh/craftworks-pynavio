@@ -24,10 +24,10 @@ def test_setup_predict(rootpath):
 
     with tempfile.TemporaryDirectory() as model_path:
         car_price_model.setup(with_data=False,
-                      with_oodd=False,
-                      explanations=None,
-                      path=model_path,
-                      code_path=code_path)
+                              with_oodd=False,
+                              explanations=None,
+                              path=model_path,
+                              code_path=code_path)
 
         model = mlflow.pyfunc.load_model(model_path)
         model_input = _get_example_request_df(model_path)
@@ -39,11 +39,8 @@ def test_setup_predict(rootpath):
             assert key in model_output
             assert len(model_output[key]) == model_input.shape[0]
 
-        #check model serving/prediction
+        # check model serving/prediction
         try:
             _check_model_serving(model_path)
         except Exception:
             pytest.fail("Error in the model serving/prediction")
-
-
-
