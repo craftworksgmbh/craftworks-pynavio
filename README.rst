@@ -34,7 +34,7 @@ Installation for development
 * Create dedicated virtual environment: conda create --name pynavio pip python=3.6
 * run::
 
-    $ git clone git@github.com:craftworksgmbh/craftworks-pynavio.git
+    $ TODO: add git repo here
     $ make install (Uses pip to install package only in environment)
 
 * To install requirements necessary for development run::
@@ -53,9 +53,8 @@ Installation for development
         index-servers =
         nexus
         [nexus]
-        repository: https://nexus.craftworks.io/repository/pypi-internal/
-        username: pipy-user
-        password: <available in 1PW>
+        see confluence
+
 
 Versioning
 ==========
@@ -89,6 +88,10 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
+
+Examples/models uses code parts from Open Source project `mjain72/Condition-monitoring-of-hydraulic-systems-using-xgboost-modeling`_.
+
+.. _`mjain72/Condition-monitoring-of-hydraulic-systems-using-xgboost-modeling`: https://github.com/mjain72/Condition-monitoring-of-hydraulic-systems-using-xgboost-modeling
 
 Examples/models uses code parts from Open Source project `https://www.kaggle.com/maciejautuch/car-price-prediction`_
 

@@ -1,18 +1,16 @@
 import platform
-
 import pip
 import pytest
 
-from pynavio.utils.common import (ARTIFACTS, _make_conda_env,
-                                  register_example_request)
+from pynavio.utils import make_env
+
+
+yaml_path = 'conda.yaml'
 
 
 def test_make_conda_env_negative_wrong_arguments():
     with pytest.raises(Exception):
-        _make_conda_env()
-
-
-yaml_path = 'conda.yaml'
+        make_env()
 
 
 @pytest.mark.parametrize("args", [
@@ -25,7 +23,7 @@ yaml_path = 'conda.yaml'
     }),
 ])
 def test_make_conda_env_positive_yaml(args, expected=yaml_path):
-    conda_env = _make_conda_env(**args)
+    conda_env = make_env(**args)
     assert conda_env == expected
 
 
@@ -66,28 +64,5 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
     }),
 ])
 def test_make_conda_env_positive(args, expected):
-    conda_env = _make_conda_env(**args)
+    conda_env = make_env(**args)
     assert conda_env == expected
-
-
-@pytest.mark.parametrize(
-    "args",
-    [
-        # both arguments not set
-        (dict()),
-        # artifacts is set, but does not contain example_request
-        ({
-            ARTIFACTS: {
-                'model_path': "a_path"
-            }
-        }),
-        # artifacts is set, example_request file path does not exist
-        ({
-            ARTIFACTS: {
-                'example_request': "non_existent_path"
-            }
-        })
-    ])
-def testregister_example_request_negative(args, tmpdir):
-    with pytest.raises(AssertionError):
-        register_example_request(tmpdir, **args)

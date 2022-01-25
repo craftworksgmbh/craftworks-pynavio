@@ -13,7 +13,7 @@ pytest==6.2.4
 pandas==1.2.4
 scikit-learn==0.24.1
 shap==0.39.0
-ipython==7.22.0
+ipython==7.31.1
 matplotlib==3.4.1
 isort==5.8.0
 yapf==0.31.0

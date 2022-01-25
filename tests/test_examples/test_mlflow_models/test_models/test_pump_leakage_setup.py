@@ -4,7 +4,7 @@ import mlflow.pyfunc
 import pandas as pd
 import pytest
 
-from examples.models import tabular
+from examples.models import pump_leakage_model
 from pynavio import infer_imported_code_path
 from scripts.test import _check_model_serving, _fetch_data
 
@@ -24,11 +24,11 @@ def test_setup_predict(rootpath):
     code_path = infer_imported_code_path(__file__, rootpath)
 
     with tempfile.TemporaryDirectory() as model_path:
-        tabular.setup(with_data=False,
-                      with_oodd=False,
-                      explanations=None,
-                      path=model_path,
-                      code_path=code_path)
+        pump_leakage_model.setup(with_data=True,
+                                 with_oodd=True,
+                                 explanations=None,
+                                 path=model_path,
+                                 code_path=code_path)
 
         model = mlflow.pyfunc.load_model(model_path)
         model_input = _get_example_request_df(model_path)
