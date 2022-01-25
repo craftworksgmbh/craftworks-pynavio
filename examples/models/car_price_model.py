@@ -13,9 +13,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 import pynavio
-from pynavio.utils.common import (get_module_path, make_example_request,
-                                  prediction_call, to_navio_mlflow)
-from pynavio.utils.infer_dependencies import infer_external_dependencies
+from pynavio.mlflow import to_navio
+from pynavio import (get_module_path, make_example_request,
+                     prediction_call, infer_external_dependencies)
 
 TARGET = 'target'
 PRICE = 'price'
@@ -177,17 +177,17 @@ def setup(with_data: bool,
                    # installed pynavio lib, as this is a dependency of pynavio
             ]))
 
-        to_navio_mlflow(CarPriceModel([*NUM_COLS, *CAT_COLS]),
-                        example_request=example_request,
-                        explanations=explanations,
-                        artifacts={
+        to_navio(CarPriceModel([*NUM_COLS, *CAT_COLS]),
+                 example_request=example_request,
+                 explanations=explanations,
+                 artifacts={
                             'model': model_path,
                             'scaler': scaler_path,
                             'one_hot_enc': one_hot_enc_path,
                             'na_fill_values': na_fill_values_path
                         },
-                        path=path,
-                        pip_packages=pip_packages,
-                        code_path=code_path,
-                        dataset=dataset,
-                        oodd='default' if with_oodd else 'disabled')
+                 path=path,
+                 pip_packages=pip_packages,
+                 code_path=code_path,
+                 dataset=dataset,
+                 oodd='default' if with_oodd else 'disabled')
