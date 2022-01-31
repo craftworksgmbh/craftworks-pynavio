@@ -30,9 +30,6 @@ NUM_COLS = ['year', 'odometer']
 
 class CarPriceModel(mlflow.pyfunc.PythonModel):
 
-    def __init__(self, columns):
-        self._columns = columns
-
     def load_context(self, context) -> None:
         self._model = joblib.load(context.artifacts['model'])
         self._one_hot_enc = joblib.load(context.artifacts['one_hot_enc'])
@@ -80,8 +77,10 @@ def train_car_price_model(X, y):
         numerical[num] = numerical[num].fillna(na_fill_values[num])
 
     X = pd.concat([numerical, categorical], axis=1)
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=24)
+    X_train, X_test, y_train, y_test = train_test_split(X,
+                                                        y,
+                                                        test_size=0.2,
+                                                        random_state=24)
     X_train = pd.DataFrame(X_train, columns=[*NUM_COLS, *CAT_COLS])
     X_test = pd.DataFrame(X_test, columns=[*NUM_COLS, *CAT_COLS])
     ohe = OneHotEncoder(handle_unknown='ignore')
@@ -172,7 +171,7 @@ def setup(with_data: bool,
                 # installed pynavio lib, as this is a dependency of pynavio
             ]))
 
-        to_navio(CarPriceModel([*NUM_COLS, *CAT_COLS]),
+        to_navio(CarPriceModel(),
                  example_request=example_request,
                  explanations=explanations,
                  artifacts={
