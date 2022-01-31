@@ -1,7 +1,7 @@
 # uses code parts from Open Source project
 # https://www.kaggle.com/maciejautuch/car-price-prediction
 import pathlib
-from pathlib import Path, PosixPath
+from pathlib import PosixPath
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Union
 
@@ -102,24 +102,17 @@ def train_car_price_model(X, y):
     return ohe, scaler, na_fill_values, etr
 
 
-def load_data():
-
-    def mock_data():
-        mock_df = pd.DataFrame({
-            PRICE: [5000] * 100,
-            **{num_col: [2000] * 100 for num_col in NUM_COLS},
-            **{cat_col: ["good state"] * 100 for cat_col in CAT_COLS}
-        })
-        return mock_df
-
+def _load_data():
     current_path = pathlib.Path(__file__).parent.resolve()
     # downloaded the data from
     # https://www.kaggle.com/austinreese/craigslist-carstrucks-data
     data_path = current_path / 'data' / 'vehicles.csv'
-    if Path(data_path).exists():
-        df = pd.read_csv(data_path, nrows=10000)
-    else:
-        df = mock_data()
+    df = pd.read_csv(data_path, nrows=10000)
+    return df
+
+
+def load_data():
+    df = _load_data()
     y = df[PRICE]
     X = df.drop([PRICE], axis=1)
 

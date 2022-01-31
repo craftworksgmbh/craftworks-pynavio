@@ -5,10 +5,21 @@ import pandas as pd
 import pytest
 
 from examples.models import car_price_model
+from examples.models.car_price_model import PRICE, NUM_COLS, CAT_COLS
 from pynavio import infer_imported_code_path
 from scripts.test import _check_model_serving, _fetch_data
 
 PREDICTION = 'prediction'
+
+
+def mock_data():
+    print("Generating dummy data for the test purposes...")
+    mock_df = pd.DataFrame({
+        PRICE: [5000] * 100,
+        **{num_col: [2000] * 100 for num_col in NUM_COLS},
+        **{cat_col: ["good state"] * 100 for cat_col in CAT_COLS}
+    })
+    return mock_df
 
 
 def _get_example_request_df(model_path):
@@ -16,11 +27,11 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
-def test_setup_predict(rootpath):
+def test_setup_predict(rootpath, monkeypatch):
     """
     Tests that setup stores a model that can be loaded by mlflow
     """
-
+    monkeypatch.setattr(car_price_model, "_load_data", mock_data)
     code_path = infer_imported_code_path(__file__, rootpath)
 
     with tempfile.TemporaryDirectory() as model_path:
