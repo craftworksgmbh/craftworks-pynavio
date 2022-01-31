@@ -80,10 +80,8 @@ def train_car_price_model(X, y):
         numerical[num] = numerical[num].fillna(na_fill_values[num])
 
     X = pd.concat([numerical, categorical], axis=1)
-    X_train, X_test, y_train, y_test = train_test_split(X,
-                                                        y,
-                                                        test_size=0.2,
-                                                        random_state=24)
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=24)
     X_train = pd.DataFrame(X_train, columns=[*NUM_COLS, *CAT_COLS])
     X_test = pd.DataFrame(X_test, columns=[*NUM_COLS, *CAT_COLS])
     ohe = OneHotEncoder(handle_unknown='ignore')
