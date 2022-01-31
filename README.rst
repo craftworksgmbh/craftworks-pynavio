@@ -93,3 +93,8 @@ Examples/models uses code parts from Open Source project `mjain72/Condition-moni
 
 .. _`mjain72/Condition-monitoring-of-hydraulic-systems-using-xgboost-modeling`: https://github.com/mjain72/Condition-monitoring-of-hydraulic-systems-using-xgboost-modeling
 
+Examples/models uses code parts from Open Source project `https://www.kaggle.com/maciejautuch/car-price-prediction`_
+
+.. _`https://www.kaggle.com/maciejautuch/car-price-prediction`: https://www.kaggle.com/maciejautuch/car-price-prediction
+
+
