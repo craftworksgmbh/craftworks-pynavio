@@ -39,19 +39,13 @@ class CarPriceModel(mlflow.pyfunc.PythonModel):
         self._scaler = joblib.load(context.artifacts['scaler'])
         self._na_fill_values = joblib.load(context.artifacts['na_fill_values'])
 
-    def _predict(self, model_input) -> list:
-        # fill values
+    @prediction_call
+    def predict(self, context, model_input) -> dict:
         model_input = model_input.fillna(self._na_fill_values)
-        return pd.Series(
-                self._model.predict(transform(model_input,
-                                              self._one_hot_enc,
-                                              self._scaler)))\
+        model_input = transform(model_input, self._one_hot_enc, self._scaler)
+        return pd.Series(self._model.predict(model_input)) \
             .round(2) \
             .pipe(lambda s: {'prediction': s.tolist()})
-
-    @prediction_call
-    def predict(self, context, model_input):
-        return self._predict(model_input)
 
 
 def transform(X, ohe, scaler):
