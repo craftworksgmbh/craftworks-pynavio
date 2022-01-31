@@ -58,11 +58,15 @@ def transform(X, ohe, scaler):
     X_sc = scaler.transform(X[NUM_COLS])
     X_ohe = ohe.transform(X[CAT_COLS]).toarray()
 
-    return pd.concat([
-        pd.DataFrame(X_ohe, columns=ohe.get_feature_names()),
-        pd.DataFrame(X_sc, columns=NUM_COLS)
-    ],
-                     axis=1)
+    return pd.concat(
+        [
+            pd.DataFrame(
+                X_ohe,
+                # get new feature names after one hot encoding
+                columns=ohe.get_feature_names()),
+            pd.DataFrame(X_sc, columns=NUM_COLS)
+        ],
+        axis=1)
 
 
 def train_car_price_model(X, y):
