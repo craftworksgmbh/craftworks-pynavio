@@ -20,13 +20,17 @@ Python lib for navio
 
 
 * Free software: MIT license
-* Documentation: https://pynavio.readthedocs.io.
 
 
 Features
 --------
 
-* TODO
+* Pynavio.mlflow.to_navio function calls mlflow.pyfunc.save_model function, saving a model zip file as required by navio.
+* Pynavio.infer_external_dependencies is a helper function that infers the external dependencies based on the file path. For its limitations please refer to its doc string.
+* Pynavio.infer_imported_code_path is a helper function that  infers the imported code paths based on the file path and the root path. For its limitations please refer to its doc string.
+* Pynavio.make_example_request generates a request schema for a navio model from data.
+
+
 
 Installation for development
 ============================
