@@ -2,7 +2,7 @@
 
 __author__ = """craftworks"""
 __email__ = 'dev-accounts@craftworks.at'
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 from . import (schema, image, mlflow, model_helpers, traits, utils,
                code, dependencies)
