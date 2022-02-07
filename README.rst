@@ -45,20 +45,6 @@ Installation for development
 
     $ pip install -r requirements_dev.txt
 
-* Setup Nexus PyPi (pipy@nexus)for uploading releases:
-    * Open pypirc file::
-
-        $ nano ~/.pypirc
-
-
-    * and  insert::
-
-        [distutils]
-        index-servers =
-        nexus
-        [nexus]
-        see confluence
-
 
 Versioning
 ==========
