@@ -10,7 +10,7 @@ from pathlib import PosixPath, Path
 from tempfile import TemporaryDirectory
 from requests import get
 from sklearn.preprocessing import StandardScaler
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 
 import pynavio
@@ -78,9 +78,9 @@ def train_pump_performance_model(X, y):
     scl.fit(X_train)
     X_train_s = scl.transform(X_train)
 
-    gbc = GradientBoostingClassifier(max_depth=5, subsample=0.8, random_state=42)
-    gbc.fit(X_train_s, y_train)
-    return scl, gbc
+    lr = LogisticRegression(random_state=42)
+    lr.fit(X_train_s, y_train)
+    return scl, lr
 
 
 def load_data():
