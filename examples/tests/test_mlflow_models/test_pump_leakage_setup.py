@@ -23,7 +23,6 @@ def test_setup_predict(rootpath):
     code_path = infer_imported_code_path(__file__, rootpath)
 
     with tempfile.TemporaryDirectory() as model_path:
-        model_path = '/home/tatevik/pr/pynavio/py/craftworks-pynavio/cp_py/1'
         pump_leakage_model.setup(with_data=True,
                                  with_oodd=True,
                                  explanations=None,
