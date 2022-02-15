@@ -10,7 +10,7 @@ from pynavio import infer_imported_code_path
 # names of imported submodules of the models module
 MODELS = [
     name for name, obj in globals().items()
-    if isinstance(obj, ModuleType) and obj.__name__.startswith('examples')
+    if isinstance(obj, ModuleType) and obj.__name__.startswith('mlflow_models')
 ]
 
 
