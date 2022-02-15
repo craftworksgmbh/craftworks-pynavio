@@ -3,11 +3,11 @@ import tempfile
 import mlflow.pyfunc
 import pandas as pd
 import pytest
-
-from examples.models import car_price_model
-from examples.models.car_price_model import PRICE, NUM_COLS, CAT_COLS
-from pynavio import infer_imported_code_path
+from mlflow_models import car_price_model
+from mlflow_models.car_price_model import CAT_COLS, NUM_COLS, PRICE
 from scripts.test import _check_model_serving, _fetch_data
+
+from pynavio import infer_imported_code_path
 
 PREDICTION = 'prediction'
 

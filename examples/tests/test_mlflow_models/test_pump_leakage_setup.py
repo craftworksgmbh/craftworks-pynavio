@@ -3,10 +3,10 @@ import tempfile
 import mlflow.pyfunc
 import pandas as pd
 import pytest
-
-from examples.models import pump_leakage_model
-from pynavio import infer_imported_code_path
+from mlflow_models import pump_leakage_model
 from scripts.test import _check_model_serving, _fetch_data
+
+from pynavio import infer_imported_code_path
 
 PREDICTION = 'prediction'
 
@@ -20,7 +20,6 @@ def test_setup_predict(rootpath):
     """
     Tests that setup stores a model that can be loaded by mlflow
     """
-
     code_path = infer_imported_code_path(__file__, rootpath)
 
     with tempfile.TemporaryDirectory() as model_path:

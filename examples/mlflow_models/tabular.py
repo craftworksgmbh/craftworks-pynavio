@@ -1,6 +1,7 @@
 from pathlib import PosixPath
 from tempfile import TemporaryDirectory
 from typing import List, Optional, Union
+
 import joblib
 import mlflow
 import numpy as np
@@ -9,8 +10,8 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 import pynavio
-from pynavio import (get_module_path, infer_external_dependencies,
-                     make_example_request, prediction_call)
+from pynavio import (infer_external_dependencies, make_example_request,
+                     prediction_call)
 from pynavio.mlflow import to_navio
 
 TARGET = 'target'
@@ -100,13 +101,7 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='tabular-data', path=data_path)
 
-        pip_packages = list(
-            set([
-                *infer_external_dependencies(__file__),
-                *infer_external_dependencies(
-                    get_module_path(pynavio)
-                )  #TODO: rm this in the final example of using installed pynavio lib, as this is a dependency of pynavio
-            ]))
+        pip_packages = infer_external_dependencies(__file__)
 
         if explanations == 'plotly':
             import plotly

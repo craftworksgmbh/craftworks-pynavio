@@ -12,9 +12,8 @@ from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-import pynavio
-from pynavio import (get_module_path, infer_external_dependencies,
-                     make_example_request, prediction_call)
+from pynavio import (infer_external_dependencies, make_example_request,
+                     prediction_call)
 from pynavio.mlflow import to_navio
 
 TARGET = 'target'
@@ -156,13 +155,7 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='car_price-data', path=data_path)
 
-        pip_packages = list(
-            set([
-                *infer_external_dependencies(__file__),
-                *infer_external_dependencies(get_module_path(
-                    pynavio))  # TODO: rm this in the final example of using
-                # installed pynavio lib, as this is a dependency of pynavio
-            ]))
+        pip_packages = infer_external_dependencies(__file__)
 
         to_navio(CarPriceModel(),
                  example_request=example_request,

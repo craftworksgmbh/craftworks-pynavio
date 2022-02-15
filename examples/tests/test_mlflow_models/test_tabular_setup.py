@@ -3,10 +3,10 @@ import tempfile
 import mlflow.pyfunc
 import pandas as pd
 import pytest
-
-from examples.models import tabular
-from pynavio import infer_imported_code_path
+from mlflow_models import tabular
 from scripts.test import _check_model_serving, _fetch_data
+
+from pynavio import infer_imported_code_path
 
 PREDICTION = 'prediction'
 
