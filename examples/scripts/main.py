@@ -6,6 +6,7 @@ from types import ModuleType
 from typing import Optional
 
 from pynavio import infer_imported_code_path
+from mlflow_models import (tabular, car_price_model, pump_leakage_model)
 
 # names of imported submodules of the models module
 MODELS = [
