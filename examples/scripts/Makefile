@@ -1,7 +1,7 @@
 CWD:=$(strip $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST)))))
 MODEL_DIR:=model_files
 
-models:=tabular
+models:=tabular car_price_model pump_leakage_model
 
 stems:= \
 	$(models) \
