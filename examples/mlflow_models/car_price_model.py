@@ -102,10 +102,10 @@ def train_car_price_model(X, y):
 
 
 def _load_data():
-    current_path = pathlib.Path(__file__).parent.resolve()
+    parent_path = pathlib.Path(__file__).parent.resolve().parent
     # downloaded the data from
     # https://www.kaggle.com/austinreese/craigslist-carstrucks-data
-    data_path = current_path / 'data' / 'vehicles.csv'
+    data_path = parent_path / 'data' / 'vehicles.csv'
     df = pd.read_csv(data_path, nrows=10000)
     return df
 

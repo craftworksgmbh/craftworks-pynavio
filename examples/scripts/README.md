@@ -5,6 +5,10 @@
 Available models and their respective data sets:
 
 - tabular - iris.csv (available via scikit-learn)
+- car_price_model - needs to be manually downloaded the data from https://www.kaggle.com/austinreese/craigslist-carstrucks-data into examples/data/vehicles.csv
+- pump_leakage_models - is automatically downloaded from 'https://archive.ics.uci.edu/ml/machine-learning-databases/00447/data.zip'
+
+Note: car_price_model and pump_leakage_models do not support plotly explanations.
 
 To build the models, run:
 

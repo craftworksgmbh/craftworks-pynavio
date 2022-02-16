@@ -83,7 +83,8 @@ def _check_model_serving(model_path):
 
     try:
         for data in _fetch_data(model_path):
-            response = requests.post(URL, json=data)
+            response = requests.post(URL, data=json.dumps(data, allow_nan=True),
+                                     headers={'Content-type': 'application/json'})
             response.raise_for_status()
     finally:
         process.terminate()
