@@ -57,3 +57,4 @@ def test_infer_external_dependencies():
     assert any('numpy' in item for item in pip_requirements)
     assert any('mlflow' in item for item in pip_requirements)
     assert any('scikit_learn' in item for item in pip_requirements)
+
