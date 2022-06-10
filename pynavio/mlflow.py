@@ -107,9 +107,14 @@ def _add_metadata(model_path: str,
 
 ExampleRequest = Dict[str, List[Dict[str, Any]]]
 
+def process_path(path):
+    str_path = str(path)
+    str_path = str_path[7:] if str_path[0:7] == 'file://' else str_path
+    return str_path
+
 
 def to_navio(model: mlflow.pyfunc.PythonModel,
-             path: Union[str, Path],
+             path,
              example_request: ExampleRequestType = None,
              pip_packages: List[str] = None,
              code_path: Optional[List[Union[str, PosixPath]]] = None,
@@ -149,12 +154,13 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @return: path to the .zip model file
     """
 
-    path = str(path)
+    path = process_path(path)
+    artifacts = artifacts or dict()
+    artifacts = {key: process_path(value) for key, value in artifacts.items()}
 
     with TemporaryDirectory() as tmp_dir:
         if dataset is not None:
             _check_data_spec(dataset)
-            artifacts = artifacts or dict()
             artifacts.update(dataset=dataset['path'])
             dataset.update(path=f'artifacts/{Path(dataset["path"]).parts[-1]}')
 
