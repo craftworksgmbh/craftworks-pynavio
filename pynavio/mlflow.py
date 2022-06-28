@@ -107,6 +107,7 @@ def _add_metadata(model_path: str,
 
 ExampleRequest = Dict[str, List[Dict[str, Any]]]
 
+
 def process_path(path):
     str_path = str(path)
     str_path = str_path[7:] if str_path[0:7] == 'file://' else str_path
