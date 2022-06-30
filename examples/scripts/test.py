@@ -1,7 +1,6 @@
 import copy
 import json
-import os
-import signal
+import glob
 import subprocess
 import sys
 import time
@@ -41,7 +40,13 @@ def _read_metadata(model_path: str) -> dict:
 
 
 def _fetch_data(model_path: str) -> dict:
-    with open(f'{model_path}/artifacts/example_request.json', 'r') as file:
+    example_request_paths = glob.glob(
+        f'{model_path}/artifacts/*/example_request.json')
+    assert len(example_request_paths) == 1, 'there ' \
+        'must be 1 example request but none or more were found'
+    example_request_path = example_request_paths[0]
+
+    with open(example_request_path, 'r') as file:
         data = json.load(file)
 
     _input = {
@@ -83,8 +88,10 @@ def _check_model_serving(model_path):
 
     try:
         for data in _fetch_data(model_path):
-            response = requests.post(URL, data=json.dumps(data, allow_nan=True),
-                                     headers={'Content-type': 'application/json'})
+            response = requests.post(URL,
+                                     data=json.dumps(data, allow_nan=True),
+                                     headers={'Content-type':
+                                              'application/json'})
             response.raise_for_status()
     finally:
         process.terminate()
