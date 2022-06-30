@@ -1,6 +1,7 @@
 from pathlib import Path
-from pynavio.dependencies import (infer_external_dependencies,
-                                  _generate_ignore_dirs_args,
+
+from pynavio.dependencies import (_generate_ignore_dirs_args,
+                                  infer_external_dependencies,
                                   read_requirements_txt)
 
 
@@ -57,4 +58,3 @@ def test_infer_external_dependencies():
     assert any('numpy' in item for item in pip_requirements)
     assert any('mlflow' in item for item in pip_requirements)
     assert any('scikit_learn' in item for item in pip_requirements)
-

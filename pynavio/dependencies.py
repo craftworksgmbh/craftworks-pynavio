@@ -1,10 +1,11 @@
 import logging
+import shutil
 import subprocess
-import pkg_resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Union
-import shutil
+
+import pkg_resources
 
 from .utils.common import _generate_default_to_ignore_dirs, _get_path_as_str
 
@@ -76,8 +77,8 @@ def infer_external_dependencies(
      - it might not be able to detect all the required dependencies,
      in which case the user could append/extend the list manually
     @param module_path:
-    @param file_only: if True will only consider the dependencies of that specific file
-     assuming the input path is a file
+    @param file_only: if True will only consider the dependencies of
+    that specific file assuming the input path is a file
     @param to_ignore_paths: list of paths to ignore.
      -Ignores a directory named *venv* or containing *site-packages* by
      default
@@ -86,7 +87,7 @@ def infer_external_dependencies(
     """
     with TemporaryDirectory() as tmp_dir:
         requirements_txt_file = Path(tmp_dir) / 'requirements.txt'
-        _generate_requirements_txt_file(requirements_txt_file, file_only, tmp_dir,
-                                        module_path, to_ignore_paths)
+        _generate_requirements_txt_file(requirements_txt_file, file_only,
+                                        tmp_dir, module_path, to_ignore_paths)
         requirements = read_requirements_txt(requirements_txt_file)
     return requirements
