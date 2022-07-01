@@ -13,6 +13,19 @@ ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
 
 
+def _get_field(yml: dict, path: str) -> Optional[Any]:
+    keys = path.split('.')
+    assert keys, 'Path must not be empty'
+
+    value = yml.get(keys[0])
+    for key in keys[1:]:
+        if not isinstance(value, dict):
+            return None
+        value = value.get(key)
+
+    return value
+
+
 def register_example_request(
         tmp_dir,
         example_request: ExampleRequestType = None,
@@ -78,12 +91,15 @@ def _add_metadata(model_path: str,
     path = Path(model_path) / 'MLmodel'
     with path.open('r') as file:
         cfg = yaml.safe_load(file)
-
+    example_request_path_yml = 'flavors.python_function.artifacts.' \
+                               'example_request.path'
     cfg.update(metadata=dict(request_schema=dict(
-        path='artifacts/example_request.json')))
+        path=_get_field(cfg, example_request_path_yml))))
 
     if dataset is not None:
+        dataset_path_yml = 'flavors.python_function.artifacts.dataset.path'
         cfg['metadata'].update(dataset=dataset)
+        cfg['metadata']['dataset']['path'] = _get_field(cfg, dataset_path_yml)
 
     explanations = explanations or 'default'
     accepted_values = ['disabled', 'default', 'plotly']
@@ -163,7 +179,6 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
         if dataset is not None:
             _check_data_spec(dataset)
             artifacts.update(dataset=dataset['path'])
-            dataset.update(path=f'artifacts/{Path(dataset["path"]).parts[-1]}')
 
         conda_env = make_env(pip_packages, conda_packages, conda_channels,
                              conda_env)
