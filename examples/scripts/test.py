@@ -1,7 +1,6 @@
 import copy
 import json
-import os
-import signal
+import glob
 import subprocess
 import sys
 import time
@@ -12,20 +11,9 @@ import pandas as pd
 import requests
 import yaml
 
+from pynavio.mlflow import _get_field
+
 URL = 'http://127.0.0.1:5001/invocations'
-
-
-def _get_field(yml: dict, path: str) -> Optional[Any]:
-    keys = path.split('.')
-    assert keys, 'Path must not be empty'
-
-    value = yml.get(keys[0])
-    for key in keys[1:]:
-        if not isinstance(value, dict):
-            return None
-        value = value.get(key)
-
-    return value
 
 
 def _read_metadata(model_path: str) -> dict:
@@ -34,15 +22,20 @@ def _read_metadata(model_path: str) -> dict:
 
     data_path = _get_field(yml, 'metadata.dataset.path')
     data_path = Path(model_path) / data_path if data_path is not None else None
+    example_request_path = Path(model_path) / _get_field(yml, 'metadata.request_schema.path')
+    with open(example_request_path, 'r') as file:
+        example_request = json.load(file)
+
     return {
         'dataset': pd.read_csv(data_path) if data_path is not None else None,
-        'explanation_format': _get_field(yml, 'metadata.explanations.format')
+        'explanation_format': _get_field(yml, 'metadata.explanations.format'),
+        'example_request': example_request
     }
 
 
 def _fetch_data(model_path: str) -> dict:
-    with open(f'{model_path}/artifacts/example_request.json', 'r') as file:
-        data = json.load(file)
+    meta = _read_metadata(model_path)
+    data = meta['example_request']
 
     _input = {
         'columns': [x['name'] for x in data['featureColumns']],
@@ -53,7 +46,6 @@ def _fetch_data(model_path: str) -> dict:
         _input['columns'].append(data['dateTimeColumn']['name'])
         _input['data'][0].append(data['dateTimeColumn']['sampleData'])
 
-    meta = _read_metadata(model_path)
     if meta.get('explanation_format') in ['default', None]:
         return [_input]
 
@@ -83,8 +75,10 @@ def _check_model_serving(model_path):
 
     try:
         for data in _fetch_data(model_path):
-            response = requests.post(URL, data=json.dumps(data, allow_nan=True),
-                                     headers={'Content-type': 'application/json'})
+            response = requests.post(URL,
+                                     data=json.dumps(data, allow_nan=True),
+                                     headers={'Content-type':
+                                              'application/json'})
             response.raise_for_status()
     finally:
         process.terminate()
