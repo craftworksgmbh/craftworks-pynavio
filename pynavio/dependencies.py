@@ -1,9 +1,11 @@
 import logging
+import shutil
 import subprocess
-import pkg_resources
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import List, Union
+
+import pkg_resources
 
 from .utils.common import _generate_default_to_ignore_dirs, _get_path_as_str
 
@@ -21,11 +23,22 @@ def _generate_ignore_dirs_args(module_path, to_ignore_dirs):
 
 
 def _generate_requirements_txt_file(requirements_txt_file,
+                                    file_only, tmp_dir,
                                     module_path: Union[str, Path],
                                     to_ignore_dirs=None):
+
+    def _get_file_or_module_path(module_path, file_only, tmp_module_dir):
+        if file_only and Path(module_path).is_file():
+            module_file_path = Path(tmp_module_dir)/'module.py'
+            shutil.copyfile(module_path, module_file_path)
+            return _get_path_as_str(tmp_module_dir)
+        else:
+            return _get_path_as_str(module_path)
+
     yes = subprocess.Popen(('yes', 'N'), stdout=subprocess.PIPE)
 
-    module_path = _get_path_as_str(module_path)
+    module_path = _get_file_or_module_path(module_path, file_only, tmp_dir)
+
     ignore_dirs_args = _generate_ignore_dirs_args(module_path, to_ignore_dirs)
 
     result = subprocess.call(
@@ -40,17 +53,18 @@ def _generate_requirements_txt_file(requirements_txt_file,
 
 
 def read_requirements_txt(requirements_txt_path) -> list:
-
     with Path(requirements_txt_path).open() as requirements_txt:
         requirements = [
             str(requirement) for requirement in
             pkg_resources.parse_requirements(requirements_txt)
         ]
+
     return requirements
 
 
 def infer_external_dependencies(
         module_path: Union[str, Path],
+        file_only=True,
         to_ignore_paths: List[str] = None) -> List[str]:
     """
     infers pip requirement strings.
@@ -63,6 +77,8 @@ def infer_external_dependencies(
      - it might not be able to detect all the required dependencies,
      in which case the user could append/extend the list manually
     @param module_path:
+    @param file_only: if True will only consider the dependencies of
+    that specific file assuming the input path is a file
     @param to_ignore_paths: list of paths to ignore.
      -Ignores a directory named *venv* or containing *site-packages* by
      default
@@ -71,7 +87,7 @@ def infer_external_dependencies(
     """
     with TemporaryDirectory() as tmp_dir:
         requirements_txt_file = Path(tmp_dir) / 'requirements.txt'
-        _generate_requirements_txt_file(requirements_txt_file, module_path,
-                                        to_ignore_paths)
+        _generate_requirements_txt_file(requirements_txt_file, file_only,
+                                        tmp_dir, module_path, to_ignore_paths)
         requirements = read_requirements_txt(requirements_txt_file)
     return requirements

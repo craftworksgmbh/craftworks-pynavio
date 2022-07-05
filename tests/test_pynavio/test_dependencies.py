@@ -1,6 +1,7 @@
 from pathlib import Path
-from pynavio.dependencies import (infer_external_dependencies,
-                                  _generate_ignore_dirs_args,
+
+from pynavio.dependencies import (_generate_ignore_dirs_args,
+                                  infer_external_dependencies,
                                   read_requirements_txt)
 
 
