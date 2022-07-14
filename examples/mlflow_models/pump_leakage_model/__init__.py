@@ -8,14 +8,14 @@ from typing import List, Optional, Union
 
 import joblib
 import mlflow
+import numpy as np
 import pandas as pd
 from requests import get
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from pynavio import (infer_external_dependencies, make_example_request,
-                     prediction_call)
+from pynavio import make_example_request, prediction_call
 from pynavio.mlflow import to_navio
 
 TARGET = 'target'
@@ -111,6 +111,14 @@ def load_data():
     return X, y
 
 
+def mock_data():
+    columns = list('abcde')
+    num_cols = len(columns)
+    target = np.repeat([0, 1, 2], 10)
+    return pd.DataFrame(np.random.rand(target.shape[0], num_cols),
+                        columns=columns), pd.Series(target)
+
+
 def setup(with_data: bool,
           with_oodd: bool,
           explanations: Optional[str] = None,
@@ -142,8 +150,6 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='pump_leakage-data', path=data_path)
 
-        pip_packages = infer_external_dependencies(__file__)
-
         to_navio(PumpLeakageModlel(class_mapping, column_order),
                  example_request=example_request,
                  explanations=explanations,
@@ -152,7 +158,7 @@ def setup(with_data: bool,
                      'scaler': scaler_path
                  },
                  path=path,
-                 pip_packages=pip_packages,
+                 pip_packages=['scikit-learn'],
                  code_path=code_path,
                  dataset=dataset,
                  oodd='default' if with_oodd else 'disabled')

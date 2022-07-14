@@ -1,8 +1,8 @@
-import pandas as pd
 from typing import Any, Dict, List, Optional, Union
 
+import pandas as pd
 
-from .utils.common import (ExampleRequestType)
+from .utils.common import ExampleRequestType
 
 
 def make_example_request(data: Union[Dict[str, Any], pd.DataFrame],
@@ -21,7 +21,13 @@ def make_example_request(data: Union[Dict[str, Any], pd.DataFrame],
     assert target != datetime_column, \
         'Target column name must not be equal to that of datetime column'
 
-    type_names = {int: 'float', float: 'float', str: 'string'}
+    type_names = {
+        int: 'int',
+        float: 'float',
+        str: 'string',
+        bool: 'string',
+        pd.Timestamp: 'timestamp'
+    }
 
     def _column_spec(name: str, _type: Optional[str] = None) -> Dict[str, Any]:
         return {

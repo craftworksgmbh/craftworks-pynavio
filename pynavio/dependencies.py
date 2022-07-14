@@ -90,4 +90,9 @@ def infer_external_dependencies(
         _generate_requirements_txt_file(requirements_txt_file, file_only,
                                         tmp_dir, module_path, to_ignore_paths)
         requirements = read_requirements_txt(requirements_txt_file)
+
+    if not any('pynavio' in name for name in requirements):
+        from . import __version__
+        requirements.append(f'pynavio=={__version__}')
+
     return requirements

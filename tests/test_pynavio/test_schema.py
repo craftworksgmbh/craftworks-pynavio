@@ -1,10 +1,10 @@
 import unittest
 from typing import Any, Dict, List
+
 import pandas as pd
 import pytest
 
 from pynavio import make_example_request
-
 
 DATA = {'x': 1, 'y': 2., 'z': 'str', 't': '2020-01-01 00:00:00'}
 
@@ -12,7 +12,7 @@ DATA_FRAME = pd.DataFrame([DATA])
 
 SCHEMA = {
     'x': {
-        'type': 'float',
+        'type': 'int',
         'nullable': False
     },
     'y': {

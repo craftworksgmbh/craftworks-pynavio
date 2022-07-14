@@ -1,9 +1,9 @@
 import platform
+
 import pip
 import pytest
 
 from pynavio.utils import make_env
-
 
 yaml_path = 'conda.yaml'
 

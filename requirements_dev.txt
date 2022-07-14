@@ -1,7 +1,7 @@
 pip==21.1.2
 bump2version==0.5.11
 wheel==0.33.6
-watchdog==0.9.0
+watchdog==2.1.7
 flake8==3.7.8
 tox==3.14.0
 coverage==4.5.4
@@ -18,7 +18,13 @@ matplotlib==3.4.1
 isort==5.8.0
 yapf==0.31.0
 
+tensorflow==2.8.0
+albumentations==1.1.0
+git+https://github.com/tensorflow/examples.git
 
+--extra-index-url https://download.pytorch.org/whl/cu113
+torch
+torchvision
+torchaudio
 
-
-
+onnxruntime

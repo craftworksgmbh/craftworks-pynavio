@@ -1,12 +1,11 @@
-# pynavio Scripts
-
-## Example Models
+## pynavio Example Models
 
 Available models and their respective data sets:
 
 - tabular - iris.csv (available via scikit-learn)
 - car_price_model - needs to be manually downloaded the data from https://www.kaggle.com/austinreese/craigslist-carstrucks-data into examples/data/vehicles.csv
 - pump_leakage_models - is automatically downloaded from 'https://archive.ics.uci.edu/ml/machine-learning-databases/00447/data.zip'
+- visual_inspection_model - donwload manually [https://doi.org/10.5281/zenodo.4694694](https://doi.org/10.5281/zenodo.4694694)
 
 Note: car_price_model and pump_leakage_models do not support plotly explanations.
 

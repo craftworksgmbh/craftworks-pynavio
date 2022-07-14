@@ -12,16 +12,14 @@ from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from pynavio import (infer_external_dependencies, make_example_request,
-                     prediction_call)
+from pynavio import make_example_request, prediction_call
 from pynavio.mlflow import to_navio
 
 TARGET = 'target'
 PRICE = 'price'
 CAT_COLS = [
     'manufacturer', 'cylinders', 'fuel', 'title_status', 'transmission',
-    'drive', 'type', 'paint_color', 'condition', 'posting_date', 'state',
-    'model', 'region'
+    'drive', 'type', 'paint_color', 'condition', 'state', 'model', 'region'
 ]
 
 NUM_COLS = ['year', 'odometer']
@@ -118,6 +116,16 @@ def load_data():
     return X, y
 
 
+def mock_data():
+    print("Generating dummy data for the test purposes...")
+    mock_df = pd.DataFrame({
+        PRICE: [5000] * 100,
+        **{num_col: [2000] * 100 for num_col in NUM_COLS},
+        **{cat_col: ["good state"] * 100 for cat_col in CAT_COLS}
+    })
+    return mock_df
+
+
 def setup(with_data: bool,
           with_oodd: bool,
           explanations: Optional[str] = None,
@@ -155,8 +163,6 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='car_price-data', path=data_path)
 
-        pip_packages = infer_external_dependencies(__file__)
-
         to_navio(CarPriceModel(),
                  example_request=example_request,
                  explanations=explanations,
@@ -167,7 +173,7 @@ def setup(with_data: bool,
                      'na_fill_values': na_fill_values_path
                  },
                  path=path,
-                 pip_packages=pip_packages,
+                 pip_packages=['mlflow', 'scikit-learn==0.24.2', 'joblib'],
                  code_path=code_path,
                  dataset=dataset,
                  oodd='default' if with_oodd else 'disabled')

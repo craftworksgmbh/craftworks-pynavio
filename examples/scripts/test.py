@@ -63,26 +63,34 @@ def _fetch_data(model_path: str) -> dict:
     return [_input, _explain_input]
 
 
+def _get_example_request_df(model_path):
+    data = _fetch_data(model_path)[0]
+    return pd.DataFrame(data['data'], columns=data['columns'])
+
+
 def mlflow_to_navio(data: dict) -> dict:
     return {'rows': [dict(zip(data['columns'], row)) for row in data['data']]}
 
 
-def _check_model_serving(model_path):
+def _check_model_serving(model_path, request_bodies=None):
     process = subprocess.Popen(
         f'mlflow models serve -m {model_path} -p 5001 --no-conda'.split())
 
     time.sleep(5)
 
+    response = None
+
     try:
-        for data in _fetch_data(model_path):
-            response = requests.post(URL,
-                                     data=json.dumps(data, allow_nan=True),
-                                     headers={'Content-type':
-                                              'application/json'})
+        for data in (request_bodies or _fetch_data(model_path)):
+            response = requests.post(
+                URL,
+                data=json.dumps(data, allow_nan=True),
+                headers={'Content-type': 'application/json'})
             response.raise_for_status()
     finally:
         process.terminate()
-        print(response.json())
+        if response is not None:
+            print(response.json())
         subprocess.run('pkill -f gunicorn'.split())
         time.sleep(2)
 

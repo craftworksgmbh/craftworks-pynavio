@@ -33,7 +33,7 @@ clean-build: ## remove build artifacts
 	rm -fr dist/
 	rm -fr .eggs/
 	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	find . -name '*.egg' -exec rm -fr {} +
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -56,10 +56,16 @@ code-style:
 
 lint: lint/flake8 ## check style
 
-test: ## run tests quickly with the default Python
+test: install ## run tests quickly with the default Python
+	# install is necessary because example models should use the installed
+	# pynavio package rather than the one in cwd
 	python -m coverage erase
-	python -m coverage run --source=pynavio,examples -m pytest tests \
-		--junitxml=python-test-reports/report.xml
+	python -m coverage run --source=pynavio -m pytest tests \
+		--junitxml=python-test-reports/pynavio.xml
+
+	# test examples, appending the generated coverage to the current file
+	PYTHONPATH=examples python -m coverage run --source=examples -m -a \
+		pytest examples/tests --junitxml=python-test-reports/examples.xml
 	python -m coverage xml -i
 
 test-all: ## run tests on every Python version with tox

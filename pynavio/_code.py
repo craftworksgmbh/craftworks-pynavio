@@ -2,10 +2,11 @@ import inspect
 import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Union
-from pigar.parser import Module, parse_imports
 
-from .utils.common import (_generate_default_to_ignore_dirs,
-                           _get_path_as_str, get_module_path)
+from .utils.common import (_generate_default_to_ignore_dirs, _get_path_as_str,
+                           get_module_path)
+
+_MODULE = 'pigar.parser.Module'
 
 
 def _get_code_path(module_name: str, path: str) -> List[str]:
@@ -37,7 +38,8 @@ def _get_code_path(module_name: str, path: str) -> List[str]:
     return f'{path}'
 
 
-def get_name_to_module_path_map(imported_modules: List[Module], root_path: str,
+def get_name_to_module_path_map(imported_modules: List[_MODULE],
+                                root_path: str,
                                 to_ignore_paths: List[str]) -> Dict[str, str]:
 
     name_to_module_path = dict()
@@ -81,6 +83,12 @@ def infer_imported_code_path(
      containing *site-packages* by default
     @return: list of imported code paths
     """
+    try:
+        from pigar.parser import parse_imports
+    except ImportError as err:
+        raise ImportError('please run "pip install pigar" to use the '
+                          'infer_imported_code_path utility') from err
+
     path = _get_path_as_str(path)
     root_path = _get_path_as_str(root_path)
 

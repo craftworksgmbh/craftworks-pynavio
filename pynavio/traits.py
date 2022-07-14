@@ -1,4 +1,8 @@
+""" Mixins for models generating custom explanations via plotly or similar
+"""
+
 import json
+
 import pandas as pd
 
 from pynavio.utils.styling import HEATMAP_COLOR_SCALE
@@ -6,6 +10,9 @@ from pynavio.utils.styling import HEATMAP_COLOR_SCALE
 
 class TabularExplainerTraits:
     BG_COLUMN = 'is_background'
+
+    def __init__(self, explanation_format=None):
+        self._explanation_format = explanation_format
 
     def has_background(self, data: pd.DataFrame) -> bool:
         if self.BG_COLUMN not in data.columns:
@@ -19,6 +26,13 @@ class TabularExplainerTraits:
             return False
 
         return True
+
+    def should_explain(self, model_input: pd.DataFrame) -> bool:
+        """ Returns true if custom explanations are expected
+        """
+        if self._explanation_format not in [None, 'disabled', 'default']:
+            return self.has_background(model_input)
+        return False
 
     def select_data(self, data: pd.DataFrame,
                     background: bool) -> pd.DataFrame:
@@ -38,6 +52,9 @@ class TabularExplainerTraits:
 
 
 class TimeSeriesExplainerTraits(TabularExplainerTraits):
+
+    def __init__(self, explanation_format=None):
+        super().__init__(explanation_format)
 
     def draw_plotly_explanation(self, data: pd.DataFrame) -> dict:
         import plotly.express as px

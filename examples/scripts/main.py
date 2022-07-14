@@ -5,14 +5,10 @@ from pathlib import Path
 from types import ModuleType
 from typing import Optional
 
-from pynavio import infer_imported_code_path
-from mlflow_models import (tabular, car_price_model, pump_leakage_model)
+from mlflow_models import *
+from mlflow_models import __all__ as MODELS
 
-# names of imported submodules of the models module
-MODELS = [
-    name for name, obj in globals().items()
-    if isinstance(obj, ModuleType) and obj.__name__.startswith('mlflow_models')
-]
+import pynavio
 
 
 def _format_group(group: str) -> str:
@@ -26,8 +22,9 @@ def main(path: str,
          explanations: Optional[str] = None) -> None:
 
     script_path = Path(os.path.abspath(__file__))
-    code_path = infer_imported_code_path(path=script_path,
-                                         root_path=script_path.parents[1])
+    code_path = pynavio.infer_imported_code_path(
+        path=script_path, root_path=script_path.parents[1])
+    code_path.append(pynavio.__path__[0])
 
     globals()[name].setup(with_data=bool(data),
                           with_oodd=bool(oodd),

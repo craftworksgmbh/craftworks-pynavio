@@ -10,8 +10,7 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 import pynavio
-from pynavio import (infer_external_dependencies, make_example_request,
-                     prediction_call)
+from pynavio import make_example_request, prediction_call
 from pynavio.mlflow import to_navio
 
 TARGET = 'target'
@@ -101,10 +100,10 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='tabular-data', path=data_path)
 
-        pip_packages = infer_external_dependencies(__file__)
+        pip_packages = ['mlflow', 'scikit-learn', 'joblib']
 
         if explanations == 'plotly':
-            import plotly
+            pip_packages.extend(['plotly', 'shap'])
 
         to_navio(Tabular(data[TARGET].cat.categories.tolist(), column_order,
                          explanations),

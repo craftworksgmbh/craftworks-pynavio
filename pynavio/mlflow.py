@@ -3,10 +3,12 @@ import shutil
 from pathlib import Path, PosixPath
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, List, Optional, Union
+
 import mlflow
 import yaml
 
 from pynavio.utils import ExampleRequestType, make_env
+from pynavio.utils.json_encoder import JSONEncoder
 
 EXAMPLE_REQUEST = 'example_request'
 ARTIFACTS = 'artifacts'
@@ -47,7 +49,7 @@ def register_example_request(
             **(artifacts or {})
         }
         with open(artifacts[EXAMPLE_REQUEST], 'w') as file:
-            json.dump(example_request, file, indent=4)
+            json.dump(example_request, file, indent=4, cls=JSONEncoder)
     else:
         # make sure example_request already exists in the artifacts
         assert EXAMPLE_REQUEST in artifacts, f'if {EXAMPLE_REQUEST} ' \
