@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Union
+from urllib.parse import urljoin
 
 import requests
 from requests.adapters import HTTPAdapter, Retry
@@ -51,6 +52,19 @@ class Client:
         except Exception as err:
             raise type(err)(response.json()) from err
 
+    def _resolve_url(self, suffix: str) -> str:
+        return urljoin(self._url + '/', suffix)
+
+    def assign_trainer_to_model(self, path: Union[str, Path],
+                                model_id: str) -> None:
+        suffix = f'/api/navio/v1/models/{model_id}/trainer-model'
+        path = Path(path)
+        with Path(path).open('rb') as file:
+            files = [('trainer', (path.name, file, 'multipart/form-data'))]
+            response = self._session.post(self._resolve_url(suffix),
+                                          files=files)
+        self._check_response(response)
+
     def assign_model_to_deployment(self, model_id: str,
                                    deployment_id: str) -> None:
         """ Assigns specified model to specified deployment
@@ -63,7 +77,7 @@ class Client:
         :return: None
         """
         suffix = f'/api/navio/v1/deployments/{deployment_id}/models/{model_id}'
-        response = self._session.put(f'{self._url}{suffix}')
+        response = self._session.put(self._resolve_url(suffix))
         self._check_response(response)
 
     def get_dataset_status(self, dataset_id: str, workspace_id: str) -> str:
@@ -74,7 +88,7 @@ class Client:
         """
         suffix = (f'/api/navio/v1/workspaces/{workspace_id}'
                   f'/datasets/file/{dataset_id}/status')
-        response = self._session.get(f'{self._url}{suffix}')
+        response = self._session.get(self._resolve_url(suffix))
         self._check_response(response)
         return response.json()['value']
 
@@ -87,7 +101,7 @@ class Client:
         'TRAINING_FAILED']
         """
         suffix = f'/api/navio/v1/models/{model_id}/status'
-        response = self._session.get(f'{self._url}{suffix}')
+        response = self._session.get(self._resolve_url(suffix))
         self._check_response(response)
         return response.json()['state']
 
@@ -97,7 +111,7 @@ class Client:
         :return: status info as a dictionary
         """
         suffix = f'/api/navio/v1/deployments/{deployment_id}/status'
-        response = self._session.get(f'{self._url}{suffix}')
+        response = self._session.get(self._resolve_url(suffix))
         self._check_response(response)
         return response.json()
 
@@ -122,7 +136,8 @@ class Client:
                 ('model', (path.name, file, 'multipart/form-data'))
             ]
             # yapf: enable
-            response = self._session.post(f'{self._url}{suffix}', files=files)
+            response = self._session.post(self._resolve_url(suffix),
+                                          files=files)
         self._check_response(response)
         return response.json()['id']
 
@@ -143,7 +158,8 @@ class Client:
                 ('file', ('file', file, 'multipart/form-data'))
             ]
             # yapf: enable
-            response = self._session.post(f'{self._url}{suffix}', files=files)
+            response = self._session.post(self._resolve_url(suffix),
+                                          files=files)
         self._check_response(response)
         return response.json()['id']
 
@@ -154,7 +170,7 @@ class Client:
         :return: the uuid of the newly created model
         """
         suffix = f'/api/navio/v1/models/{model_id}/train'
-        response = self._session.post(f'{self._url}{suffix}',
+        response = self._session.post(self._resolve_url(suffix),
                                       json={"datasetId": dataset_id})
         self._check_response(response)
         return response.json()['idOfNewModel']

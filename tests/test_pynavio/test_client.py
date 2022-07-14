@@ -1,15 +1,14 @@
 import socket
-
-from contextlib import contextmanager, closing
+from contextlib import closing, contextmanager
 from pathlib import Path
 from queue import Queue
 from threading import Thread
 from typing import Generator
-from wsgiref.simple_server import make_server, WSGIRequestHandler
-
-from pynavio.client import Client
+from wsgiref.simple_server import WSGIRequestHandler, make_server
 
 import pytest
+
+from pynavio.client import Client
 
 
 def _find_free_port() -> int:
@@ -26,6 +25,7 @@ MOCK_SERVER_TOKEN = 'abc123'
 
 
 class QuietRequestHandler(WSGIRequestHandler):
+
     def log_message(self, *args, **kwargs) -> None:
         """ Empty so that the server doesn't log every request """
         pass
@@ -52,7 +52,9 @@ def _request_capture(response: str = '') -> Generator:
         start_response('200 OK', [('Content-type', 'text/plain')])
         return [response.encode()]
 
-    _server = make_server('0.0.0.0', MOCK_SERVER_PORT, _handle,
+    _server = make_server('0.0.0.0',
+                          MOCK_SERVER_PORT,
+                          _handle,
                           handler_class=QuietRequestHandler)
     try:
         thread = Thread(target=_server.serve_forever)
@@ -125,6 +127,24 @@ def test_assign_model_to_deployment(client: Client) -> None:
 
         assert model_id in payload.get('path')
         assert deployment_id in payload.get('path')
+
+
+def test_assign_trainer_to_model(client: Client, tmp_path: Path) -> None:
+    trainer_content = 'fake-trainer-content'
+    model_id = 'fake-model-id'
+
+    path = tmp_path / 'trainer.zip'
+    with path.open('w') as file:
+        file.write(trainer_content)
+
+    with _request_capture() as capture:
+        client.assign_trainer_to_model(path, model_id)
+
+        payload = capture.get()
+        assert payload.get('auth') == f'Bearer {MOCK_SERVER_TOKEN}'
+
+        assert model_id in payload.get('path')
+        assert trainer_content.encode() in payload.get('content')
 
 
 def test_upload_model_zip(client: Client, tmp_path: Path) -> None:
