@@ -42,8 +42,8 @@ targets:= \
 all: $(targets)
 
 clean:
-	rm -rf $(MODEL_DIR)
-	find . -maxdepth 3 -name "__pycache__" -exec rm -rf {} \;
+	-rm -rf $(MODEL_DIR)
+	-find . -maxdepth 3 -name "__pycache__" | xargs -n 1 rm -rf
 
 $(MODEL_DIR):
 	mkdir -p $(MODEL_DIR)
@@ -59,3 +59,6 @@ $(MODEL_DIR)/%: | $(MODEL_DIR)
 	# from previous directory, to check that everything works when
 	# local module directories are not visible
 	cd .. && python $(CWD)/scripts/test.py $(CWD)/$@
+
+help:
+	@echo $(subst $() $(),"\n",$(targets))  # replace space with newline
