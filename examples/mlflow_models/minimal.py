@@ -39,7 +39,7 @@ class MinimalPlotly(Minimal, pynavio.traits.TabularExplainerTraits):
         result = {
             **predictions, 'explanation': [
                 self.draw_plotly_explanation(row)
-                for _, row in data.iterrows()
+                for _, row in data.astype(float).iterrows()
             ]
         }
 
@@ -54,8 +54,8 @@ def make_data(path: Path) -> None:
 
 example_request = pynavio.make_example_request(
     {
-        TARGET: 1.1 * len(Minimal._columns),
-        **{column: 1.1 for column in Minimal._columns}
+        TARGET: float(sum(range(len(Minimal._columns)))),
+        **{col: float(i) for i, col in enumerate(Minimal._columns)}
     },
     target=TARGET)
 

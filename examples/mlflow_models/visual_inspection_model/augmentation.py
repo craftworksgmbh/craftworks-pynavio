@@ -25,7 +25,9 @@ _transforms = Compose([
 def _augment(image: np.ndarray, mask: np.ndarray, img_size: list) -> tuple:
     aug_data = _transforms(image=image, mask=mask)
     aug_img = tf.image.resize(aug_data["image"], size=img_size)
-    aug_mask = tf.image.resize(aug_data["mask"], size=img_size, method="nearest")
+    aug_mask = tf.image.resize(aug_data["mask"],
+                               size=img_size,
+                               method="nearest")
     return aug_img, aug_mask
 
 

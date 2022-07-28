@@ -53,8 +53,7 @@ def test_infer_external_dependencies():
         exec('import sklearn')
 
     pip_requirements = infer_external_dependencies(Path(__file__).parent)
+    pip_requirements = ' '.join(pip_requirements)
 
-    assert any('pandas' in item for item in pip_requirements)
-    assert any('numpy' in item for item in pip_requirements)
-    assert any('mlflow' in item for item in pip_requirements)
-    assert any('scikit_learn' in item for item in pip_requirements)
+    for item in ['pandas', 'numpy', 'mlflow', 'scikit_learn']:
+        assert item in pip_requirements

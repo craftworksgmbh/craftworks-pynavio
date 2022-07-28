@@ -15,8 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-from pynavio import make_example_request, prediction_call
-from pynavio.mlflow import to_navio
+import pynavio
 
 TARGET = 'target'
 
@@ -38,7 +37,7 @@ class PumpLeakageModlel(mlflow.pyfunc.PythonModel):
             .map(self._class_mapping) \
             .pipe(lambda s: {'prediction': s.tolist()})
 
-    @prediction_call
+    @pynavio.prediction_call
     def predict(self, context, model_input):
         return self._predict(model_input)
 
@@ -132,7 +131,7 @@ def setup(with_data: bool,
     data = X.copy()
     data[TARGET] = y.map(class_mapping).copy().to_numpy()
 
-    example_request = make_example_request(
+    example_request = pynavio.make_example_request(
         data.to_dict(orient='records')[0], TARGET)
 
     scaler, model = train_pump_performance_model(X, y)
@@ -150,15 +149,15 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='pump_leakage-data', path=data_path)
 
-        to_navio(PumpLeakageModlel(class_mapping, column_order),
-                 example_request=example_request,
-                 explanations=explanations,
-                 artifacts={
-                     'model': model_path,
-                     'scaler': scaler_path
-                 },
-                 path=path,
-                 pip_packages=['scikit-learn'],
-                 code_path=code_path,
-                 dataset=dataset,
-                 oodd='default' if with_oodd else 'disabled')
+        pynavio.mlflow.to_navio(PumpLeakageModlel(class_mapping, column_order),
+                                example_request=example_request,
+                                explanations=explanations,
+                                artifacts={
+                                    'model': model_path,
+                                    'scaler': scaler_path
+                                },
+                                path=path,
+                                pip_packages=['scikit-learn'],
+                                code_path=code_path,
+                                dataset=dataset,
+                                oodd='default' if with_oodd else 'disabled')

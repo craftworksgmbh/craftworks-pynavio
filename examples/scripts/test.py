@@ -1,6 +1,6 @@
 import copy
-import json
 import glob
+import json
 import subprocess
 import sys
 import time
@@ -11,7 +11,7 @@ import pandas as pd
 import requests
 import yaml
 
-from pynavio.mlflow import _get_field
+import pynavio
 
 URL = 'http://127.0.0.1:5001/invocations'
 
@@ -20,16 +20,20 @@ def _read_metadata(model_path: str) -> dict:
     with (Path(model_path) / 'MLmodel').open('r') as file:
         yml = yaml.safe_load(file)
 
-    data_path = _get_field(yml, 'metadata.dataset.path')
+    data_path = pynavio.mlflow._get_field(yml, 'metadata.dataset.path')
     data_path = Path(model_path) / data_path if data_path is not None else None
-    example_request_path = Path(model_path) / _get_field(yml, 'metadata.request_schema.path')
+    example_request_path = Path(model_path) / pynavio.mlflow._get_field(
+        yml, 'metadata.request_schema.path')
     with open(example_request_path, 'r') as file:
         example_request = json.load(file)
 
     return {
-        'dataset': pd.read_csv(data_path) if data_path is not None else None,
-        'explanation_format': _get_field(yml, 'metadata.explanations.format'),
-        'example_request': example_request
+        'dataset':
+            pd.read_csv(data_path) if data_path is not None else None,
+        'explanation_format':
+            pynavio.mlflow._get_field(yml, 'metadata.explanations.format'),
+        'example_request':
+            example_request
     }
 
 

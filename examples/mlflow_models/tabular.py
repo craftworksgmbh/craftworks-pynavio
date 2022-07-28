@@ -10,8 +10,6 @@ from sklearn.datasets import load_iris
 from sklearn.ensemble import RandomForestClassifier
 
 import pynavio
-from pynavio import make_example_request, prediction_call
-from pynavio.mlflow import to_navio
 
 TARGET = 'target'
 
@@ -46,7 +44,7 @@ class Tabular(mlflow.pyfunc.PythonModel,
                              np.arange(predictions.shape[0]), :],
             columns=self._column_order)
 
-    @prediction_call
+    @pynavio.prediction_call
     def predict(self, context, model_input):
         if (self._explanation_format in [None, 'default'] or
                 not self.has_background(model_input)):
@@ -84,7 +82,7 @@ def setup(with_data: bool,
     data = load_data()
     column_order = data.drop(TARGET, axis=1).columns.tolist()
 
-    example_request = make_example_request(
+    example_request = pynavio.make_example_request(
         data.to_dict(orient='records')[0], TARGET)
 
     model = RandomForestClassifier()
@@ -105,13 +103,13 @@ def setup(with_data: bool,
         if explanations == 'plotly':
             pip_packages.extend(['plotly', 'shap'])
 
-        to_navio(Tabular(data[TARGET].cat.categories.tolist(), column_order,
-                         explanations),
-                 example_request=example_request,
-                 explanations=explanations,
-                 artifacts={'model': model_path},
-                 path=path,
-                 pip_packages=pip_packages,
-                 code_path=code_path,
-                 dataset=dataset,
-                 oodd='default' if with_oodd else 'disabled')
+        pynavio.mlflow.to_navio(Tabular(data[TARGET].cat.categories.tolist(),
+                                        column_order, explanations),
+                                example_request=example_request,
+                                explanations=explanations,
+                                artifacts={'model': model_path},
+                                path=path,
+                                pip_packages=pip_packages,
+                                code_path=code_path,
+                                dataset=dataset,
+                                oodd='default' if with_oodd else 'disabled')

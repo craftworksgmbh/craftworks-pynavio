@@ -23,19 +23,20 @@ def _generate_ignore_dirs_args(module_path, to_ignore_dirs):
 
 
 def _generate_requirements_txt_file(requirements_txt_file,
-                                    file_only, tmp_dir,
+                                    file_only,
+                                    tmp_dir,
                                     module_path: Union[str, Path],
                                     to_ignore_dirs=None):
 
     def _get_file_or_module_path(module_path, file_only, tmp_module_dir):
         if file_only and Path(module_path).is_file():
-            module_file_path = Path(tmp_module_dir)/'module.py'
+            module_file_path = Path(tmp_module_dir) / 'module.py'
             shutil.copyfile(module_path, module_file_path)
             return _get_path_as_str(tmp_module_dir)
         else:
             return _get_path_as_str(module_path)
 
-    yes = subprocess.Popen(('yes', 'N'), stdout=subprocess.PIPE)
+    yes = subprocess.Popen(('yes', 'Y'), stdout=subprocess.PIPE)
 
     module_path = _get_file_or_module_path(module_path, file_only, tmp_dir)
 
@@ -43,7 +44,7 @@ def _generate_requirements_txt_file(requirements_txt_file,
 
     result = subprocess.call(
         ('pigar', '-P', f'{module_path}', '-p', f'{requirements_txt_file}',
-         *ignore_dirs_args, '--without-referenced-comments'),
+         *ignore_dirs_args),
         stdin=yes.stdout)
     if result != 0:
         logging.error("please create and provide requirements.txt, as "

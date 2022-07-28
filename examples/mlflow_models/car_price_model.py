@@ -12,8 +12,7 @@ from sklearn.ensemble import ExtraTreesRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
-from pynavio import make_example_request, prediction_call
-from pynavio.mlflow import to_navio
+import pynavio
 
 TARGET = 'target'
 PRICE = 'price'
@@ -33,8 +32,9 @@ class CarPriceModel(mlflow.pyfunc.PythonModel):
         self._scaler = joblib.load(context.artifacts['scaler'])
         self._na_fill_values = joblib.load(context.artifacts['na_fill_values'])
 
-    @prediction_call
+    @pynavio.prediction_call
     def predict(self, context, model_input) -> dict:
+        model_input[NUM_COLS] = model_input[NUM_COLS].astype(float)
         model_input = model_input.fillna(self._na_fill_values)
         model_input = transform(model_input, self._one_hot_enc, self._scaler)
         return pd.Series(self._model.predict(model_input)) \
@@ -138,7 +138,7 @@ def setup(with_data: bool,
     data = X.copy()
     data[TARGET] = y
 
-    example_request = make_example_request(
+    example_request = pynavio.make_example_request(
         data[[*NUM_COLS, *CAT_COLS, TARGET]].to_dict(orient='records')[91],
         TARGET)
 
@@ -163,17 +163,18 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='car_price-data', path=data_path)
 
-        to_navio(CarPriceModel(),
-                 example_request=example_request,
-                 explanations=explanations,
-                 artifacts={
-                     'model': model_path,
-                     'scaler': scaler_path,
-                     'one_hot_enc': one_hot_enc_path,
-                     'na_fill_values': na_fill_values_path
-                 },
-                 path=path,
-                 pip_packages=['mlflow', 'scikit-learn==0.24.2', 'joblib'],
-                 code_path=code_path,
-                 dataset=dataset,
-                 oodd='default' if with_oodd else 'disabled')
+        pynavio.mlflow.to_navio(
+            CarPriceModel(),
+            example_request=example_request,
+            explanations=explanations,
+            artifacts={
+                'model': model_path,
+                'scaler': scaler_path,
+                'one_hot_enc': one_hot_enc_path,
+                'na_fill_values': na_fill_values_path
+            },
+            path=path,
+            pip_packages=['mlflow', 'scikit-learn==0.24.2', 'joblib'],
+            code_path=code_path,
+            dataset=dataset,
+            oodd='default' if with_oodd else 'disabled')

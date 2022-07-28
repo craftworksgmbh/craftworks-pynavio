@@ -105,7 +105,7 @@ def test_get_model_status(client: Client) -> None:
 def test_get_deployment_status(client: Client) -> None:
     deployment_id = 'fake-deployment-id'
 
-    with _request_capture(f'{{"oodStatus": "MAJOR"}}') as capture:
+    with _request_capture('{"oodStatus": "MAJOR"}') as capture:
         result = client.get_deployment_status(deployment_id)
         assert result == dict(oodStatus='MAJOR')
 
@@ -157,7 +157,7 @@ def test_upload_model_zip(client: Client, tmp_path: Path) -> None:
     with path.open('w') as file:
         file.write(model_content)
 
-    with _request_capture(f'{{"id": "some-id"}}') as capture:
+    with _request_capture('{"id": "some-id"}') as capture:
         client.upload_model_zip(path, workspace_id, use_case_id, model_name)
 
         payload = capture.get()
@@ -179,7 +179,7 @@ def test_upload_csv(client: Client, tmp_path: Path) -> None:
     with path.open('w') as file:
         file.write(csv_content)
 
-    with _request_capture(f'{{"id": "some-id"}}') as capture:
+    with _request_capture('{"id": "some-id"}') as capture:
         client.upload_csv(path, workspace_id, csv_name)
 
         payload = capture.get()
@@ -194,7 +194,7 @@ def test_upload_csv(client: Client, tmp_path: Path) -> None:
 def test_retrain_model(client: Client) -> None:
     dataset_id = 'fake-dataset-id'
     model_id = 'fake-model-id'
-    with _request_capture(f'{{"idOfNewModel": "some-id"}}') as capture:
+    with _request_capture('{"idOfNewModel": "some-id"}') as capture:
         client.retrain_model(model_id, dataset_id)
         payload = capture.get()
         assert payload.get('auth') == f'Bearer {MOCK_SERVER_TOKEN}'

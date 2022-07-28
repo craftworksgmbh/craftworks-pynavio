@@ -1,25 +1,23 @@
-pip==21.1.2
-bump2version==0.5.11
-wheel==0.33.6
-watchdog==2.1.7
-flake8==3.7.8
-tox==3.14.0
-coverage==4.5.4
-Sphinx==1.8.5
-twine==1.14.0
+pip==22.1.2
+bump2version==1.0.1
+wheel==0.37.1
+watchdog==2.1.9
+flake8==4.0.1
+tox==3.25.1
+coverage==6.4.2
+Sphinx==5.0.2
+twine==4.0.1
 
-protobuf==3.20.1
-pytest==6.2.4
-pandas==1.2.4
-scikit-learn==0.24.1
-shap==0.39.0
-ipython==7.31.1
-matplotlib==3.4.1
-isort==5.8.0
-yapf==0.31.0
+pytest==7.1.2
+scikit-learn==1.1.1
+shap==0.41.0
+ipython==8.4.0
+matplotlib==3.5.2
+isort==5.10.1
+yapf==0.32.0
 
-tensorflow==2.8.0
-albumentations==1.1.0
+tensorflow==2.9.1
+albumentations==1.2.1
 git+https://github.com/tensorflow/examples.git
 
 --extra-index-url https://download.pytorch.org/whl/cu113

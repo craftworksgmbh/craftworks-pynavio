@@ -203,6 +203,6 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
 
-    model = mlflow.pyfunc.load_model(path)  # test load
+    mlflow.pyfunc.load_model(path)  # test load
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')

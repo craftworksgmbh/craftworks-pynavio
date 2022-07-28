@@ -252,7 +252,8 @@ def setup(with_data: bool,
         example_request = pynavio.make_example_request(example, 'digit')
         example_request['featureColumns'][0]['type'] = 'image'
 
-        pip_packages = ['Pillow', 'tensorflow==2.8.0']
+        pip_packages = ['Pillow', 'tensorflow==2.9.1', 'mlflow==1.15.0',
+                        'protobuf<3.20']
         if explanations not in [None, 'disabled', 'default']:
             pip_packages.extend(['shap', 'IPython'])
             pip_packages.append({
