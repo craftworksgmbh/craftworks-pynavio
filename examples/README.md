@@ -3,9 +3,19 @@
 Available models and their respective data sets:
 
 - tabular - iris.csv (available via scikit-learn)
+- timeseries - activity_recognition.csv
+    - original data is [here](http://archive.ics.uci.edu/ml/datasets/smartphone-based+recognition+of+human+activities+and+postural+transitions)
+    - the original data must be preprocessed before the model can be built (see notebooks/timeseries-data-prep)
+    - craftworks users will find the prepared CSV file here: sftp://at-cw-headnode1.craftworks/mnt/projects/craftworks-navio/data/example-data/datasets/activity_recognition/activity_recognition.csv
+    - the csv file needs to be put in examples/data
 - car_price_model - needs to be manually downloaded the data from https://www.kaggle.com/austinreese/craigslist-carstrucks-data into examples/data/vehicles.csv
+  - the csv file needs to be put in examples/data
 - pump_leakage_models - is automatically downloaded from 'https://archive.ics.uci.edu/ml/machine-learning-databases/00447/data.zip'
-- visual_inspection_model - donwload manually [https://doi.org/10.5281/zenodo.4694694](https://doi.org/10.5281/zenodo.4694694)
+- visual_inspection_model
+    - Original data is here [https://doi.org/10.5281/zenodo.4694694](https://doi.org/10.5281/zenodo.4694694)
+    - The original data requires preprocessing
+    - craftworks users can find the preprocessed data at sftp://at-cw-headnode1.craftworks/mnt/projects/craftworks-navio/data/example-data/datasets/visual-inspection-demo-data.zip
+    - data needs to be put in examples/data/visual-inspection
 
 Note: car_price_model and pump_leakage_models do not support plotly explanations.
 
