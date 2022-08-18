@@ -1,4 +1,4 @@
-mlflow==1.27.0
+mlflow>=1.15.0
 Pillow==9.2.0
 plotly==5.9.0
 pigar==0.10.0
