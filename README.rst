@@ -6,9 +6,6 @@ pynavio
 .. image:: https://img.shields.io/pypi/v/pynavio.svg
         :target: https://pypi.python.org/pypi/pynavio
 
-.. image:: https://img.shields.io/travis/craftworksgmbh/pynavio.svg
-        :target: https://travis-ci.com/craftworksgmbh/pynavio
-
 .. image:: https://readthedocs.org/projects/pynavio/badge/?version=latest
         :target: https://navio.craftworks.io/docs/guides/pynavio/
         :alt: Documentation Status
