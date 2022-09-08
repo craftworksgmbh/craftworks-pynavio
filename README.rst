@@ -32,37 +32,6 @@ Features
 
 
 
-Installation for development
-============================
-
-* Create dedicated virtual environment: conda create --name pynavio pip python=3.6
-* run::
-
-    $ TODO: add git repo here
-    $ make install (Uses pip to install package only in environment)
-
-* To install requirements necessary for development run::
-
-    $ pip install -r requirements_dev.txt
-
-
-Versioning
-==========
-
-Run (replace "part" with either major, minor or patch)::
-
-    $ bumpversion part
-
-Deploying
-==========
-
-Run (replace part with either major, minor or patch)::
-
-    $ bumpversion part
-    $ git push
-    $ git push --tags
-    $ make release
-
 Examples
 ==========
 
