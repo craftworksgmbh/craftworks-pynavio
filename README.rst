@@ -10,7 +10,7 @@ pynavio
         :target: https://travis-ci.com/craftworksgmbh/pynavio
 
 .. image:: https://readthedocs.org/projects/pynavio/badge/?version=latest
-        :target: https://pynavio.readthedocs.io/en/latest/?version=latest
+        :target: https://navio.craftworks.io/docs/guides/pynavio/
         :alt: Documentation Status
 
 
