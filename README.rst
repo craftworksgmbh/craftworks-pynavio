@@ -6,15 +6,7 @@ pynavio
 .. image:: https://img.shields.io/pypi/v/pynavio.svg
         :target: https://pypi.python.org/pypi/pynavio
 
-.. image:: https://readthedocs.org/projects/pynavio/badge/?version=latest
-        :target: https://navio.craftworks.io/docs/guides/pynavio/
-        :alt: Documentation Status
-
-
-
-
 Python lib for navio
-
 
 * Free software: MIT license
 
@@ -27,6 +19,9 @@ Features
 * Pynavio.infer_imported_code_path is a helper function that  infers the imported code paths based on the file path and the root path. For its limitations please refer to its doc string.
 * Pynavio.make_example_request generates a request schema for a navio model from data.
 
+Documentation
+--------
+The official documentation is hosted on https://navio.craftworks.io : https://navio.craftworks.io/docs/guides/pynavio/
 
 
 Examples
