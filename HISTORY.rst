@@ -48,7 +48,7 @@ History
 * sets protobuf version to fix failing tests
 * fixes to_navio() to support kedro path
 
-0.1.5 (2022-09-xx)
+0.1.5 (2022-09-15)
 ------------------
 
 * fixes the documentation link
