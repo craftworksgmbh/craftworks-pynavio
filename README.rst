@@ -20,7 +20,7 @@ Features
 * Pynavio.make_example_request generates a request schema for a navio model from data.
 
 Documentation
---------
+-------------
 
 The official documentation is hosted on https://navio.craftworks.io : https://navio.craftworks.io/docs/guides/pynavio/
 
