@@ -2,7 +2,7 @@
 
 __author__ = """craftworks"""
 __email__ = 'dev-accounts@craftworks.at'
-__version__ = '0.1.5'
+__version__ = '0.1.6'
 
 from . import _code as code
 from . import _mlflow as mlflow
