@@ -6,8 +6,5 @@ Development Lead
 ----------------
 
 * craftworks <dev-accounts@craftworks.at>
+* see README 'Credits' section for credits
 
-Contributors
-------------
-
-None yet. Why not be the first?
