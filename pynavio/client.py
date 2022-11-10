@@ -115,6 +115,15 @@ class Client:
         self._check_response(response)
         return response.json()
 
+    def delete_model(self, model_id: str) -> str:
+        """ Deletes the specified model
+        :param model_id: the uuid of the model
+        :return: None
+        """
+        suffix = f'/api/navio/v1/models/{model_id}'
+        response = self._session.delete(self._resolve_url(suffix))
+        self._check_response(response)
+
     def upload_model_zip(self, path: Union[Path, str], workspace_id: str,
                          use_case_id: str, name: str) -> str:
         """ Sends the model zip to navio. Returns model id
