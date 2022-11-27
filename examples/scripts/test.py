@@ -76,6 +76,20 @@ def mlflow_to_navio(data: dict) -> dict:
     return {'rows': [dict(zip(data['columns'], row)) for row in data['data']]}
 
 
+def _is_mlflow2():
+    from packaging import version
+    import mlflow
+    return version.parse(mlflow.__version__) >= version.parse("2.0.0")
+
+
+def _convert_to_mlflow2_format(request_data):
+    dataframe_records = pd.DataFrame.from_records(columns=request_data['columns'],
+                                                  data=request_data['data']).\
+        to_json(orient='records')
+    request_data = {"dataframe_records": json.loads(dataframe_records)}
+    return request_data
+
+
 def _check_model_serving(model_path, request_bodies=None):
     process = subprocess.Popen(
         f'mlflow models serve -m {model_path} -p 5001 --no-conda'.split())
@@ -86,6 +100,8 @@ def _check_model_serving(model_path, request_bodies=None):
 
     try:
         for data in (request_bodies or _fetch_data(model_path)):
+            if _is_mlflow2():
+                data = _convert_to_mlflow2_format(data)
             response = requests.post(
                 URL,
                 data=json.dumps(data, allow_nan=True),
