@@ -5,6 +5,11 @@ from tempfile import TemporaryDirectory
 from typing import Any, Dict, List, Optional, Union
 
 import mlflow
+import copy
+import subprocess
+import time
+import pandas as pd
+import requests
 import yaml
 
 from pynavio.utils import ExampleRequestType, make_env
@@ -131,6 +136,138 @@ def process_path(path):
     str_path = str_path[7:] if str_path[0:7] == 'file://' else str_path
     return str_path
 
+# TODO refactor scripts tests to use the code from here
+
+
+def _read_metadata(model_path: str) -> dict:
+    with (Path(model_path) / 'MLmodel').open('r') as file:
+        yml = yaml.safe_load(file)
+
+    data_path = _get_field(yml, 'metadata.dataset.path')
+    data_path = Path(model_path) / data_path if data_path is not None else None
+    example_request_path = Path(model_path) / _get_field(
+        yml, 'metadata.request_schema.path')
+    with open(example_request_path, 'r') as file:
+        example_request = json.load(file)
+
+    return {
+        'dataset':
+            pd.read_csv(data_path) if data_path is not None else None,
+        'explanation_format':
+            _get_field(yml, 'metadata.explanations.format'),
+        'example_request':
+            example_request
+    }
+
+
+def _fetch_data(model_path: str) -> dict:
+    meta = _read_metadata(model_path)
+    data = meta['example_request']
+
+    _input = {
+        'columns': [x['name'] for x in data['featureColumns']],
+        'data': [[x['sampleData'] for x in data['featureColumns']]]
+    }
+
+    if 'dateTimeColumn' in data:
+        _input['columns'].append(data['dateTimeColumn']['name'])
+        _input['data'][0].append(data['dateTimeColumn']['sampleData'])
+
+    if meta.get('explanation_format') in ['default', None]:
+        return [_input]
+
+    dataset = meta.get('dataset')
+    if dataset is None:
+        return [_input]
+
+    _explain_input = copy.deepcopy(_input)
+    _explain_input['columns'].append('is_background')
+    _explain_input['data'] = [[
+        *_explain_input['data'][0], False
+    ], *dataset[_input['columns']].assign(is_background=True).sample(
+        20, random_state=42, replace=True).values.tolist()]
+
+    return [_input, _explain_input]
+
+
+def _get_example_request_df(model_path):
+    data = _fetch_data(model_path)[0]
+    return pd.DataFrame(data['data'], columns=data['columns'])
+
+
+def _check_model_serving(model_path, port=5001, request_bodies=None):
+    URL = f'http://127.0.0.1:{port}/invocations'
+    process = subprocess.Popen(
+        f'mlflow models serve -m {model_path} -p {port} --no-conda'.split())
+    time.sleep(5)
+    response = None
+
+    try:
+        for data in (request_bodies or _fetch_data(model_path)):
+            response = requests.post(
+                URL,
+                data=json.dumps(data, allow_nan=True),
+                headers={'Content-type': 'application/json'})
+            response.raise_for_status()
+    finally:
+        process.terminate()
+        if response is not None:
+            print(response.json())  # TODO: change to logging debug
+        subprocess.run('pkill -f gunicorn'.split())
+        time.sleep(2)
+
+
+class ModelValidator:
+    @staticmethod
+    def run_model_io(model_path, model_input=None, **kwargs):
+        model = mlflow.pyfunc.load_model(model_path)
+        if model_input is None:
+            model_input = _get_example_request_df(model_path)
+        return model_input, model.predict(model_input)
+
+    @staticmethod
+    def verify_model_output(model_output,
+                            expect_error=False, **kwargs):
+        if expect_error:
+            expected_keys = {'error_code', 'message', 'stack_trace'}
+            assert set(model_output.keys()) == expected_keys, \
+                "please use pynavio.prediction_call to decorate " \
+                "the predict method of the model"
+            return
+        # TODO: add a check that the output is a dict
+        # TODO: add a check that the prediction is mapping
+        #  to a number, string, bool or list
+        key = 'prediction'
+        assert key in model_output, "model output must have 'prediction'" \
+                                    " as key for the target, independent of" \
+                                    " tha target name in the example request" \
+                                    ". There can be other keys, " \
+                                    "that will be listed under " \
+                                    "'additionalFields'" \
+                                    " in the response of the model deployed" \
+                                    " to navio"
+
+    @staticmethod
+    def verify_model_serving(model_path, port=5001, request_bodies=None):
+        try:
+            _check_model_serving(model_path, port, request_bodies)
+            print("""
+                    Note: this does not check if the 'conda.env' file
+                    is set up correctly. Please refer to
+                    https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
+                    for testing the model serving.
+                    """)
+        except Exception:
+            print("Error in the model serving/prediction")
+            raise
+
+    def __call__(self, model_path, validate_model_serving, validation_port,
+                 expect_error: bool = False, **kwargs):
+        model_input, model_output = self.run_model_io(model_path)
+        self.verify_model_output(model_output, expect_error=expect_error)
+        if validate_model_serving:
+            self.verify_model_serving(model_path, validation_port)
+
 
 def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
@@ -144,7 +281,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              dataset: Optional[dict] = None,
              explanations: Optional[str] = None,
              oodd: Optional[str] = None,
-             num_gpus: Optional[int] = 0) -> Path:
+             num_gpus: Optional[int] = 0,
+             expect_error_on_example_request=False,
+             validate_model_serving_with_mlflow=True,
+             model_serving_validation_port=5001) -> Path:
     """
     create a .zip mlflow model file for navio
     Usage: either pip_packages or conda_env need to be set.
@@ -170,6 +310,15 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param explanations:
     @param oodd:
     @param num_gpus:
+    @param expect_error_on_example_request: if not set to True,
+    model validation will not pass if error is returned
+    @param validate_model_serving_with_mlflow: True by default,
+    which will validate the model serving with mlflow.
+    Note: this does not check if the 'conda.env' file is set up correctly.
+    Please refer to
+    https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
+    for testing the model serving.
+    @param model_serving_validation_port: the port to use for mlflow serving
     @return: path to the .zip model file
     """
 
@@ -202,7 +351,9 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       explanations=explanations,
                       oodd=oodd,
                       num_gpus=num_gpus)
-
-    mlflow.pyfunc.load_model(path)  # test load
+    ModelValidator()(path,
+                     validate_model_serving_with_mlflow,
+                     model_serving_validation_port,
+                     expect_error_on_example_request)
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')
