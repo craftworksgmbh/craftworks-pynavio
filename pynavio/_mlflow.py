@@ -6,10 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 
 import mlflow
 import copy
-import subprocess
-import time
 import pandas as pd
-import requests
 import yaml
 
 from pynavio.utils import ExampleRequestType, make_env
@@ -193,28 +190,6 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
-def _check_model_serving(model_path, port=5001, request_bodies=None):
-    URL = f'http://127.0.0.1:{port}/invocations'
-    process = subprocess.Popen(
-        f'mlflow models serve -m {model_path} -p {port} --no-conda'.split())
-    time.sleep(5)
-    response = None
-
-    try:
-        for data in (request_bodies or _fetch_data(model_path)):
-            response = requests.post(
-                URL,
-                data=json.dumps(data, allow_nan=True),
-                headers={'Content-type': 'application/json'})
-            response.raise_for_status()
-    finally:
-        process.terminate()
-        if response is not None:
-            print(response.json())
-        subprocess.run('pkill -f gunicorn'.split())
-        time.sleep(2)
-
-
 class ModelValidator:
     @staticmethod
     def run_model_io(model_path, model_input=None, **kwargs):
@@ -243,26 +218,9 @@ class ModelValidator:
                                     " in the response of the model deployed" \
                                     " to navio"
 
-    @staticmethod
-    def verify_model_serving(model_path, port=5001, request_bodies=None):
-        try:
-            _check_model_serving(model_path, port, request_bodies)
-            print("""
-                    Note: this does not check if the 'conda.env' file
-                    is set up correctly. Please refer to
-                    https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
-                    for testing the model serving.
-                    """)
-        except Exception:
-            print("Error in the model serving/prediction")
-            raise
-
-    def __call__(self, model_path, validate_model_serving, validation_port,
-                 expect_error: bool = False, **kwargs):
+    def __call__(self, model_path, expect_error: bool = False, **kwargs):
         model_input, model_output = self.run_model_io(model_path)
         self.verify_model_output(model_output, expect_error=expect_error)
-        if validate_model_serving:
-            self.verify_model_serving(model_path, validation_port)
 
 
 def to_navio(model: mlflow.pyfunc.PythonModel,
@@ -278,9 +236,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              explanations: Optional[str] = None,
              oodd: Optional[str] = None,
              num_gpus: Optional[int] = 0,
-             expect_error_on_example_request=False,
-             validate_model_serving_with_mlflow=True,
-             model_serving_validation_port=5001) -> Path:
+             expect_error_on_example_request=False
+             ) -> Path:
     """
     create a .zip mlflow model file for navio
     Usage: either pip_packages or conda_env need to be set.
@@ -308,13 +265,9 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param num_gpus:
     @param expect_error_on_example_request: if not set to True,
     model validation will not pass if error is returned
-    @param validate_model_serving_with_mlflow: True by default,
-    which will validate the model serving with mlflow.
-    Note: this does not check if the 'conda.env' file is set up correctly.
-    Please refer to
+    Note: Please refer to
     https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
     for testing the model serving.
-    @param model_serving_validation_port: the port to use for mlflow serving
     @return: path to the .zip model file
     """
 
@@ -348,8 +301,6 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
     ModelValidator()(path,
-                     validate_model_serving_with_mlflow,
-                     model_serving_validation_port,
                      expect_error_on_example_request)
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')

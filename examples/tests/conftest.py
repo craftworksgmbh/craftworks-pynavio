@@ -4,8 +4,8 @@ import mlflow
 import pytest
 from mlflow_models import *
 from mlflow_models import __all__ as MODELS
-from pynavio._mlflow import _check_model_serving, _get_example_request_df, ModelValidator
-
+from pynavio._mlflow import ModelValidator
+from examples.scripts.test import _check_model_serving
 from pynavio import infer_imported_code_path
 
 # these require custom tests - see corresponding test_<model_name>.py
@@ -28,7 +28,6 @@ class Helper(ModelValidator):
     def setup_model(model_name, model_path, expect_error=False):
         assert model_name in [*MODELS, *EXCLUDED_MODELS]
         import mlflow_models
-
         setup_arguments = dict(with_data=False,
                                with_oodd=False,
                                explanations=None,
@@ -67,11 +66,11 @@ class Helper(ModelValidator):
         except Exception:
             pytest.fail("Error in the model serving/prediction")
 
-    def __call__(self, model_path, validate_model_serving=True, validation_port=5001,
-                 expect_error: bool = False, **kwargs):
+    def __call__(self, model_path, expect_error: bool = False,
+                 validate_model_serving=True, validation_port=5001, **kwargs):
         self.setup_model(kwargs["model_name"], model_path, expect_error)
-        super().__call__(model_path, validate_model_serving,
-                         validation_port, expect_error, **kwargs)
+        super().__call__(model_path=model_path, expect_error=expect_error)
+        self.verify_model_serving(model_path, validation_port)
 
 
 @pytest.fixture
