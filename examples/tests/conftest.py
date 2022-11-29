@@ -41,14 +41,15 @@ class Helper(_ModelValidator):
                             expect_error=False,
                             model_input=None,
                             **kwargs):
-        super().verify_model_output(model_output, expect_error)
-        key = 'prediction'
-        if model_input is not None:
-            # this is not always the case, e.g. some timeseries models
-            # will output only one prediction for a set of timeseries rows (frame)
-            assert len(model_output[key]) == model_input.shape[0], \
-                'The number of elements in the prediction array must match ' \
-                'the number of input rows'
+        super(Helper, Helper).verify_model_output(model_output, expect_error)
+        if not expect_error:
+            key = 'prediction'
+            if model_input is not None:
+                # this is not always the case, e.g. some timeseries models
+                # will output only one prediction for a set of timeseries rows (frame)
+                assert len(model_output[key]) == model_input.shape[0], \
+                    'The number of elements in the prediction array must match ' \
+                    'the number of input rows'
 
     @staticmethod
     def verify_model_serving(model_path, port=5001, request_bodies=None):
