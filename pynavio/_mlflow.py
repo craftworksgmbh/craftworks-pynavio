@@ -301,6 +301,6 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
     _ModelValidator()(path,
-                     expect_error_on_example_request)
+                      expect_error_on_example_request)
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')
