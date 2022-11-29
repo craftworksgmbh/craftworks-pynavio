@@ -28,12 +28,16 @@ class Helper:
     def setup_model(model_name, model_path, expect_error):
         assert model_name in [*MODELS, *EXCLUDED_MODELS]
         import mlflow_models
-        globals()[model_name].setup(with_data=False,
-                                    with_oodd=False,
-                                    explanations=None,
-                                    path=model_path,
-                                    code_path=[mlflow_models.__path__[0]],
-                                    expect_error_on_example_request=expect_error)
+
+        setup_arguments = dict(with_data=False,
+                               with_oodd=False,
+                               explanations=None,
+                               path=model_path,
+                               code_path=[mlflow_models.__path__[0]])
+        if expect_error:
+            setup_arguments['expect_error_on_example_request'] = expect_error
+
+        globals()[model_name].setup(**setup_arguments)
 
     @staticmethod
     def run_model_io(model_path, model_input=None):
