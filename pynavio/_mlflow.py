@@ -136,8 +136,6 @@ def process_path(path):
     str_path = str_path[7:] if str_path[0:7] == 'file://' else str_path
     return str_path
 
-# TODO refactor scripts tests to use the code from here
-
 
 def _read_metadata(model_path: str) -> dict:
     with (Path(model_path) / 'MLmodel').open('r') as file:
