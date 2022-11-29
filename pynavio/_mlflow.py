@@ -190,7 +190,7 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
-class ModelValidator:
+class _ModelValidator:
     @staticmethod
     def run_model_io(model_path, model_input=None, **kwargs):
         model = mlflow.pyfunc.load_model(model_path)
@@ -300,7 +300,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       explanations=explanations,
                       oodd=oodd,
                       num_gpus=num_gpus)
-    ModelValidator()(path,
+    _ModelValidator()(path,
                      expect_error_on_example_request)
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')
