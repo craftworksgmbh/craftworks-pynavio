@@ -4,7 +4,7 @@ import mlflow
 import pytest
 from mlflow_models import *
 from mlflow_models import __all__ as MODELS
-from scripts.test import _check_model_serving, _get_example_request_df
+from pynavio._mlflow import _check_model_serving, _get_example_request_df
 
 from pynavio import infer_imported_code_path
 
