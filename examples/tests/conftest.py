@@ -38,17 +38,11 @@ class Helper(_ModelValidator):
 
     @staticmethod
     def verify_model_output(model_output,
-                            model_input=None,
                             expect_error=False,
+                            model_input=None,
                             **kwargs):
-        if expect_error:
-            expected_keys = {'error_code', 'message', 'stack_trace'}
-            assert set(model_output.keys()) == expected_keys
-            return
-
+        super().verify_model_output(model_output, expect_error)
         key = 'prediction'
-        assert key in model_output
-
         if model_input is not None:
             # this is not always the case, e.g. some timeseries models
             # will output only one prediction for a set of timeseries rows (frame)
@@ -66,7 +60,8 @@ class Helper(_ModelValidator):
     def __call__(self, model_path, expect_error: bool = False,
                  validate_model_serving=True, validation_port=5001, **kwargs):
         self.setup_model(kwargs["model_name"], model_path, expect_error)
-        super().__call__(model_path=model_path, expect_error=expect_error)
+        model_input, model_output = self.run_model_io(model_path)
+        self.verify_model_output(model_output, expect_error=expect_error, model_input=model_input)
         self.verify_model_serving(model_path, validation_port)
 
 
