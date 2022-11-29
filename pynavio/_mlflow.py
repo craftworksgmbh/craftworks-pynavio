@@ -231,14 +231,15 @@ class _ModelValidator:
             assert set(model_output.keys()) == expected_keys, \
                 "please use pynavio.prediction_call to decorate " \
                 "the predict method of the model"
+        else:
 
-        prediction_key = 'prediction'
-        assert prediction_key in model_output, "model output must have" \
-               " 'prediction' as key for the target, independent of" \
-               " tha target name in the example request. There can be " \
-               "other keys, that will be listed under 'additionalFields'" \
-               "in the response of the model deployed to navio"
-        _validate_prediction_schema(model_output)
+            prediction_key = 'prediction'
+            assert prediction_key in model_output, "model output must have" \
+                   " 'prediction' as key for the target, independent of" \
+                   " tha target name in the example request. There can be " \
+                   "other keys, that will be listed under 'additionalFields'" \
+                   "in the response of the model deployed to navio"
+            _validate_prediction_schema(model_output)
 
     def __call__(self, model_path, expect_error: bool = False, **kwargs):
         model_input, model_output = self.run_model_io(model_path)
