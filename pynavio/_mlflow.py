@@ -19,6 +19,68 @@ ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
 
 
+METADATA_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'request_schema': {
+            'type': 'object',
+            'properties': {
+                'path': {'type': 'string'}
+            }
+        },
+        'dataset': {
+            'type': 'object',
+            'properties': {
+                'name': {'type': 'string'},
+                'path': {'type': 'string'}
+            }
+        },
+        'oodDetection': {
+            'type': 'string',
+            'enum': ['disabled', 'default']
+        },
+        'explanations': {
+            'type': 'string',
+            'enum': ['disabled', 'default', 'plotly']
+        },
+        '.shm_mount': {'type': 'string'}
+    },
+    'required': ['request_schema']
+}
+
+COLUMN_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'name': {'type': 'string'},
+        'sampleData': {'type': [
+            'boolean', 'integer', 'number', 'array', 'string'
+        ]},
+        'type': {
+            'type': 'string',
+            'enum': ['float', 'string', 'image', 'list', 'bool', 'int',
+                     'timestamp']
+        },
+        'nullable': {'type': 'boolean'}
+    },
+    'required': ['name', 'sampleData', 'type', 'nullable']
+}
+
+REQUEST_SCHEMA_SCHEMA = {
+    'type': 'object',
+    'properties': {
+        'featureColumns': {
+            'type': 'array',
+            'items': COLUMN_SCHEMA
+        },
+        'targetColumns': {
+            'type': 'array',
+            'items': COLUMN_SCHEMA
+        },
+        'dateTimeColumn': COLUMN_SCHEMA
+    }
+}
+
+
 def _get_field(yml: dict, path: str) -> Optional[Any]:
     keys = path.split('.')
     assert keys, 'Path must not be empty'
@@ -136,16 +198,28 @@ def process_path(path):
     return str_path
 
 
+def _read_mlmodel_yaml(model_path):
+    with (Path(model_path) / 'MLmodel').open('r') as config_file:
+        config = yaml.safe_load(config_file)
+    return config
+
+
+def _read_example_request(model_path, config):
+    schema_path = Path(model_path) / _get_field(
+        config, 'metadata.request_schema.path')
+
+    with open(schema_path, 'r') as schema_file:
+        schema = json.load(schema_file)
+    return schema
+
+
 def _read_metadata(model_path: str) -> dict:
-    with (Path(model_path) / 'MLmodel').open('r') as file:
-        yml = yaml.safe_load(file)
+    yml = _read_mlmodel_yaml(model_path)
 
     data_path = _get_field(yml, 'metadata.dataset.path')
     data_path = Path(model_path) / data_path if data_path is not None else None
-    example_request_path = Path(model_path) / _get_field(
-        yml, 'metadata.request_schema.path')
-    with open(example_request_path, 'r') as file:
-        example_request = json.load(file)
+
+    example_request = _read_example_request(model_path, yml)
 
     return {
         'dataset':
@@ -193,6 +267,14 @@ def _get_example_request_df(model_path):
 
 
 class _ModelValidator:
+    @staticmethod
+    def validate_metadata(model_path):
+        config = _read_mlmodel_yaml(model_path)
+        jsonschema.validate(config.get('metadata'), METADATA_SCHEMA)
+
+        example_request = _read_example_request(model_path, config)
+        jsonschema.validate(example_request, REQUEST_SCHEMA_SCHEMA)
+
     @staticmethod
     def run_model_io(model_path, model_input=None, **kwargs):
         model = mlflow.pyfunc.load_model(model_path)
@@ -242,6 +324,7 @@ class _ModelValidator:
             _validate_prediction_schema(model_output)
 
     def __call__(self, model_path, expect_error: bool = False, **kwargs):
+        self.validate_metadata(model_path)
         model_input, model_output = self.run_model_io(model_path)
         self.verify_model_output(model_output, expect_error=expect_error)
 
