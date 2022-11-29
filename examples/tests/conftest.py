@@ -25,7 +25,7 @@ def model_name(request):
 class Helper:
 
     @staticmethod
-    def setup_model(model_name, model_path, expect_error):
+    def setup_model(model_name, model_path, expect_error=False):
         assert model_name in [*MODELS, *EXCLUDED_MODELS]
         import mlflow_models
 
