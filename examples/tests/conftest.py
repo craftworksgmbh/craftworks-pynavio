@@ -4,7 +4,7 @@ import mlflow
 import pytest
 from mlflow_models import *
 from mlflow_models import __all__ as MODELS
-from pynavio._mlflow import _check_model_serving, _get_example_request_df
+from pynavio._mlflow import _check_model_serving, _get_example_request_df, ModelValidator
 
 from pynavio import infer_imported_code_path
 
@@ -22,7 +22,7 @@ def model_name(request):
     return request.param
 
 
-class Helper:
+class Helper(ModelValidator):
 
     @staticmethod
     def setup_model(model_name, model_path, expect_error=False):
@@ -39,17 +39,12 @@ class Helper:
 
         globals()[model_name].setup(**setup_arguments)
 
-    @staticmethod
-    def run_model_io(model_path, model_input=None):
-        model = mlflow.pyfunc.load_model(model_path)
-        if model_input is None:
-            model_input = _get_example_request_df(model_path)
-        return model_input, model.predict(model_input)
 
     @staticmethod
     def verify_model_output(model_output,
                             model_input=None,
-                            expect_error=False):
+                            expect_error=False,
+                            **kwargs):
         if expect_error:
             expected_keys = {'error_code', 'message', 'stack_trace'}
             assert set(model_output.keys()) == expected_keys
@@ -66,17 +61,17 @@ class Helper:
                 'the number of input rows'
 
     @staticmethod
-    def verify_model_serving(model_path, requests=None):
+    def verify_model_serving(model_path, port=5001, request_bodies=None):
         try:
-            _check_model_serving(model_path, requests)
+            _check_model_serving(model_path, port, request_bodies)
         except Exception:
             pytest.fail("Error in the model serving/prediction")
 
-    def run(self, model_name, model_path, expect_error=False):
-        self.setup_model(model_name, model_path, expect_error)
-        model_input, model_output = self.run_model_io(model_path)
-        self.verify_model_output(model_output, model_input, expect_error)
-        self.verify_model_serving(model_path)
+    def __call__(self, model_path, validate_model_serving=True, validation_port=5001,
+                 expect_error: bool = False, **kwargs):
+        self.setup_model(kwargs["model_name"], model_path, expect_error)
+        super().__call__(model_path, validate_model_serving,
+                         validation_port, expect_error, **kwargs)
 
 
 @pytest.fixture

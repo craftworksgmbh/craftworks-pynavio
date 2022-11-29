@@ -9,4 +9,4 @@
 
 def test_models_default(model_name, helper, tmp_path):
     model_path = str(tmp_path / 'model')
-    helper.run(model_name, model_path)
+    helper(model_name=model_name, model_path=model_path)

@@ -6,4 +6,4 @@ def test_pump_leakage_model(helper, tmp_path, monkeypatch):
     model_path = str(tmp_path / 'model')
     monkeypatch.setattr(pump_leakage_model, "load_data",
                         pump_leakage_model.mock_data)
-    helper.run(model_name, model_path)
+    helper(model_name=model_name, model_path=model_path)
