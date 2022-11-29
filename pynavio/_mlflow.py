@@ -3,11 +3,13 @@ import shutil
 from pathlib import Path, PosixPath
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, List, Optional, Union
+from collections.abc import Mapping
 
 import mlflow
 import copy
 import pandas as pd
 import yaml
+import jsonschema
 
 from pynavio.utils import ExampleRequestType, make_env
 from pynavio.utils.json_encoder import JSONEncoder
@@ -201,22 +203,42 @@ class _ModelValidator:
     @staticmethod
     def verify_model_output(model_output,
                             expect_error=False, **kwargs):
+        def _validate_prediction_schema(model_prediction):
+            prediction_types = [
+                    'boolean', 'integer', 'number', 'array', 'string'
+                ]
+            prediction_schema = {
+                "type": "object",
+                "properties": {
+                    prediction_key: {"type": prediction_types},
+                },
+                "required": [prediction_key],
+            }
+
+            try:
+                jsonschema.validate(model_prediction, prediction_schema)
+            except jsonschema.exceptions.ValidationError:
+                print(f"Error: The value of model_output['{prediction_key}']"
+                      f" the must be one of the following types: "
+                      f"{prediction_types}")
+                raise
+
+        assert isinstance(model_output, Mapping), "Model " \
+            "output has to be a dictionary"
+
         if expect_error:
             expected_keys = {'error_code', 'message', 'stack_trace'}
             assert set(model_output.keys()) == expected_keys, \
                 "please use pynavio.prediction_call to decorate " \
                 "the predict method of the model"
-            return
 
-        key = 'prediction'
-        assert key in model_output, "model output must have 'prediction'" \
-                                    " as key for the target, independent of" \
-                                    " tha target name in the example request" \
-                                    ". There can be other keys, " \
-                                    "that will be listed under " \
-                                    "'additionalFields'" \
-                                    " in the response of the model deployed" \
-                                    " to navio"
+        prediction_key = 'prediction'
+        assert prediction_key in model_output, "model output must have" \
+               " 'prediction' as key for the target, independent of" \
+               " tha target name in the example request. There can be " \
+               "other keys, that will be listed under 'additionalFields'" \
+               "in the response of the model deployed to navio"
+        _validate_prediction_schema(model_output)
 
     def __call__(self, model_path, expect_error: bool = False, **kwargs):
         model_input, model_output = self.run_model_io(model_path)
