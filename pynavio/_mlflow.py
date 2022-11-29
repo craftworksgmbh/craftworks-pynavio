@@ -212,7 +212,7 @@ def _check_model_serving(model_path, port=5001, request_bodies=None):
     finally:
         process.terminate()
         if response is not None:
-            print(response.json())  # TODO: change to logging debug
+            print(response.json())
         subprocess.run('pkill -f gunicorn'.split())
         time.sleep(2)
 
@@ -234,9 +234,7 @@ class ModelValidator:
                 "please use pynavio.prediction_call to decorate " \
                 "the predict method of the model"
             return
-        # TODO: add a check that the output is a dict
-        # TODO: add a check that the prediction is mapping
-        #  to a number, string, bool or list
+
         key = 'prediction'
         assert key in model_output, "model output must have 'prediction'" \
                                     " as key for the target, independent of" \
