@@ -25,14 +25,15 @@ def model_name(request):
 class Helper:
 
     @staticmethod
-    def setup_model(model_name, model_path):
+    def setup_model(model_name, model_path, expect_error):
         assert model_name in [*MODELS, *EXCLUDED_MODELS]
         import mlflow_models
         globals()[model_name].setup(with_data=False,
                                     with_oodd=False,
                                     explanations=None,
                                     path=model_path,
-                                    code_path=[mlflow_models.__path__[0]])
+                                    code_path=[mlflow_models.__path__[0]],
+                                    expect_error_on_example_request=expect_error)
 
     @staticmethod
     def run_model_io(model_path, model_input=None):
@@ -68,7 +69,7 @@ class Helper:
             pytest.fail("Error in the model serving/prediction")
 
     def run(self, model_name, model_path, expect_error=False):
-        self.setup_model(model_name, model_path)
+        self.setup_model(model_name, model_path, expect_error)
         model_input, model_output = self.run_model_io(model_path)
         self.verify_model_output(model_output, model_input, expect_error)
         self.verify_model_serving(model_path)
