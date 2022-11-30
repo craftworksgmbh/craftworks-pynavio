@@ -318,7 +318,8 @@ class _ModelValidator:
     @staticmethod
     def verify_model_output(model_output, **kwargs):
         def _validate_prediction_schema(model_prediction):
-            not_sequence_prediction_types = ['boolean', 'integer', 'number', 'string']
+            not_sequence_prediction_types = ['boolean', 'integer',
+                                             'number', 'string']
             prediction_types = [
                     'array', *not_sequence_prediction_types
                 ]
@@ -350,18 +351,22 @@ class _ModelValidator:
                 jsonschema.validate(model_prediction, prediction_schema)
             except jsonschema.exceptions.ValidationError:
                 print(f"Error: The value of model_output['{PREDICTION_KEY}']"
-                      f" must be one of the following types (cannot be nested or mixed type): "
+                      " must be one of the following types "
+                      "(cannot be nested or mixed type): "
                       f"{prediction_types}")
                 raise
 
             if isinstance(model_prediction[PREDICTION_KEY], Sequence) \
                     and not isinstance(model_prediction[PREDICTION_KEY], str):
-                try:                    
-                    jsonschema.validate(model_prediction, prediction_schema_for_sequence)
+                try:
+                    jsonschema.validate(model_prediction,
+                                        prediction_schema_for_sequence)
 
                 except jsonschema.exceptions.ValidationError:
-                    print(f"Error: The value of model_output['{PREDICTION_KEY}']"
-                          f" if an array, must be an array of the following types: "
+                    print(f"Error: The value of "
+                          f"model_output['{PREDICTION_KEY}']"
+                          f" if an array, must be an array of"
+                          f" the following types: "
                           f"{not_sequence_prediction_types}")
                     raise
 
