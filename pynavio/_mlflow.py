@@ -73,15 +73,18 @@ REQUEST_SCHEMA_SCHEMA = {
     'type': 'object',
     'properties': {
         'featureColumns': {
+            'minItems': 1,
             'type': 'array',
             'items': COLUMN_SCHEMA
         },
         'targetColumns': {
+            'minItems': 1,
             'type': 'array',
             'items': COLUMN_SCHEMA
         },
         'dateTimeColumn': COLUMN_SCHEMA
-    }
+    },
+    'required': ['featureColumns', 'targetColumns']
 }
 
 
@@ -274,10 +277,18 @@ class _ModelValidator:
     @staticmethod
     def validate_metadata(model_path):
         config = _read_mlmodel_yaml(model_path)
-        jsonschema.validate(config.get('metadata'), METADATA_SCHEMA)
+        try:
+            jsonschema.validate(config.get('metadata'), METADATA_SCHEMA)
+        except jsonschema.exceptions.ValidationError:
+            print(f"Error during MLmodel validation")
+            raise
 
         example_request = _read_example_request(model_path, config)
-        jsonschema.validate(example_request, REQUEST_SCHEMA_SCHEMA)
+        try:
+            jsonschema.validate(example_request, REQUEST_SCHEMA_SCHEMA)
+        except jsonschema.exceptions.ValidationError:
+            print(f"Error during example request validation")
+            raise
 
     @staticmethod
     def run_model_io(model_path, model_input=None, **kwargs):
@@ -355,6 +366,7 @@ class _ModelValidator:
                 f"needed error keys for error case"
 
     def __call__(self, model_path, **kwargs):
+        self.validate_metadata(model_path)
         model_input, model_output = self.run_model_io(model_path)
         self._check_if_prediction_call_is_used(model_path)
         self.verify_model_output(model_output)
