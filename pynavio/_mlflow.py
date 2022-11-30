@@ -206,11 +206,17 @@ class _ModelValidator:
         corrupt_model_input = pd.DataFrame(
             {'corrupt_model_input_123': [1, 2, 3]})
         model_output = model.predict(corrupt_model_input)
+
+        key = 'prediction'
         error_keys = {'error_code', 'message', 'stack_trace'}
-        assert set(model_output.keys()) == error_keys, \
-            "Please use pynavio.prediction_call to decorate " \
-            "the predict method of the model, which will add the " \
-            "needed error keys for error case"
+
+        if key not in model_output:  # precaution to allow for models
+            # that always return prediction
+
+            assert set(model_output.keys()) == error_keys, \
+                "Please use pynavio.prediction_call to decorate " \
+                "the predict method of the model, which will add the " \
+                "needed error keys for error case"
 
     @staticmethod
     def verify_model_output(model_output, **kwargs):
