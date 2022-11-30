@@ -280,14 +280,14 @@ class _ModelValidator:
         try:
             jsonschema.validate(config.get('metadata'), METADATA_SCHEMA)
         except jsonschema.exceptions.ValidationError:
-            print(f"Error during MLmodel validation")
+            print("Error during MLmodel validation")
             raise
 
         example_request = _read_example_request(model_path, config)
         try:
             jsonschema.validate(example_request, REQUEST_SCHEMA_SCHEMA)
         except jsonschema.exceptions.ValidationError:
-            print(f"Error during example request validation")
+            print("Error during example request validation")
             raise
 
     @staticmethod
