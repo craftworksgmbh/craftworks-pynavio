@@ -20,7 +20,8 @@ from pynavio.utils.json_encoder import JSONEncoder
 EXAMPLE_REQUEST = 'example_request'
 ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
-
+ERROR_KEYS = {'error_code', 'message', 'stack_trace'}
+PREDICTION_KEY = 'prediction'
 
 METADATA_SCHEMA = {
     'type': 'object',
@@ -292,16 +293,13 @@ class _ModelValidator:
             {'corrupt_model_input_123': [1, 2, 3]})
         model_output = model.predict(corrupt_model_input)
 
-        key = 'prediction'
-        error_keys = {'error_code', 'message', 'stack_trace'}
-
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"
 
-        if key not in model_output:  # precaution to allow for models
-            # that always return prediction
+        if PREDICTION_KEY not in model_output:  # precaution
+            # to allow for models that always return prediction
 
-            assert set(model_output.keys()) == error_keys, \
+            assert set(model_output.keys()) == ERROR_KEYS, \
                 "Please use pynavio.prediction_call to decorate " \
                 "the predict method of the model, which will add the " \
                 "needed error keys for error case"
@@ -310,37 +308,34 @@ class _ModelValidator:
     def verify_model_output(model_output, **kwargs):
         def _validate_prediction_schema(model_prediction):
 
-            prediction_key = 'prediction'
             prediction_types = [
                     'boolean', 'integer', 'number', 'array', 'string'
                 ]
             prediction_schema = {
                 "type": "object",
                 "properties": {
-                    prediction_key: {"type": prediction_types},
+                    PREDICTION_KEY: {"type": prediction_types},
                 },
-                "required": [prediction_key],
+                "required": [PREDICTION_KEY],
             }
 
             try:
                 jsonschema.validate(model_prediction, prediction_schema)
             except jsonschema.exceptions.ValidationError:
-                print(f"Error: The value of model_output['{prediction_key}']"
+                print(f"Error: The value of model_output['{PREDICTION_KEY}']"
                       f" the must be one of the following types: "
                       f"{prediction_types}")
                 raise
 
-        key = 'prediction'
-
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"
 
-        if key in model_output:
+        if PREDICTION_KEY in model_output:
             _validate_prediction_schema(model_output)
         else:
-            error_keys = {'error_code', 'message', 'stack_trace'}
-            assert set(model_output.keys()) == error_keys, \
-                f"The model output has to contain '{key}' for prediction" \
+            assert set(model_output.keys()) == ERROR_KEYS, \
+                f"The model output has to contain '{PREDICTION_KEY}'" \
+                f" for prediction" \
                 f" as key for the target, independent of" \
                 f" tha target name in the example request" \
                 f". There can be other keys, " \
@@ -354,11 +349,10 @@ class _ModelValidator:
                 f" in the response of the model deployed" \
                 f" to navio."\
                 f" Or The model output has to contain and the following" \
-                f" keys [{error_keys}] if error occurs."\
+                f" keys [{ERROR_KEYS}] if error occurs."\
                 f"Please use pynavio.prediction_call to decorate " \
                 f"the predict method of the model, which will add the " \
                 f"needed error keys for error case"
-            return
 
     def __call__(self, model_path, **kwargs):
         model_input, model_output = self.run_model_io(model_path)
