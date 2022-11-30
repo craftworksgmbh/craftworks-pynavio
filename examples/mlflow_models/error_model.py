@@ -24,13 +24,11 @@ def setup(with_data: bool,
           with_oodd: bool,
           explanations: Optional[str] = None,
           path: Optional[str] = None,
-          code_path: Optional[List[Union[str, Path]]] = None,
-          ):
+          code_path: Optional[List[Union[str, Path]]] = None):
 
     with TemporaryDirectory() as tmp_dir:
         pynavio.mlflow.to_navio(ErrorModel(),
                                 example_request=example_request,
                                 path=path,
                                 code_path=code_path,
-                                pip_packages=['mlflow']
-                                )
+                                pip_packages=['mlflow'])
