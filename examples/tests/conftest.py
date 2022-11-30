@@ -22,7 +22,7 @@ def model_name(request):
 class Helper(_ModelValidator):
 
     @staticmethod
-    def setup_model(model_name, model_path, expect_error=False):
+    def setup_model(model_name, model_path):
         assert model_name in [*MODELS, *EXCLUDED_MODELS]
         import mlflow_models
         setup_arguments = dict(with_data=False,
@@ -30,20 +30,19 @@ class Helper(_ModelValidator):
                                explanations=None,
                                path=model_path,
                                code_path=[mlflow_models.__path__[0]])
-        if expect_error:
-            setup_arguments['expect_error_on_example_request'] = expect_error
 
         globals()[model_name].setup(**setup_arguments)
-
 
     @staticmethod
     def verify_model_output(model_output,
                             expect_error=False,
                             model_input=None,
                             **kwargs):
-        super(Helper, Helper).verify_model_output(model_output, expect_error)
+        super(Helper, Helper).verify_model_output(model_output)
         if not expect_error:
             key = 'prediction'
+            assert key in model_output
+
             if model_input is not None:
                 # this is not always the case, e.g. some timeseries models
                 # will output only one prediction for a set of timeseries rows (frame)
@@ -60,7 +59,7 @@ class Helper(_ModelValidator):
 
     def __call__(self, model_path, expect_error: bool = False,
                  validate_model_serving=True, validation_port=5001, **kwargs):
-        self.setup_model(kwargs["model_name"], model_path, expect_error)
+        self.setup_model(kwargs["model_name"], model_path)
         model_input, model_output = self.run_model_io(model_path)
         self.verify_model_output(model_output, expect_error=expect_error, model_input=model_input)
         self.verify_model_serving(model_path, validation_port)

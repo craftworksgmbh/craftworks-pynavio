@@ -199,28 +199,36 @@ class _ModelValidator:
         return model_input, model.predict(model_input)
 
     @staticmethod
-    def verify_model_output(model_output,
-                            expect_error=False, **kwargs):
-        if expect_error:
-            expected_keys = {'error_code', 'message', 'stack_trace'}
-            assert set(model_output.keys()) == expected_keys, \
-                "please use pynavio.prediction_call to decorate " \
-                "the predict method of the model"
+    def verify_model_output(model_output, **kwargs):
+        key = 'prediction'
+        if key in model_output:
+            pass  # type checks will be added here
+        else:
+            error_keys = {'error_code', 'message', 'stack_trace'}
+            assert set(model_output.keys()) == error_keys, \
+                f"The model output has to contain '{key}' for prediction" \
+                f" as key for the target, independent of" \
+                f" tha target name in the example request" \
+                f". There can be other keys, " \
+                f" that will be listed under " \
+                f" 'additionalFields' in the response of the model " \
+                f"deployed to navio" \
+                " example model output: {'prediction': " \
+                "[1.] * model_input.shape[0],"\
+                " 'extra': { 'this': 'can be any JSON serializable" \
+                " structure',} }"\
+                f" in the response of the model deployed" \
+                f" to navio."\
+                f" Or The model output has to contain and the following" \
+                f" keys [{error_keys}] if error occurs."\
+                f"Please use pynavio.prediction_call to decorate " \
+                f"the predict method of the model, which will add the " \
+                f"needed error keys for error case"
             return
 
-        key = 'prediction'
-        assert key in model_output, "model output must have 'prediction'" \
-                                    " as key for the target, independent of" \
-                                    " tha target name in the example request" \
-                                    ". There can be other keys, " \
-                                    "that will be listed under " \
-                                    "'additionalFields'" \
-                                    " in the response of the model deployed" \
-                                    " to navio"
-
-    def __call__(self, model_path, expect_error: bool = False, **kwargs):
+    def __call__(self, model_path, **kwargs):
         model_input, model_output = self.run_model_io(model_path)
-        self.verify_model_output(model_output, expect_error=expect_error)
+        self.verify_model_output(model_output)
 
 
 def to_navio(model: mlflow.pyfunc.PythonModel,
@@ -235,8 +243,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              dataset: Optional[dict] = None,
              explanations: Optional[str] = None,
              oodd: Optional[str] = None,
-             num_gpus: Optional[int] = 0,
-             expect_error_on_example_request=False
+             num_gpus: Optional[int] = 0
              ) -> Path:
     """
     create a .zip mlflow model file for navio
@@ -263,11 +270,11 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param explanations:
     @param oodd:
     @param num_gpus:
-    @param expect_error_on_example_request: if not set to True,
-    model validation will not pass if error is returned
+
     Note: Please refer to
     https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
     for testing the model serving.
+
     @return: path to the .zip model file
     """
 
@@ -300,7 +307,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       explanations=explanations,
                       oodd=oodd,
                       num_gpus=num_gpus)
-    _ModelValidator()(path,
-                      expect_error_on_example_request)
+
+    _ModelValidator()(path)
+
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')

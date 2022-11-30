@@ -20,7 +20,7 @@ def test_timeseries_trainer(helper, tmp_path, monkeypatch):
     request = _prepare_test(tmp_path)
     model_input = pd.DataFrame(**request)
 
-    helper.setup_model(model_name, model_path, expect_error=True)
+    helper.setup_model(model_name, model_path)
     model_input, model_output = helper.run_model_io(model_path, model_input)
     helper.verify_model_output(model_output)
 

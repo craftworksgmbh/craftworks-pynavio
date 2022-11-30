@@ -25,7 +25,6 @@ def setup(with_data: bool,
           explanations: Optional[str] = None,
           path: Optional[str] = None,
           code_path: Optional[List[Union[str, Path]]] = None,
-          expect_error_on_example_request=True
           ):
 
     with TemporaryDirectory() as tmp_dir:
@@ -33,5 +32,5 @@ def setup(with_data: bool,
                                 example_request=example_request,
                                 path=path,
                                 code_path=code_path,
-                                pip_packages=['mlflow'],
-                                expect_error_on_example_request=expect_error_on_example_request)
+                                pip_packages=['mlflow']
+                                )
