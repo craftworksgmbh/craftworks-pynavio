@@ -201,6 +201,18 @@ class _ModelValidator:
         return model_input, model.predict(model_input)
 
     @staticmethod
+    def _check_if_prediction_call_is_used(model_path):
+        model = mlflow.pyfunc.load_model(model_path)
+        corrupt_model_input = pd.DataFrame(
+            {'corrupt_model_input_123': [1, 2, 3]})
+        model_output = model.predict(corrupt_model_input)
+        error_keys = {'error_code', 'message', 'stack_trace'}
+        assert set(model_output.keys()) == error_keys, \
+            "Please use pynavio.prediction_call to decorate " \
+            "the predict method of the model, which will add the " \
+            "needed error keys for error case"
+
+    @staticmethod
     def verify_model_output(model_output, **kwargs):
         key = 'prediction'
         if key in model_output:
@@ -230,6 +242,7 @@ class _ModelValidator:
 
     def __call__(self, model_path, **kwargs):
         model_input, model_output = self.run_model_io(model_path)
+        self._check_if_prediction_call_is_used(model_path)
         self.verify_model_output(model_output)
 
 
