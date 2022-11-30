@@ -13,4 +13,4 @@ def test_visual_inspection_model(helper, tmp_path, monkeypatch):
     monkeypatch.setattr(train, "setup_data", mock_data)
     monkeypatch.setattr(train, "train", _mock_train)
 
-    helper.run(model_name, model_path)
+    helper(model_name=model_name, model_path=model_path)
