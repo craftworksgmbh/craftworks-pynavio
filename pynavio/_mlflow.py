@@ -3,7 +3,9 @@ import shutil
 from pathlib import Path, PosixPath
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, List, Optional, Union
-
+import subprocess
+import time
+import requests
 import mlflow
 import copy
 import pandas as pd
@@ -231,11 +233,49 @@ class _ModelValidator:
         self.verify_model_output(model_output)
 
 
+def check_model_serving(model_path: Union[str, Path],
+                        port=5001, request_bodies=None):
+    """
+    checks model serving with mlflow. This has limitations, e.g.
+    the 'conda.env' setup will not be checked.
+    Note: Please refer to
+    https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
+    for testing the model serving.
+
+    @param model_path: model path
+    @param port: port to use for model serving, defaults to 5001
+    @param request_bodies: request bodies to use
+     for checking the model serving, defaults to
+     using the example request from the model
+
+    Will throw an exception if check does not pass.
+    """
+    URL = f'http://127.0.0.1:{port}/invocations'
+    process = subprocess.Popen(
+        f'mlflow models serve -m {model_path} -p {port} --no-conda'.split())
+    time.sleep(5)
+    response = None
+
+    try:
+        for data in (request_bodies or _fetch_data(model_path)):
+            response = requests.post(
+                URL,
+                data=json.dumps(data, allow_nan=True),
+                headers={'Content-type': 'application/json'})
+            response.raise_for_status()
+    finally:
+        process.terminate()
+        if response is not None:
+            print(response.json())
+        subprocess.run('pkill -f gunicorn'.split())
+        time.sleep(2)
+
+
 def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
              example_request: ExampleRequestType = None,
              pip_packages: List[str] = None,
-             code_path: Optional[List[Union[str, PosixPath]]] = None,
+             code_path: Optional[List[Union[str, Path]]] = None,
              conda_packages: List[str] = None,
              conda_channels: List[str] = None,
              conda_env: str = None,
@@ -271,7 +311,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param oodd:
     @param num_gpus:
 
-    Note: Please refer to
+    Note: Please refer to check_model_serving() method and
     https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
     for testing the model serving.
 

@@ -1,8 +1,7 @@
 import pytest
 from mlflow_models import *
 from mlflow_models import __all__ as MODELS
-from pynavio._mlflow import _ModelValidator
-from examples.scripts.test import _check_model_serving
+from pynavio._mlflow import _ModelValidator, check_model_serving
 
 
 # these require custom tests - see corresponding test_<model_name>.py
@@ -53,7 +52,7 @@ class Helper(_ModelValidator):
     @staticmethod
     def verify_model_serving(model_path, port=5001, request_bodies=None):
         try:
-            _check_model_serving(model_path, port, request_bodies)
+            check_model_serving(model_path, port, request_bodies)
         except Exception:
             pytest.fail("Error in the model serving/prediction")
 
