@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 import subprocess
 import time
 import requests
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 
 import mlflow
 import copy
@@ -320,28 +320,26 @@ class _ModelValidator:
         def _validate_prediction_schema(model_prediction):
             not_sequence_prediction_types = ['boolean', 'integer',
                                              'number', 'string']
-            prediction_types = [
-                    'array', *not_sequence_prediction_types
-                ]
+
             prediction_schema = {
                 "type": "object",
                 "properties": {
-                    PREDICTION_KEY: {"type": prediction_types},
-                },
-                "required": [PREDICTION_KEY],
-            }
-            prediction_schema_for_sequence = {
-                "type": "object",
-                "properties": {
-                    PREDICTION_KEY: {"type": 'array',
-                                     "minItems": 1,
-                                     "items": {
-                                              "oneOf": [
-                                                {"type": "boolean"},
-                                                {"type": "number"},
-                                                {"type": "string"}
-                                              ]
-                                     }
+                    PREDICTION_KEY: {"oneOf":
+                                     [
+                                      {"type": not_sequence_prediction_types},
+                                      {"type": 'array',
+                                       "minItems": 1,
+                                       "items": {"type": "boolean"},
+                                       },
+                                      {"type": 'array',
+                                          "minItems": 1,
+                                          "items": {"type": "number"},
+                                       },
+                                      {"type": 'array',
+                                       "minItems": 1,
+                                       "items": {"type": "string"},
+                                       },
+                                     ]
                                      },
                 },
                 "required": [PREDICTION_KEY],
@@ -353,22 +351,8 @@ class _ModelValidator:
                 print(f"Error: The value of model_output['{PREDICTION_KEY}']"
                       " must be one of the following types "
                       "(cannot be nested or mixed type): "
-                      f"{prediction_types}")
+                      "'array','boolean', 'integer', 'number', 'string'")
                 raise
-
-            if isinstance(model_prediction[PREDICTION_KEY], Sequence) \
-                    and not isinstance(model_prediction[PREDICTION_KEY], str):
-                try:
-                    jsonschema.validate(model_prediction,
-                                        prediction_schema_for_sequence)
-
-                except jsonschema.exceptions.ValidationError:
-                    print(f"Error: The value of "
-                          f"model_output['{PREDICTION_KEY}']"
-                          f" if an array, must be an array of"
-                          f" the following types: "
-                          f"{not_sequence_prediction_types}")
-                    raise
 
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"

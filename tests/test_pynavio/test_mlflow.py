@@ -39,8 +39,9 @@ PREDICTION_KEY = 'prediction'
         ({PREDICTION_KEY: [{}]}),
         ({PREDICTION_KEY: [[1], [2]]}),
         ({PREDICTION_KEY: [8.5, {}]}),
-        # ({PREDICTION_KEY: [8.5, "f"]}),  # mixed types
-        # should fail too, but currently do not
+        ({PREDICTION_KEY: [8.5, "f"]}),
+        ({PREDICTION_KEY: [8.5, True]}),
+        ({PREDICTION_KEY: ["True", True]})
 
     ])
 def test_prediction_schema_check_negative(model_output):
@@ -62,7 +63,6 @@ def test_prediction_schema_check_negative(model_output):
         ({PREDICTION_KEY: ["a", "b"]}),
         ({PREDICTION_KEY: True}),
         ({PREDICTION_KEY: [True, False, True]}),
-
     ])
 def test_prediction_schema_check_positive(model_output):
     try:
