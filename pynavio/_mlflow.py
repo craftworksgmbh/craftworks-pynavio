@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional, Union
 import subprocess
 import time
 import requests
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 
 import mlflow
 import copy
@@ -318,9 +318,9 @@ class _ModelValidator:
     @staticmethod
     def verify_model_output(model_output, **kwargs):
         def _validate_prediction_schema(model_prediction):
-
+            not_sequence_prediction_types = ['boolean', 'integer', 'number', 'string']
             prediction_types = [
-                    'boolean', 'integer', 'number', 'array', 'string'
+                    'array', *not_sequence_prediction_types
                 ]
             prediction_schema = {
                 "type": "object",
@@ -329,14 +329,41 @@ class _ModelValidator:
                 },
                 "required": [PREDICTION_KEY],
             }
+            prediction_schema_for_sequence = {
+                "type": "object",
+                "properties": {
+                    PREDICTION_KEY: {"type": 'array',
+                                     "minItems": 1,
+                                     "items": {
+                                              "oneOf": [
+                                                {"type": "boolean"},
+                                                {"type": "number"},
+                                                {"type": "string"}
+                                              ]
+                                     }
+                                     },
+                },
+                "required": [PREDICTION_KEY],
+            }
 
             try:
                 jsonschema.validate(model_prediction, prediction_schema)
             except jsonschema.exceptions.ValidationError:
                 print(f"Error: The value of model_output['{PREDICTION_KEY}']"
-                      f" the must be one of the following types: "
+                      f" must be one of the following types (cannot be nested or mixed type): "
                       f"{prediction_types}")
                 raise
+
+            if isinstance(model_prediction[PREDICTION_KEY], Sequence) \
+                    and not isinstance(model_prediction[PREDICTION_KEY], str):
+                try:                    
+                    jsonschema.validate(model_prediction, prediction_schema_for_sequence)
+
+                except jsonschema.exceptions.ValidationError:
+                    print(f"Error: The value of model_output['{PREDICTION_KEY}']"
+                          f" if an array, must be an array of the following types: "
+                          f"{not_sequence_prediction_types}")
+                    raise
 
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"
