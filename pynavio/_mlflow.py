@@ -275,7 +275,7 @@ class _ModelValidator:
                 f"The model output has to contain '{PREDICTION_KEY}'" \
                 f" for prediction" \
                 f" as key for the target, independent of" \
-                f" tha target name in the example request" \
+                f" the target name in the example request" \
                 f". There can be other keys, " \
                 f" that will be listed under " \
                 f" 'additionalFields' in the response of the model " \
