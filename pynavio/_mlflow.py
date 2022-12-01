@@ -286,7 +286,7 @@ class _ModelValidator:
                 " structure',} }"\
                 f" in the response of the model deployed" \
                 f" to navio."\
-                f" Or The model output has to contain and the following" \
+                f" Or The model output has to contain the following" \
                 f" keys [{ERROR_KEYS}] if error occurs."\
                 f"Please use pynavio.prediction_call to decorate " \
                 f"the predict method of the model, which will add the " \
