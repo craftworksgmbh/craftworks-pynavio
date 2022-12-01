@@ -240,7 +240,13 @@ class _ModelValidator:
         model = mlflow.pyfunc.load_model(model_path)
         corrupt_model_input = pd.DataFrame(
             {'corrupt_model_input_123': [1, 2, 3]})
-        model_output = model.predict(corrupt_model_input)
+        try:
+            model_output = model.predict(corrupt_model_input)
+        except Exception:
+            print("Please use pynavio.prediction_call to decorate "
+                  "the predict method of the model, which will add the "
+                  "needed error keys for error case")
+            raise ValueError
 
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"
