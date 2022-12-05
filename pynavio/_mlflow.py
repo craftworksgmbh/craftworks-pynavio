@@ -246,6 +246,8 @@ class _ModelValidator:
             "Please use pynavio.prediction_call to decorate " \
             "the predict method of the model, which will add the " \
             "needed error keys for error case"
+        print("\n Info: Providing corrupt input to the model to try to"
+              " check if pynavio.prediction_call is used")
         try:
             model_output = model.predict(corrupt_model_input)
         except Exception:
