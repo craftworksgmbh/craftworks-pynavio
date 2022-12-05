@@ -237,16 +237,20 @@ class _ModelValidator:
 
     @staticmethod
     def _check_if_prediction_call_is_used(model_path):
+
         model = mlflow.pyfunc.load_model(model_path)
         corrupt_model_input = pd.DataFrame(
             {'corrupt_model_input_123': [1, 2, 3]})
+
+        error_msg = \
+            "Please use pynavio.prediction_call to decorate " \
+            "the predict method of the model, which will add the " \
+            "needed error keys for error case"
         try:
             model_output = model.predict(corrupt_model_input)
         except Exception:
-            print("Please use pynavio.prediction_call to decorate "
-                  "the predict method of the model, which will add the "
-                  "needed error keys for error case")
-            raise ValueError
+            print(error_msg)
+            raise KeyError(error_msg)
 
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"
@@ -254,10 +258,7 @@ class _ModelValidator:
         if PREDICTION_KEY not in model_output:  # precaution
             # to allow for models that always return prediction
 
-            assert set(model_output.keys()) == ERROR_KEYS, \
-                "Please use pynavio.prediction_call to decorate " \
-                "the predict method of the model, which will add the " \
-                "needed error keys for error case"
+            assert set(model_output.keys()) == ERROR_KEYS, error_msg
 
     @staticmethod
     def verify_model_output(model_output, **kwargs):
