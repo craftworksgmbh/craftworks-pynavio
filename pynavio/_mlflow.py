@@ -392,9 +392,15 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
 
     @return: path to the .zip model file
     """
-
     path = process_path(path)
+
     if code_path:
+        if not isinstance(code_path, list):
+            raise TypeError("'code_path' argument must be a"
+                            " list (of local filesystem paths to Python file"
+                            "dependencies (or directories containing file "
+                            "dependencies)), but is not a list")
+
         if any(Path(code_p).resolve() in Path(path).resolve().parents
                for code_p in code_path):
             raise Exception("any of 'code_path' argument paths cannot"
