@@ -72,9 +72,9 @@ def infer_imported_code_path(
     """
     known edge cases and limitations:
      - Can result in duplicated copies in code_paths
-     if the the imports are inconsistent,
+     if the imports are inconsistent,
      e.g. in one place from pynavio.utils.common import get_module_path
-     and in other place from utils.common import get_module_path
+     and in other place from 'utils.common' import get_module_path
      (with adding more paths to PYTHONPATH)
     @param path: path of the module/file from which to infer
      the imported code paths
