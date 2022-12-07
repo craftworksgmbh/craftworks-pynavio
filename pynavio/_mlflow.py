@@ -237,6 +237,11 @@ class _ModelValidator:
 
     @staticmethod
     def _check_if_prediction_call_is_used(model_path):
+        # In order to check if the pynavio.prediction_call
+        # is used to decorate the predict method of the model,
+        # a corrupt input is provided. If there is an exception
+        # or the expected keys are not present in the model output,
+        # then that means that the decorator is not applied
 
         model = mlflow.pyfunc.load_model(model_path)
         corrupt_model_input = pd.DataFrame(
