@@ -403,8 +403,22 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
 
     @return: path to the .zip model file
     """
-
     path = process_path(path)
+
+    if code_path:
+        if not isinstance(code_path, list):
+            raise TypeError("'code_path' argument must be a"
+                            " list (of local filesystem paths to Python file"
+                            "dependencies (or directories containing file "
+                            "dependencies)), but is not a list")
+
+        if any(Path(code_p).resolve() in Path(path).resolve().parents
+               for code_p in code_path):
+            raise ValueError("any of 'code_path' argument paths cannot"
+                             " be a parent of 'path' argument,"
+                             f" please change the 'path': {path} to be"
+                             f" outside of the 'code_path' paths:{code_path}")
+
     artifacts = artifacts or dict()
     artifacts = {key: process_path(value) for key, value in artifacts.items()}
 
