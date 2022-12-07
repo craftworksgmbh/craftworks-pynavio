@@ -242,17 +242,24 @@ class _ModelValidator:
         corrupt_model_input = pd.DataFrame(
             {'corrupt_model_input_123': [1, 2, 3]})
 
+        import logging
+        logger = logging.getLogger('gunicorn.error')
+        current_loglevel = logger.level
+        logger.setLevel(logging.CRITICAL)  # this is done to prevent
+        # logging the exception traceback from prediction call
+        # as it will be confusing for the user
+
         error_msg = \
             "Please use pynavio.prediction_call to decorate " \
             "the predict method of the model, which will add the " \
             "needed error keys for error case"
-        print("\n Info: Providing corrupt input to the model to try to"
-              " check if pynavio.prediction_call is used")
         try:
             model_output = model.predict(corrupt_model_input)
         except Exception:
             print(error_msg)
             raise KeyError(error_msg)
+        finally:
+            logger.setLevel(current_loglevel)
 
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"
