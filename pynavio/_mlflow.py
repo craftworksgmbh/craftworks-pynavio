@@ -237,10 +237,33 @@ class _ModelValidator:
 
     @staticmethod
     def _check_if_prediction_call_is_used(model_path):
+        # In order to check if the pynavio.prediction_call
+        # is used to decorate the predict method of the model,
+        # a corrupt input is provided. If there is an exception
+        # or the expected keys are not present in the model output,
+        # then that means that the decorator is not applied
+
         model = mlflow.pyfunc.load_model(model_path)
         corrupt_model_input = pd.DataFrame(
             {'corrupt_model_input_123': [1, 2, 3]})
-        model_output = model.predict(corrupt_model_input)
+
+        import logging
+        logger = logging.getLogger('gunicorn.error')
+        current_loglevel = logger.level
+        logger.setLevel(logging.CRITICAL)  # this is done to prevent
+        # logging the exception traceback from prediction call
+        # as it will be confusing for the user
+
+        error_msg = \
+            "Please use pynavio.prediction_call to decorate " \
+            "the predict method of the model, which will add the " \
+            "needed error keys for error case"
+        try:
+            model_output = model.predict(corrupt_model_input)
+        except Exception:
+            raise KeyError(error_msg)
+        finally:
+            logger.setLevel(current_loglevel)
 
         assert isinstance(model_output, Mapping), "Model " \
             "output has to be a dictionary"
@@ -248,10 +271,7 @@ class _ModelValidator:
         if PREDICTION_KEY not in model_output:  # precaution
             # to allow for models that always return prediction
 
-            assert set(model_output.keys()) == ERROR_KEYS, \
-                "Please use pynavio.prediction_call to decorate " \
-                "the predict method of the model, which will add the " \
-                "needed error keys for error case"
+            assert set(model_output.keys()) == ERROR_KEYS, error_msg
 
     @staticmethod
     def verify_model_output(model_output, **kwargs):
@@ -275,7 +295,7 @@ class _ModelValidator:
                 f"The model output has to contain '{PREDICTION_KEY}'" \
                 f" for prediction" \
                 f" as key for the target, independent of" \
-                f" tha target name in the example request" \
+                f" the target name in the example request" \
                 f". There can be other keys, " \
                 f" that will be listed under " \
                 f" 'additionalFields' in the response of the model " \
@@ -286,7 +306,7 @@ class _ModelValidator:
                 " structure',} }"\
                 f" in the response of the model deployed" \
                 f" to navio."\
-                f" Or The model output has to contain and the following" \
+                f" Or The model output has to contain the following" \
                 f" keys [{ERROR_KEYS}] if error occurs."\
                 f"Please use pynavio.prediction_call to decorate " \
                 f"the predict method of the model, which will add the " \
