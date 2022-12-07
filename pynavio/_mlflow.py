@@ -256,7 +256,6 @@ class _ModelValidator:
         try:
             model_output = model.predict(corrupt_model_input)
         except Exception:
-            print(error_msg)
             raise KeyError(error_msg)
         finally:
             logger.setLevel(current_loglevel)
