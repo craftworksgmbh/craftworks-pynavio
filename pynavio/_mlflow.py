@@ -403,10 +403,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
 
         if any(Path(code_p).resolve() in Path(path).resolve().parents
                for code_p in code_path):
-            raise Exception("any of 'code_path' argument paths cannot"
-                            " be a parent of 'path' argument,"
-                            " please change the 'path' to be"
-                            " outside of the code_path paths")
+            raise ValueError("any of 'code_path' argument paths cannot"
+                             " be a parent of 'path' argument,"
+                             f" please change the 'path': {path} to be"
+                             f" outside of the 'code_path' paths:{code_path}")
 
     artifacts = artifacts or dict()
     artifacts = {key: process_path(value) for key, value in artifacts.items()}
