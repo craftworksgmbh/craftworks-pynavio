@@ -319,6 +319,21 @@ class _ModelValidator:
         self.verify_model_output(model_output)
 
 
+def _is_mlflow2():
+    from packaging import version
+    import mlflow
+    return version.parse(mlflow.__version__) >= version.parse("2.0.0")
+
+
+def _convert_to_mlflow2_format(request_data):
+    dataframe_records = pd.DataFrame.from_records(
+        columns=request_data['columns'],
+        data=request_data['data']).\
+        to_json(orient='records')
+    request_data = {"dataframe_records": json.loads(dataframe_records)}
+    return request_data
+
+
 def check_model_serving(model_path: Union[str, Path],
                         port=5001, request_bodies=None):
     """
@@ -344,6 +359,8 @@ def check_model_serving(model_path: Union[str, Path],
 
     try:
         for data in (request_bodies or _fetch_data(model_path)):
+            if _is_mlflow2():
+                data = _convert_to_mlflow2_format(data)
             response = requests.post(
                 URL,
                 data=json.dumps(data, allow_nan=True),
