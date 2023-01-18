@@ -410,8 +410,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     ignored.
     @param artifacts: If not set, need to set example_request
     @param dataset:
-    @param explanations:
-    @param oodd:
+    @param explanations: expected values are ['disabled', 'default', 'plotly']
+     If not set, 'default' is used
+    @param oodd: expected values are ['disabled', 'default'].
+     If not set, 'default' is used
     @param num_gpus:
 
     Note: Please refer to check_model_serving() method and
