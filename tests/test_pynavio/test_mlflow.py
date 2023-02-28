@@ -56,12 +56,8 @@ def test_prediction_schema_check_negative(model_output):
         ({PREDICTION_KEY: [5],
           "extra key": 7,
           "other extra": {"more info": []}}),
-        ({PREDICTION_KEY: 5}),
-        ({PREDICTION_KEY: 5.1}),
         ({PREDICTION_KEY: [5.1, 5.0]}),
-        ({PREDICTION_KEY: "a"}),
         ({PREDICTION_KEY: ["a", "b"]}),
-        ({PREDICTION_KEY: True}),
         ({PREDICTION_KEY: [True, False, True]}),
     ])
 def test_prediction_schema_check_positive(model_output):

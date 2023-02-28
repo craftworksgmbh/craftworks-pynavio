@@ -8,7 +8,6 @@ PREDICTION_SCHEMA = {
     "properties": {
         PREDICTION_KEY: {"oneOf":
                          [
-                          {"type": not_sequence_prediction_types},
                           {"type": 'array',
                            "minItems": 1,
                            "items": {"type": "boolean"},
