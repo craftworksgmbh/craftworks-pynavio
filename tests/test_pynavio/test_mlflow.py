@@ -34,8 +34,8 @@ PREDICTION_KEY = 'prediction'
 @pytest.mark.parametrize(
     "model_output",
     [
-        ({PREDICTION_KEY: 5 }),
-        ({PREDICTION_KEY: 5.0 }),
+        ({PREDICTION_KEY: 5}),
+        ({PREDICTION_KEY: 5.0}),
         ({PREDICTION_KEY: "test"}),
         ({PREDICTION_KEY: "bool"}),        
         ({PREDICTION_KEY: []}),
