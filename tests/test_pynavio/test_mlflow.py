@@ -37,7 +37,7 @@ PREDICTION_KEY = 'prediction'
         ({PREDICTION_KEY: 5}),
         ({PREDICTION_KEY: 5.0}),
         ({PREDICTION_KEY: "test"}),
-        ({PREDICTION_KEY: "bool"}),        
+        ({PREDICTION_KEY: "bool"}),
         ({PREDICTION_KEY: []}),
         ({PREDICTION_KEY: {}}),
         ({PREDICTION_KEY: [{}]}),
