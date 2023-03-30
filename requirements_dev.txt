@@ -24,7 +24,7 @@ git+https://github.com/tensorflow/examples.git
 torch==2.0.0
 torchvision==0.15.1
 torchaudio==2.0.1
-onnx==1.13.1  # required by torch==2.0.0, otherwise gives error on onnx export
+onnx==1.12.0  # required by torch==2.0.0, otherwise gives error on onnx export
 
 onnxruntime==1.12.0
 pyarrow==9.0.0
