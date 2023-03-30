@@ -290,7 +290,9 @@ class _ModelValidator:
             print('Warning: the nested model input is not supported'
                   ' by frontend rendering, it will only be possible'
                   ' to see the example request as plain json in the'
-                  ' try-out or deployment views.')
+                  ' try-out or deployment views. Consider using'
+                  ' string representation of nested example in the'
+                  ' example request json.')
             if _is_default_ood_enabled_in_metadata(metadata) or \
                     _is_default_explanation_enabled_in_metadata(metadata):
                 print("Warning: default ood and explanations"
