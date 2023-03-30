@@ -269,7 +269,8 @@ def _validate_schema(data, schema, name='', raise_exception=True):
 
 def is_input_nested(example_request, not_nested_schema):
     is_not_nested = _validate_schema(example_request,
-                                     not_nested_schema, '', raise_exception=False)
+                                     not_nested_schema, '',
+                                     raise_exception=False)
     return not is_not_nested
 
 
@@ -282,11 +283,13 @@ class _ModelValidator:
         _validate_schema(metadata, METADATA_SCHEMA, "MLmodel")
 
         example_request = _read_example_request(model_path, config)
-        _validate_schema(example_request, REQUEST_SCHEMA_SCHEMA, "example request")
+        _validate_schema(example_request, REQUEST_SCHEMA_SCHEMA,
+                         "example request")
         if is_input_nested(example_request,
                            not_nested_request_schema()):
-            print('Warning: the nested model input is not supported by frontend rendering,'
-                  'it will only be possible to see the example request as plain json in the '
+            print('Warning: the nested model input is not supported'
+                  ' by frontend rendering, it will only be possible'
+                  ' to see the example request as plain json in the '
                   'try-out or deployment views.')
             if _is_default_ood_enabled_in_metadata(metadata) or \
                     _is_default_explanation_enabled_in_metadata(metadata):

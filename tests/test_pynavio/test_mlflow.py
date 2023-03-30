@@ -70,6 +70,7 @@ def test_prediction_schema_check_positive(model_output):
     except(jsonschema.exceptions.ValidationError, AssertionError):
         pytest.fail("Unexpected Exception")
 
+
 @pytest.mark.parametrize(
     "schema_file_name, is_nested",
     [
@@ -78,10 +79,13 @@ def test_prediction_schema_check_positive(model_output):
     ])
 def test_is_input_nested(rootpath, schema_file_name, is_nested):
     import json
-    schema_path = rootpath / 'tests'/'test_pynavio'/'fixtures'/'schemas'/ schema_file_name
+    schema_path = rootpath / \
+        'tests'/'test_pynavio'/'fixtures'/'schemas'/schema_file_name
 
     with open(schema_path, 'r') as schema_file:
         example_request = json.load(schema_file)
 
     assert pynavio.mlflow.is_input_nested(example_request,
-        pynavio.mlflow.not_nested_request_schema()) == is_nested
+                                          pynavio.mlflow.
+                                          not_nested_request_schema())\
+           == is_nested
