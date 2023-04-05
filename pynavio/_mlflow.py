@@ -29,10 +29,10 @@ PREDICTION_KEY = 'prediction'
 
 def check_zip_size(model_zip, model_size_in_bytes):
     if Path(model_zip).stat().st_size > model_size_in_bytes:
-        print(f"Warning: the default model.zip size limit is "
-              f"{model_size_in_bytes} bytes. Please reduce the"
-              f" size or contact craftworks support team to "
-              f"increase the default size (if is not done already)")
+        print(f"Warning: the default model.zip size limit is"
+              f" {model_size_in_bytes} bytes. Please reduce the"
+              f" size or contact craftworks support team to"
+              f" increase the default size")
 
 
 def _get_field(yml: dict, path: str) -> Optional[Any]:
