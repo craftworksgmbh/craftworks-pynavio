@@ -19,11 +19,20 @@ from pynavio.utils.json_encoder import JSONEncoder
 from pynavio.utils.schemas import PREDICTION_SCHEMA, \
     METADATA_SCHEMA, REQUEST_SCHEMA_SCHEMA
 
+MODEL_SIZE_LIMIT_IN_BYTES = 1000_000_000
 EXAMPLE_REQUEST = 'example_request'
 ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
 ERROR_KEYS = {'error_code', 'message', 'stack_trace'}
 PREDICTION_KEY = 'prediction'
+
+
+def check_zip_size(model_zip, model_size_in_bytes):
+    if Path(model_zip).stat().st_size > model_size_in_bytes:
+        print(f"Warning: the default model.zip size limit is "
+              f"{model_size_in_bytes} bytes. Please reduce the"
+              f" size or contact craftworks support team to "
+              f"increase the default size (if is not done already)")
 
 
 def _get_field(yml: dict, path: str) -> Optional[Any]:
@@ -470,4 +479,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     _ModelValidator()(path)
 
     shutil.make_archive(path, 'zip', path)
-    return Path(path + '.zip')
+    model_zip = Path(path + '.zip')
+    check_zip_size(model_zip, MODEL_SIZE_LIMIT_IN_BYTES)
+
+    return model_zip
