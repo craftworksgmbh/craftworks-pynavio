@@ -321,11 +321,14 @@ class _ModelValidator:
                 f"the predict method of the model, which will add the " \
                 f"needed error keys for error case"
 
-    def __call__(self, model_path, **kwargs):
+    def __call__(self, model_path, model_zip, model_zip_size_limit,
+                 **kwargs):
         self.validate_metadata(model_path)
         model_input, model_output = self.run_model_io(model_path)
         self._check_if_prediction_call_is_used(model_path)
         self.verify_model_output(model_output)
+
+        check_zip_size(model_zip, model_zip_size_limit)
 
 
 def _is_mlflow2():
@@ -476,10 +479,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
 
-    _ModelValidator()(path)
-
     shutil.make_archive(path, 'zip', path)
     model_zip = Path(path + '.zip')
-    check_zip_size(model_zip, MODEL_SIZE_LIMIT_IN_BYTES)
+    _ModelValidator()(path, model_zip, MODEL_SIZE_LIMIT_IN_BYTES)
 
     return model_zip
