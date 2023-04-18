@@ -24,6 +24,7 @@ ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
 ERROR_KEYS = {'error_code', 'message', 'stack_trace'}
 PREDICTION_KEY = 'prediction'
+pynavio_model_validation = '(pynavio model validation)'
 
 
 def _get_field(yml: dict, path: str) -> Optional[Any]:
@@ -236,14 +237,16 @@ class ModelValidator:
         try:
             jsonschema.validate(config.get('metadata'), METADATA_SCHEMA)
         except jsonschema.exceptions.ValidationError:
-            print("Error during MLmodel validation")
+            print(f"ERROR: {pynavio_model_validation} "
+                  "Error during MLmodel validation")
             raise
 
         example_request = _read_example_request(model_path, config)
         try:
             jsonschema.validate(example_request, REQUEST_SCHEMA_SCHEMA)
         except jsonschema.exceptions.ValidationError:
-            print("Error during example request validation")
+            print(f"ERROR: {pynavio_model_validation} "
+                  "Error during example request validation")
             raise
 
     @staticmethod
@@ -317,19 +320,21 @@ class ModelValidator:
             try:
                 jsonschema.validate(model_prediction, PREDICTION_SCHEMA)
             except jsonschema.exceptions.ValidationError:
-                print(f"Error: The value of model_output['{PREDICTION_KEY}']"
+                print(f"ERROR: {pynavio_model_validation} The value of "
+                      f"model_output['{PREDICTION_KEY}']"
                       " must be one of the following types "
                       "(cannot be nested or mixed type): "
                       "'array','boolean', 'integer', 'number', 'string'")
                 raise
 
         assert isinstance(model_output, Mapping), "Model " \
-            "output has to be a dictionary"
+            f"ERROR: {pynavio_model_validation} output has to be a dictionary"
 
         if PREDICTION_KEY in model_output:
             _validate_prediction_schema(model_output)
         else:
             assert set(model_output.keys()) == ERROR_KEYS, \
+                f"ERROR: {pynavio_model_validation}" \
                 f"The model output has to contain '{PREDICTION_KEY}'" \
                 f" for prediction" \
                 f" as key for the target, independent of" \
