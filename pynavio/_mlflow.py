@@ -355,11 +355,22 @@ class ModelValidator:
                 f"the predict method of the model, which will add the " \
                 f"needed error keys for error case"
 
-    def __call__(self, model_path, **kwargs):
+    def _run(self, model_path, **kwargs):
         self.validate_metadata(model_path)
         model_input, model_output = self.run_model_io(model_path)
         self._check_if_prediction_call_is_used(model_path)
         self.verify_model_output(model_output)
+
+    def __call__(self, model_path, **kwargs):
+        try:
+            self._run(model_path, **kwargs)
+        except (jsonschema.exceptions.ValidationError, AssertionError):
+            print(f'{pynavio_model_validation}: Validation failed. Please fix'
+                  f' the identified issues before uploading the model.'
+                  f'{kwargs.get("append_to_failed_msg", "")}')
+            raise
+        print(f'{pynavio_model_validation}: Validation succeeded.'
+              f'{kwargs.get("append_to_succeeded_msg", "")}')
 
 
 def _is_mlflow2():
@@ -513,7 +524,18 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
     if validate_model:
-        ModelValidator()(path)
+        kwargs = {'append_to_failed_msg': ' To disable validation set '
+                                          'validate_model to False',
+                  'append_to_succeeded_msg': ' Note: Please refer to '
+                                             'check_model_serving()'
+                                             ' method and '
+                                             'https://navio.craftworks.io/'
+                                             'docs/guides/navio-models/'
+                                             'model_creation/'
+                                             '#3-test-model-serving'
+                                             ' for testing the model serving.',
+                  }
+        ModelValidator()(path, **kwargs)
 
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')

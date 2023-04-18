@@ -69,3 +69,48 @@ def test_prediction_schema_check_positive(model_output):
         pynavio.mlflow.ModelValidator.verify_model_output(model_output)
     except(jsonschema.exceptions.ValidationError, AssertionError):
         pytest.fail("Unexpected Exception")
+
+
+call_kwargs = {'append_to_failed_msg': ' Failed !!!',
+               'append_to_succeeded_msg': ' Succeeded !!!'
+               }
+
+
+@pytest.mark.parametrize(
+    "call_kwargs, msg",
+    [
+        ({}, ''),
+        (call_kwargs, call_kwargs['append_to_succeeded_msg']),
+    ])
+def test_ModelValidator_call_positive(monkeypatch, capfd, call_kwargs, msg):
+    def mock_run(self, path, **kwargs):
+        pass
+
+    monkeypatch.setattr('pynavio.mlflow.ModelValidator._run', mock_run)
+    pynavio.mlflow.ModelValidator()('path/to/model', **call_kwargs)
+    out, err = capfd.readouterr()
+    expected_msg = f"{pynavio.mlflow.pynavio_model_validation}:" \
+                   f" Validation succeeded.{msg}\n"
+    assert out == expected_msg
+
+
+@pytest.mark.parametrize(
+    "call_kwargs, msg",
+    [
+        ({}, ''),
+        (call_kwargs, call_kwargs['append_to_failed_msg']),
+    ])
+def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
+    def mock_run(self, path, **kwargs):
+        assert False
+
+    monkeypatch.setattr('pynavio.mlflow.ModelValidator._run', mock_run)
+    with pytest.raises(AssertionError):
+        pynavio.mlflow.ModelValidator()('path/to/model', **call_kwargs)
+    out, err = capfd.readouterr()
+    expected_msg = f'{pynavio.mlflow.pynavio_model_validation}: ' \
+                   f'Validation failed. Please fix' \
+                   f' the identified issues before' \
+                   f' uploading the model.{msg}\n'
+
+    assert out == expected_msg
