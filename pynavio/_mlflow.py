@@ -211,7 +211,7 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
-class _ModelValidator:
+class ModelValidator:
     @staticmethod
     def validate_metadata(model_path):
         config = _read_mlmodel_yaml(model_path)
@@ -467,7 +467,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
 
-    _ModelValidator()(path)
+    ModelValidator()(path)
 
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')

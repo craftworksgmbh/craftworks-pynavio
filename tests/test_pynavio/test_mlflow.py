@@ -50,7 +50,7 @@ PREDICTION_KEY = 'prediction'
     ])
 def test_prediction_schema_check_negative(model_output):
     with pytest.raises(jsonschema.exceptions.ValidationError):
-        pynavio.mlflow._ModelValidator.verify_model_output(model_output)
+        pynavio.mlflow.ModelValidator.verify_model_output(model_output)
 
 
 @pytest.mark.parametrize(
@@ -66,6 +66,6 @@ def test_prediction_schema_check_negative(model_output):
     ])
 def test_prediction_schema_check_positive(model_output):
     try:
-        pynavio.mlflow._ModelValidator.verify_model_output(model_output)
+        pynavio.mlflow.ModelValidator.verify_model_output(model_output)
     except(jsonschema.exceptions.ValidationError, AssertionError):
         pytest.fail("Unexpected Exception")
