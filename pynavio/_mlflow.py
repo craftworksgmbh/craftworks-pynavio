@@ -314,6 +314,7 @@ class ModelValidator:
                   f" {model_size_in_bytes} bytes. Please reduce the"
                   f" size or contact craftworks support team to"
                   f" increase the default size")
+
     @staticmethod
     def verify_model_output(model_output, **kwargs):
         """
