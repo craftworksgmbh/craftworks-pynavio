@@ -1,0 +1,42 @@
+{
+    "featureColumns": [
+        {
+            "name": "Torque",
+            "sampleData": 2451.214389,
+            "type": "float",
+            "nullable": false
+        },
+        {
+            "name": "Melting Temperature",
+            "sampleData": 164.9076497,
+            "type": "float",
+            "nullable": false
+        },
+        {
+            "name": "Melting Pressure",
+            "sampleData": 711.4808903,
+            "type": "float",
+            "nullable": false
+        },
+        {
+            "name": "Cycle Time",
+            "sampleData": 6.08075709,
+            "type": "float",
+            "nullable": false
+        },
+        {
+            "name": "Rotational Speed",
+            "sampleData": 77.28096357,
+            "type": "float",
+            "nullable": false
+        }
+    ],
+    "targetColumns": [
+        {
+            "name": "Weight",
+            "sampleData": 88.5,
+            "type": "float",
+            "nullable": false
+        }
+    ]
+}

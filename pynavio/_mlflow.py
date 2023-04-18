@@ -17,7 +17,8 @@ import jsonschema
 from pynavio.utils import ExampleRequestType, make_env
 from pynavio.utils.json_encoder import JSONEncoder
 from pynavio.utils.schemas import PREDICTION_SCHEMA, \
-    METADATA_SCHEMA, REQUEST_SCHEMA_SCHEMA
+    METADATA_SCHEMA, REQUEST_SCHEMA_SCHEMA,\
+    not_nested_request_schema
 
 MODEL_SIZE_LIMIT_IN_BYTES = 1000_000_000
 EXAMPLE_REQUEST = 'example_request'
@@ -25,6 +26,34 @@ ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
 ERROR_KEYS = {'error_code', 'message', 'stack_trace'}
 PREDICTION_KEY = 'prediction'
+METADATA = 'metadata'
+OOD_DETECTION = 'oodDetection'
+MLMODEL = 'MLmodel'
+REQUEST_SCHEMA = 'request_schema'
+DATASET = 'dataset'
+EXPLANATIONS = 'explanations'
+
+
+def _is_ood_set_to_default_in_metadata(metadata: dict) -> bool:
+    return metadata.get(OOD_DETECTION, '') == 'default'
+
+
+def _is_explanation_set_to_default_in_metadata(metadata: dict) -> bool:
+    return metadata.get(EXPLANATIONS, '') == 'default'
+
+
+def _is_data_provided_in_metadata(metadata: dict) -> bool:
+    return DATASET in metadata
+
+
+def _is_default_ood_enabled_in_metadata(metadata: dict) -> bool:
+    return _is_ood_set_to_default_in_metadata(metadata) and \
+           _is_data_provided_in_metadata(metadata)
+
+
+def _is_default_explanation_enabled_in_metadata(metadata: dict) -> bool:
+    return _is_explanation_set_to_default_in_metadata(metadata) and \
+           _is_data_provided_in_metadata(metadata)
 
 
 def check_zip_size(model_zip, model_size_in_bytes):
@@ -220,22 +249,63 @@ def _get_example_request_df(model_path):
     return pd.DataFrame(data['data'], columns=data['columns'])
 
 
+def _validate_schema(data, schema, name='', raise_exception=True):
+    """
+    Validate the given data against the specified JSON schema.
+
+    @param data: The data to validate.
+    @param schema: The jsonschema schema to validate against.
+    @param name: A descriptive name for the data being validated,
+        used in error message
+    @param raise_exception: Whether to raise an exception if the
+        validation fails. If True (default), the function raises a
+        jsonschema ValidationError exception with a
+        descriptive error message.
+    @return: True if the validation passes, False otherwise.
+     Only returned if raise_exception is False.
+    """
+    is_valid = True
+    try:
+        jsonschema.validate(data, schema)
+    except jsonschema.exceptions.ValidationError:
+        if raise_exception:
+            print(f"Error during {name} validation")
+            raise
+        else:
+            is_valid = False
+    return is_valid
+
+
+def is_input_nested(example_request, not_nested_schema):
+    is_not_nested = _validate_schema(example_request,
+                                     not_nested_schema, '',
+                                     raise_exception=False)
+    return not is_not_nested
+
+
 class _ModelValidator:
+
     @staticmethod
     def validate_metadata(model_path):
         config = _read_mlmodel_yaml(model_path)
-        try:
-            jsonschema.validate(config.get('metadata'), METADATA_SCHEMA)
-        except jsonschema.exceptions.ValidationError:
-            print("Error during MLmodel validation")
-            raise
+        metadata = config.get('metadata')
+        _validate_schema(metadata, METADATA_SCHEMA, "MLmodel")
 
         example_request = _read_example_request(model_path, config)
-        try:
-            jsonschema.validate(example_request, REQUEST_SCHEMA_SCHEMA)
-        except jsonschema.exceptions.ValidationError:
-            print("Error during example request validation")
-            raise
+        _validate_schema(example_request, REQUEST_SCHEMA_SCHEMA,
+                         "example request")
+        if is_input_nested(example_request,
+                           not_nested_request_schema()):
+            print('Warning: the nested model input is not supported'
+                  ' by frontend rendering, it will only be possible'
+                  ' to see the example request as plain json in the'
+                  ' try-out or deployment views. Consider using'
+                  ' string representation of nested example in the'
+                  ' example request json.')
+            if _is_default_ood_enabled_in_metadata(metadata) or \
+                    _is_default_explanation_enabled_in_metadata(metadata):
+                print("Warning: default ood and explanations"
+                      " are not supported for nested model inputs.")
 
     @staticmethod
     def run_model_io(model_path, model_input=None, **kwargs):

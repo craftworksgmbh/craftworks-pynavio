@@ -1,3 +1,5 @@
+from typing import Dict
+import copy
 
 PREDICTION_KEY = 'prediction'
 not_sequence_prediction_types = ['boolean', 'integer',
@@ -90,3 +92,24 @@ REQUEST_SCHEMA_SCHEMA = {
     },
     'required': ['featureColumns', 'targetColumns']
 }
+
+
+def _not_nested_columns_schema() -> Dict:
+    not_nested_col_schema = copy.deepcopy(COLUMN_SCHEMA)
+    not_nested_col_schema['properties']['sampleData']['type'] = [
+        'boolean', 'integer', 'number', 'string'
+    ]
+    not_nested_col_schema['properties']['type']['enum'] = ['float', 'string',
+                                                           'image', 'bool',
+                                                           'int', 'timestamp']
+    return not_nested_col_schema
+
+
+def not_nested_request_schema() -> Dict:
+    not_nested_schema = copy.deepcopy(REQUEST_SCHEMA_SCHEMA)
+
+    not_nested_schema['properties']['featureColumns']['items'] =\
+        _not_nested_columns_schema()
+    not_nested_schema['properties']['dateTimeColumn'] =\
+        _not_nested_columns_schema()
+    return not_nested_schema
