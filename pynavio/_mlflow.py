@@ -424,7 +424,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              dataset: Optional[dict] = None,
              explanations: Optional[str] = None,
              oodd: Optional[str] = None,
-             num_gpus: Optional[int] = 0
+             num_gpus: Optional[int] = 0,
+             validate_model: Optional[bool] = True
              ) -> Path:
     """
     create a .zip mlflow model file for navio
@@ -453,6 +454,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param oodd: expected values are ['disabled', 'default'].
      If not set, 'default' is used
     @param num_gpus:
+    @param validate_model: if the output model should be validated by
+     ModelValidator. On by default(True), to disable set to False.
 
     Note: Please refer to check_model_serving() method and
     https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
@@ -504,8 +507,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       explanations=explanations,
                       oodd=oodd,
                       num_gpus=num_gpus)
-
-    ModelValidator()(path)
+    if validate_model:
+        ModelValidator()(path)
 
     shutil.make_archive(path, 'zip', path)
     return Path(path + '.zip')
