@@ -212,8 +212,26 @@ def _get_example_request_df(model_path):
 
 
 class ModelValidator:
+    """
+    A utility class for validating navio mlflow models.
+    Raises jsonschema.exceptions.ValidationError and AssertionError if
+    there are errors in validation.
+    Example usage:
+        >>> ModelValidator()(model_path = '/path/to/my/model')
+
+    """
+
     @staticmethod
     def validate_metadata(model_path):
+        """
+        Validate the metadata: example request file and MLmodel file
+        of the given navio mlflow model.
+
+        @param model_path: The directory path of the model to validate.
+        @raises jsonschema.exceptions.ValidationError:
+        If there is an error during the validation process.
+        @return: None
+        """
         config = _read_mlmodel_yaml(model_path)
         try:
             jsonschema.validate(config.get('metadata'), METADATA_SCHEMA)
@@ -230,6 +248,17 @@ class ModelValidator:
 
     @staticmethod
     def run_model_io(model_path, model_input=None, **kwargs):
+        """
+        Run the given navio mlflow model file with the given input.
+
+        @param model_path: The directory path of the model to run.
+        @param model_input: optional, the input data for the model's
+        predict method. If None, the example request specified in
+        the model metadata will be used as input.
+        @param kwargs: Additional keyword arguments.
+
+        @return: The input data and the prediction output.
+        """
         model = mlflow.pyfunc.load_model(model_path)
         if model_input is None:
             model_input = _get_example_request_df(model_path)
@@ -275,6 +304,15 @@ class ModelValidator:
 
     @staticmethod
     def verify_model_output(model_output, **kwargs):
+        """
+        Verify the output of the navio mlflow model.
+
+        @param model_output: The output of the model.
+        @param kwargs: Additional keyword arguments.
+
+        @raises AssertionError: If the output is not valid.
+        @return: None
+        """
         def _validate_prediction_schema(model_prediction):
             try:
                 jsonschema.validate(model_prediction, PREDICTION_SCHEMA)
