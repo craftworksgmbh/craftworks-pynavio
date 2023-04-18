@@ -28,14 +28,6 @@ PREDICTION_KEY = 'prediction'
 pynavio_model_validation = '(pynavio model validation)'
 
 
-def check_zip_size(model_zip, model_size_in_bytes):
-    if Path(model_zip).stat().st_size > model_size_in_bytes:
-        print(f"Warning: the default model.zip size limit is"
-              f" {model_size_in_bytes} bytes. Please reduce the"
-              f" size or contact craftworks support team to"
-              f" increase the default size")
-
-
 def _get_field(yml: dict, path: str) -> Optional[Any]:
     keys = path.split('.')
     assert keys, 'Path must not be empty'
@@ -314,6 +306,14 @@ class ModelValidator:
 
             assert set(model_output.keys()) == ERROR_KEYS, error_msg
 
+    @staticmethod
+    def check_zip_size(model_zip, model_size_in_bytes):
+        if Path(model_zip).stat().st_size > model_size_in_bytes:
+            print(f"Warning: {pynavio_model_validation} "
+                  f"the default model.zip size limit is"
+                  f" {model_size_in_bytes} bytes. Please reduce the"
+                  f" size or contact craftworks support team to"
+                  f" increase the default size")
     @staticmethod
     def verify_model_output(model_output, **kwargs):
         """
