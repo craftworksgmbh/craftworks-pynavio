@@ -369,7 +369,7 @@ class ModelValidator:
         model_input, model_output = self.run_model_io(model_path)
         self._check_if_prediction_call_is_used(model_path)
         self.verify_model_output(model_output)
-        check_zip_size(model_zip, model_zip_size_limit)
+        self.check_zip_size(model_zip, model_zip_size_limit)
 
     def __call__(self, model_path, model_zip, model_zip_size_limit, **kwargs):
         try:
