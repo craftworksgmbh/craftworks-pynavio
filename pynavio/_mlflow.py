@@ -19,12 +19,21 @@ from pynavio.utils.json_encoder import JSONEncoder
 from pynavio.utils.schemas import PREDICTION_SCHEMA, \
     METADATA_SCHEMA, REQUEST_SCHEMA_SCHEMA
 
+MODEL_SIZE_LIMIT_IN_BYTES = 1000_000_000
 EXAMPLE_REQUEST = 'example_request'
 ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
 ERROR_KEYS = {'error_code', 'message', 'stack_trace'}
 PREDICTION_KEY = 'prediction'
 pynavio_model_validation = '(pynavio model validation)'
+
+
+def check_zip_size(model_zip, model_size_in_bytes):
+    if Path(model_zip).stat().st_size > model_size_in_bytes:
+        print(f"Warning: the default model.zip size limit is"
+              f" {model_size_in_bytes} bytes. Please reduce the"
+              f" size or contact craftworks support team to"
+              f" increase the default size")
 
 
 def _get_field(yml: dict, path: str) -> Optional[Any]:
@@ -355,15 +364,16 @@ class ModelValidator:
                 f"the predict method of the model, which will add the " \
                 f"needed error keys for error case"
 
-    def _run(self, model_path, **kwargs):
+    def _run(self, model_path, model_zip, model_zip_size_limit, **kwargs):
         self.validate_metadata(model_path)
         model_input, model_output = self.run_model_io(model_path)
         self._check_if_prediction_call_is_used(model_path)
         self.verify_model_output(model_output)
+        check_zip_size(model_zip, model_zip_size_limit)
 
-    def __call__(self, model_path, **kwargs):
+    def __call__(self, model_path, model_zip, model_zip_size_limit, **kwargs):
         try:
-            self._run(model_path, **kwargs)
+            self._run(model_path, model_zip, model_zip_size_limit, **kwargs)
         except (jsonschema.exceptions.ValidationError, AssertionError):
             print(f'{pynavio_model_validation}: Validation failed. Please fix'
                   f' the identified issues before uploading the model.'
@@ -523,6 +533,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       explanations=explanations,
                       oodd=oodd,
                       num_gpus=num_gpus)
+
+        shutil.make_archive(path, 'zip', path)
+        model_zip = Path(path + '.zip')
+
     if validate_model:
         kwargs = {'append_to_failed_msg': ' To disable validation set '
                                           'validate_model to False',
@@ -535,7 +549,6 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                                              '#3-test-model-serving'
                                              ' for testing the model serving.',
                   }
-        ModelValidator()(path, **kwargs)
+        ModelValidator()(path, model_zip, MODEL_SIZE_LIMIT_IN_BYTES, **kwargs)
 
-    shutil.make_archive(path, 'zip', path)
-    return Path(path + '.zip')
+    return model_zip

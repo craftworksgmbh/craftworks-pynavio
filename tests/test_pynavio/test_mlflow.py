@@ -83,11 +83,11 @@ call_kwargs = {'append_to_failed_msg': ' Failed !!!',
         (call_kwargs, call_kwargs['append_to_succeeded_msg']),
     ])
 def test_ModelValidator_call_positive(monkeypatch, capfd, call_kwargs, msg):
-    def mock_run(self, path, **kwargs):
+    def mock_run(self, path, model_zip, model_zip_size_limit, **kwargs):
         pass
 
     monkeypatch.setattr('pynavio.mlflow.ModelValidator._run', mock_run)
-    pynavio.mlflow.ModelValidator()('path/to/model', **call_kwargs)
+    pynavio.mlflow.ModelValidator()('path/to/model', '', 0, **call_kwargs)
     out, err = capfd.readouterr()
     expected_msg = f"{pynavio.mlflow.pynavio_model_validation}:" \
                    f" Validation succeeded.{msg}\n"
@@ -101,12 +101,12 @@ def test_ModelValidator_call_positive(monkeypatch, capfd, call_kwargs, msg):
         (call_kwargs, call_kwargs['append_to_failed_msg']),
     ])
 def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
-    def mock_run(self, path, **kwargs):
+    def mock_run(self, path, model_zip, model_zip_size_limit, **kwargs):
         assert False
 
     monkeypatch.setattr('pynavio.mlflow.ModelValidator._run', mock_run)
     with pytest.raises(AssertionError):
-        pynavio.mlflow.ModelValidator()('path/to/model', **call_kwargs)
+        pynavio.mlflow.ModelValidator()('path/to/model', '', 0, **call_kwargs)
     out, err = capfd.readouterr()
     expected_msg = f'{pynavio.mlflow.pynavio_model_validation}: ' \
                    f'Validation failed. Please fix' \
