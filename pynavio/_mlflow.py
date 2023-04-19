@@ -26,6 +26,8 @@ ARTIFACTS = 'artifacts'
 ArtifactsType = Optional[Dict[str, str]]
 ERROR_KEYS = {'error_code', 'message', 'stack_trace'}
 PREDICTION_KEY = 'prediction'
+pynavio_model_validation = '(pynavio model validation)'
+
 METADATA = 'metadata'
 OOD_DETECTION = 'oodDetection'
 MLMODEL = 'MLmodel'
@@ -269,7 +271,8 @@ def _validate_schema(data, schema, name='', raise_exception=True):
         jsonschema.validate(data, schema)
     except jsonschema.exceptions.ValidationError:
         if raise_exception:
-            print(f"Error during {name} validation")
+            print(f"Error: {pynavio_model_validation} "
+                  f"Error during {name} validation")
             raise
         else:
             is_valid = False
@@ -283,10 +286,26 @@ def is_input_nested(example_request, not_nested_schema):
     return not is_not_nested
 
 
-class _ModelValidator:
+class ModelValidator:
+    """
+    A utility class for validating navio mlflow models.
+    Raises jsonschema.exceptions.ValidationError and AssertionError if
+    there are errors in validation.
+    Example usage:
+        >>> ModelValidator()(model_path = '/path/to/my/model')
 
+    """
     @staticmethod
     def validate_metadata(model_path):
+        """
+        Validate the metadata: example request file and MLmodel file
+        of the given navio mlflow model.
+
+        @param model_path: The directory path of the model to validate.
+        @raises jsonschema.exceptions.ValidationError:
+        If there is an error during the validation process.
+        @return: None
+        """
         config = _read_mlmodel_yaml(model_path)
         metadata = config.get('metadata')
         _validate_schema(metadata, METADATA_SCHEMA, "MLmodel")
@@ -296,7 +315,8 @@ class _ModelValidator:
                          "example request")
         if is_input_nested(example_request,
                            not_nested_request_schema()):
-            print('Warning: the nested model input is not supported'
+            print('Warning: {pynavio_model_validation} the nested'
+                  ' model input is not supported'
                   ' by frontend rendering, it will only be possible'
                   ' to see the example request as plain json in the'
                   ' try-out or deployment views. Consider using'
@@ -304,11 +324,23 @@ class _ModelValidator:
                   ' example request json.')
             if _is_default_ood_enabled_in_metadata(metadata) or \
                     _is_default_explanation_enabled_in_metadata(metadata):
-                print("Warning: default ood and explanations"
+                print("Warning: {pynavio_model_validation} default"
+                      " ood and explanations"
                       " are not supported for nested model inputs.")
 
     @staticmethod
     def run_model_io(model_path, model_input=None, **kwargs):
+        """
+        Run the given navio mlflow model file with the given input.
+
+        @param model_path: The directory path of the model to run.
+        @param model_input: optional, the input data for the model's
+        predict method. If None, the example request specified in
+        the model metadata will be used as input.
+        @param kwargs: Additional keyword arguments.
+
+        @return: The input data and the prediction output.
+        """
         model = mlflow.pyfunc.load_model(model_path)
         if model_input is None:
             model_input = _get_example_request_df(model_path)
@@ -353,24 +385,44 @@ class _ModelValidator:
             assert set(model_output.keys()) == ERROR_KEYS, error_msg
 
     @staticmethod
+    def check_zip_size(model_zip, model_size_in_bytes):
+        if Path(model_zip).stat().st_size > model_size_in_bytes:
+            print(f"Warning: {pynavio_model_validation} "
+                  f"the default model.zip size limit is"
+                  f" {model_size_in_bytes} bytes. Please reduce the"
+                  f" size or contact craftworks support team to"
+                  f" increase the default size")
+
+    @staticmethod
     def verify_model_output(model_output, **kwargs):
+        """
+        Verify the output of the navio mlflow model.
+
+        @param model_output: The output of the model.
+        @param kwargs: Additional keyword arguments.
+
+        @raises AssertionError: If the output is not valid.
+        @return: None
+        """
         def _validate_prediction_schema(model_prediction):
             try:
                 jsonschema.validate(model_prediction, PREDICTION_SCHEMA)
             except jsonschema.exceptions.ValidationError:
-                print(f"Error: The value of model_output['{PREDICTION_KEY}']"
+                print(f"ERROR: {pynavio_model_validation} The value of "
+                      f"model_output['{PREDICTION_KEY}']"
                       " must be one of the following types "
                       "(cannot be nested or mixed type): "
                       "'array','boolean', 'integer', 'number', 'string'")
                 raise
 
         assert isinstance(model_output, Mapping), "Model " \
-            "output has to be a dictionary"
+            f"ERROR: {pynavio_model_validation} output has to be a dictionary"
 
         if PREDICTION_KEY in model_output:
             _validate_prediction_schema(model_output)
         else:
             assert set(model_output.keys()) == ERROR_KEYS, \
+                f"ERROR: {pynavio_model_validation}" \
                 f"The model output has to contain '{PREDICTION_KEY}'" \
                 f" for prediction" \
                 f" as key for the target, independent of" \
@@ -391,14 +443,23 @@ class _ModelValidator:
                 f"the predict method of the model, which will add the " \
                 f"needed error keys for error case"
 
-    def __call__(self, model_path, model_zip, model_zip_size_limit,
-                 **kwargs):
+    def _run(self, model_path, model_zip, model_zip_size_limit, **kwargs):
         self.validate_metadata(model_path)
         model_input, model_output = self.run_model_io(model_path)
         self._check_if_prediction_call_is_used(model_path)
         self.verify_model_output(model_output)
+        self.check_zip_size(model_zip, model_zip_size_limit)
 
-        check_zip_size(model_zip, model_zip_size_limit)
+    def __call__(self, model_path, model_zip, model_zip_size_limit, **kwargs):
+        try:
+            self._run(model_path, model_zip, model_zip_size_limit, **kwargs)
+        except (jsonschema.exceptions.ValidationError, AssertionError):
+            print(f'{pynavio_model_validation}: Validation failed. Please fix'
+                  f' the identified issues before uploading the model.'
+                  f'{kwargs.get("append_to_failed_msg", "")}')
+            raise
+        print(f'{pynavio_model_validation}: Validation succeeded.'
+              f'{kwargs.get("append_to_succeeded_msg", "")}')
 
 
 def _is_mlflow2():
@@ -468,7 +529,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              dataset: Optional[dict] = None,
              explanations: Optional[str] = None,
              oodd: Optional[str] = None,
-             num_gpus: Optional[int] = 0
+             num_gpus: Optional[int] = 0,
+             validate_model: Optional[bool] = True
              ) -> Path:
     """
     create a .zip mlflow model file for navio
@@ -497,6 +559,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param oodd: expected values are ['disabled', 'default'].
      If not set, 'default' is used
     @param num_gpus:
+    @param validate_model: if the output model should be validated by
+     ModelValidator. On by default(True), to disable set to False.
 
     Note: Please refer to check_model_serving() method and
     https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
@@ -549,8 +613,23 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
 
-    shutil.make_archive(path, 'zip', path)
-    model_zip = Path(path + '.zip')
-    _ModelValidator()(path, model_zip, MODEL_SIZE_LIMIT_IN_BYTES)
+        shutil.make_archive(path, 'zip', path)
+        model_zip = Path(path + '.zip')
+
+    if validate_model:
+        msg_kwargs = {'append_to_failed_msg': ' To disable validation set '
+                                              'validate_model to False',
+                      'append_to_succeeded_msg': ' Note: Please refer to '
+                                                 'check_model_serving()'
+                                                 ' method and '
+                                                 'https://navio.craftworks.io/'
+                                                 'docs/guides/navio-models/'
+                                                 'model_creation/'
+                                                 '#3-test-model-serving'
+                                                 ' for testing the model '
+                                                 'serving.',
+                      }
+        ModelValidator()(path, model_zip, MODEL_SIZE_LIMIT_IN_BYTES,
+                         **msg_kwargs)
 
     return model_zip

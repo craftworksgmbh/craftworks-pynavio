@@ -1,7 +1,7 @@
 import pytest
 from mlflow_models import *
 from mlflow_models import __all__ as MODELS
-from pynavio._mlflow import _ModelValidator, check_model_serving
+from pynavio._mlflow import ModelValidator, check_model_serving
 
 
 # these require custom tests - see corresponding test_<model_name>.py
@@ -18,7 +18,7 @@ def model_name(request):
     return request.param
 
 
-class Helper(_ModelValidator):
+class Helper(ModelValidator):
 
     @staticmethod
     def setup_model(model_name, model_path):
