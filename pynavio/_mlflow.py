@@ -617,17 +617,19 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
         model_zip = Path(path + '.zip')
 
     if validate_model:
-        kwargs = {'append_to_failed_msg': ' To disable validation set '
-                                          'validate_model to False',
-                  'append_to_succeeded_msg': ' Note: Please refer to '
-                                             'check_model_serving()'
-                                             ' method and '
-                                             'https://navio.craftworks.io/'
-                                             'docs/guides/navio-models/'
-                                             'model_creation/'
-                                             '#3-test-model-serving'
-                                             ' for testing the model serving.',
-                  }
-        ModelValidator()(path, model_zip, MODEL_SIZE_LIMIT_IN_BYTES, **kwargs)
+        msg_kwargs = {'append_to_failed_msg': ' To disable validation set '
+                                              'validate_model to False',
+                      'append_to_succeeded_msg': ' Note: Please refer to '
+                                                 'check_model_serving()'
+                                                 ' method and '
+                                                 'https://navio.craftworks.io/'
+                                                 'docs/guides/navio-models/'
+                                                 'model_creation/'
+                                                 '#3-test-model-serving'
+                                                 ' for testing the model '
+                                                 'serving.',
+                      }
+        ModelValidator()(path, model_zip, MODEL_SIZE_LIMIT_IN_BYTES,
+                         **msg_kwargs)
 
     return model_zip
