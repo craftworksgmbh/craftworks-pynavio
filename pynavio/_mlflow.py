@@ -271,7 +271,8 @@ def _validate_schema(data, schema, name='', raise_exception=True):
         jsonschema.validate(data, schema)
     except jsonschema.exceptions.ValidationError:
         if raise_exception:
-            print(f"Error during {name} validation")
+            print(f"Error: {pynavio_model_validation} "
+                  f"Error during {name} validation")
             raise
         else:
             is_valid = False
@@ -285,7 +286,7 @@ def is_input_nested(example_request, not_nested_schema):
     return not is_not_nested
 
 
-class _ModelValidator:
+class ModelValidator:
     """
     A utility class for validating navio mlflow models.
     Raises jsonschema.exceptions.ValidationError and AssertionError if
@@ -296,7 +297,7 @@ class _ModelValidator:
     """
     @staticmethod
     def validate_metadata(model_path):
-    """
+        """
         Validate the metadata: example request file and MLmodel file
         of the given navio mlflow model.
 
@@ -314,7 +315,8 @@ class _ModelValidator:
                          "example request")
         if is_input_nested(example_request,
                            not_nested_request_schema()):
-            print('Warning: {pynavio_model_validation} the nested model input is not supported'
+            print('Warning: {pynavio_model_validation} the nested'
+                  ' model input is not supported'
                   ' by frontend rendering, it will only be possible'
                   ' to see the example request as plain json in the'
                   ' try-out or deployment views. Consider using'
@@ -322,7 +324,8 @@ class _ModelValidator:
                   ' example request json.')
             if _is_default_ood_enabled_in_metadata(metadata) or \
                     _is_default_explanation_enabled_in_metadata(metadata):
-                print("Warning: {pynavio_model_validation} default ood and explanations"
+                print("Warning: {pynavio_model_validation} default"
+                      " ood and explanations"
                       " are not supported for nested model inputs.")
 
     @staticmethod
