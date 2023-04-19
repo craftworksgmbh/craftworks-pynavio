@@ -134,3 +134,13 @@ def test_is_input_nested(rootpath, schema_file_name, is_nested):
                                           pynavio.mlflow.
                                           not_nested_request_schema())\
            == is_nested
+
+
+def test__is_wrapped_by_prediction_call():
+    def predict():
+        pass
+    wrapped_predict = pynavio.model_helpers.prediction_call(predict())
+
+    assert pynavio.mlflow._is_wrapped_by_prediction_call(wrapped_predict) \
+           is True
+    assert pynavio.mlflow._is_wrapped_by_prediction_call(predict) is False
