@@ -52,7 +52,61 @@ History
 ------------------
 
 * fixes the documentation link
-* attempts to remove the build badgegi
+* attempts to remove the build badge
 * removes installation for development section form readme
 * fixes repository on the pypi page
 * adds history
+
+0.1.6 (2022-09-15)
+------------------
+
+* final touches/refactoring to make the repo ready for becoming public
+
+0.1.7 (2022-11-16)
+------------------
+
+* fixes mlflow version to be <2.0 as it introduces breaking changes in the api
+* wraps navio's model deletion api
+
+
+0.2.0 (2022-11-30)
+------------------
+
+* resolves mlflow2 incompatibility
+* brings model validation checks:prediction, example request and MLmodel metadata schema validation
+* makes check_model_serving function public
+* adds jsonschema to requirements
+* bump tensorflow from 2.9.1 to 2.9.3
+* bump pillow from 9.2.0 to 9.3.0
+* refactors example tests
+
+0.2.1 (2022-12-07)
+------------------
+
+* loosens version requirement for jsonschema
+* improves and fixes typos in error message texts
+* prevents the exception traceback from prediction_call when checking if it is used, to not confuse the user
+* brings a descriptive error if model path in code_path
+* brings a descriptive error if code_path is not a list
+
+0.2.2 (2023-04-03 )
+------------------
+
+* bump tensorflow from 2.9.3 to 2.11.1
+* updates torch version and adds onnx as requirement
+* fixes torch, pyarrow and onnxrutime versions
+* fixes the prediction schema to only expect a list as prediction
+* bump ipython from 8.4.0 to 8.10.0
+* improves the docstring of to_navio function
+* bump wheel from 0.37.1 to 0.38.1
+
+0.2.3 (2023-04-xx )
+------------------
+
+* adds warnings related to limitations for nested inputs and big model.zip size
+* make ModelValidator a public class
+* adds docstrings to ModelValidator
+* makes model validation optional in to_navio(), so one can disable it
+* adds (pynavio model validation) to the validation messages so it is clear where they come from
+* adds messages for pynavio model validation checks failed(how to disable)/succeeded(how to check model serving)
+* updates readme with model validation info
