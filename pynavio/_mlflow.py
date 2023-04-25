@@ -286,6 +286,10 @@ def is_input_nested(example_request, not_nested_schema):
     return not is_not_nested
 
 
+def _is_wrapped_by_prediction_call(func):
+    return getattr(func, '__wrapped_by_prediction_call__', False)
+
+
 class ModelValidator:
     """
     A utility class for validating navio mlflow models.
@@ -348,41 +352,14 @@ class ModelValidator:
 
     @staticmethod
     def _check_if_prediction_call_is_used(model_path):
-        # In order to check if the pynavio.prediction_call
-        # is used to decorate the predict method of the model,
-        # a corrupt input is provided. If there is an exception
-        # or the expected keys are not present in the model output,
-        # then that means that the decorator is not applied
-
         model = mlflow.pyfunc.load_model(model_path)
-        corrupt_model_input = pd.DataFrame(
-            {'corrupt_model_input_123': [1, 2, 3]})
-
-        import logging
-        logger = logging.getLogger('gunicorn.error')
-        current_loglevel = logger.level
-        logger.setLevel(logging.CRITICAL)  # this is done to prevent
-        # logging the exception traceback from prediction call
-        # as it will be confusing for the user
-
-        error_msg = \
-            "Please use pynavio.prediction_call to decorate " \
-            "the predict method of the model, which will add the " \
-            "needed error keys for error case"
-        try:
-            model_output = model.predict(corrupt_model_input)
-        except Exception:
-            raise KeyError(error_msg)
-        finally:
-            logger.setLevel(current_loglevel)
-
-        assert isinstance(model_output, Mapping), "Model " \
-            "output has to be a dictionary"
-
-        if PREDICTION_KEY not in model_output:  # precaution
-            # to allow for models that always return prediction
-
-            assert set(model_output.keys()) == ERROR_KEYS, error_msg
+        if not _is_wrapped_by_prediction_call(model.predict):
+            print(f"Warning: {pynavio_model_validation} Please use"
+                  f" pynavio.prediction_call to decorate"
+                  " the predict method of the model, which will add the"
+                  f" needed error keys({ERROR_KEYS}) for error"
+                  f" case to see descriptive"
+                  f" errors from navio for ease of debugging")
 
     @staticmethod
     def check_zip_size(model_zip, model_size_in_bytes):

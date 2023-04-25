@@ -19,6 +19,7 @@ def prediction_call(predict_fn: callable) -> callable:
                 'stack_trace': traceback.format_exc()
             }
 
+    wrapper.__wrapped_by_prediction_call__ = True
     return wrapper
 
 
