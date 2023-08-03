@@ -353,13 +353,20 @@ class ModelValidator:
     @staticmethod
     def _check_if_prediction_call_is_used(model_path):
         model = mlflow.pyfunc.load_model(model_path)
-        if not _is_wrapped_by_prediction_call(model.predict):
+        used = True  # do not print warning if not sure
+        # try checking the original model's predict function
+        try:
+            used = _is_wrapped_by_prediction_call(
+                model._model_impl.python_model.predict)
+        except AttributeError:
+            pass
+        if not used:
             print(f"Warning: {pynavio_model_validation} Please use"
                   f" pynavio.prediction_call to decorate"
-                  " the predict method of the model, which will add the"
+                  f" the predict method of the model, which will add the"
                   f" needed error keys({ERROR_KEYS}) for error"
                   f" case to see descriptive"
-                  f" errors from navio for ease of debugging")
+                  f" errors from navio for ease of debugging.")
 
     @staticmethod
     def check_zip_size(model_zip, model_size_in_bytes):
