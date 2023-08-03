@@ -1,24 +1,24 @@
+import copy
 import json
 import shutil
+import subprocess
+import time
+from collections.abc import Mapping
 from pathlib import Path, PosixPath
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, List, Optional, Union
-import subprocess
-import time
-import requests
-from collections.abc import Mapping
 
-import mlflow
-import copy
-import pandas as pd
-import yaml
 import jsonschema
+import mlflow
+import pandas as pd
+import requests
+import yaml
 
 from pynavio.utils import ExampleRequestType, make_env
 from pynavio.utils.json_encoder import JSONEncoder
-from pynavio.utils.schemas import PREDICTION_SCHEMA, \
-    METADATA_SCHEMA, REQUEST_SCHEMA_SCHEMA,\
-    not_nested_request_schema
+from pynavio.utils.schemas import (METADATA_SCHEMA, PREDICTION_SCHEMA,
+                                   REQUEST_SCHEMA_SCHEMA,
+                                   not_nested_request_schema)
 
 MODEL_SIZE_LIMIT_IN_BYTES = 1000_000_000
 EXAMPLE_REQUEST = 'example_request'
@@ -207,12 +207,9 @@ def _read_metadata(model_path: str) -> dict:
     example_request = _read_example_request(model_path, yml)
 
     return {
-        'dataset':
-            pd.read_csv(data_path) if data_path is not None else None,
-        'explanation_format':
-            _get_field(yml, 'metadata.explanations.format'),
-        'example_request':
-            example_request
+        'dataset': pd.read_csv(data_path) if data_path is not None else None,
+        'explanation_format': _get_field(yml, 'metadata.explanations.format'),
+        'example_request': example_request
     }
 
 
@@ -281,7 +278,8 @@ def _validate_schema(data, schema, name='', raise_exception=True):
 
 def is_input_nested(example_request, not_nested_schema):
     is_not_nested = _validate_schema(example_request,
-                                     not_nested_schema, '',
+                                     not_nested_schema,
+                                     '',
                                      raise_exception=False)
     return not is_not_nested
 
@@ -299,6 +297,7 @@ class ModelValidator:
         >>> ModelValidator()(model_path = '/path/to/my/model')
 
     """
+
     @staticmethod
     def validate_metadata(model_path):
         """
@@ -317,8 +316,7 @@ class ModelValidator:
         example_request = _read_example_request(model_path, config)
         _validate_schema(example_request, REQUEST_SCHEMA_SCHEMA,
                          "example request")
-        if is_input_nested(example_request,
-                           not_nested_request_schema()):
+        if is_input_nested(example_request, not_nested_request_schema()):
             print('Warning: {pynavio_model_validation} the nested'
                   ' model input is not supported'
                   ' by frontend rendering, it will only be possible'
@@ -388,6 +386,7 @@ class ModelValidator:
         @raises AssertionError: If the output is not valid.
         @return: None
         """
+
         def _validate_prediction_schema(model_prediction):
             try:
                 jsonschema.validate(model_prediction, PREDICTION_SCHEMA)
@@ -447,8 +446,8 @@ class ModelValidator:
 
 
 def _is_mlflow2():
-    from packaging import version
     import mlflow
+    from packaging import version
     return version.parse(mlflow.__version__) >= version.parse("2.0.0")
 
 
@@ -462,7 +461,8 @@ def _convert_to_mlflow2_format(request_data):
 
 
 def check_model_serving(model_path: Union[str, Path],
-                        port=5001, request_bodies=None):
+                        port=5001,
+                        request_bodies=None):
     """
     checks model serving with mlflow. This has limitations, e.g.
     the 'conda.env' setup will not be checked.
@@ -514,8 +514,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              explanations: Optional[str] = None,
              oodd: Optional[str] = None,
              num_gpus: Optional[int] = 0,
-             validate_model: Optional[bool] = True
-             ) -> Path:
+             validate_model: Optional[bool] = True) -> Path:
     """
     create a .zip mlflow model file for navio
     Usage: either pip_packages or conda_env need to be set.
@@ -561,8 +560,9 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                             "dependencies (or directories containing file "
                             "dependencies)), but is not a list")
 
-        if any(Path(code_p).resolve() in Path(path).resolve().parents
-               for code_p in code_path):
+        if any(
+                Path(code_p).resolve() in Path(path).resolve().parents
+                for code_p in code_path):
             raise ValueError("any of 'code_path' argument paths cannot"
                              " be a parent of 'path' argument,"
                              f" please change the 'path': {path} to be"
@@ -601,18 +601,19 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
         model_zip = Path(path + '.zip')
 
     if validate_model:
-        msg_kwargs = {'append_to_failed_msg': ' To disable validation set '
-                                              'validate_model to False',
-                      'append_to_succeeded_msg': ' Note: Please refer to '
-                                                 'check_model_serving()'
-                                                 ' method and '
-                                                 'https://navio.craftworks.io/'
-                                                 'docs/guides/navio-models/'
-                                                 'model_creation/'
-                                                 '#3-test-model-serving'
-                                                 ' for testing the model '
-                                                 'serving.',
-                      }
+        msg_kwargs = {
+            'append_to_failed_msg': ' To disable validation set '
+                                    'validate_model to False',
+            'append_to_succeeded_msg': ' Note: Please refer to '
+                                       'check_model_serving()'
+                                       ' method and '
+                                       'https://navio.craftworks.io/'
+                                       'docs/guides/navio-models/'
+                                       'model_creation/'
+                                       '#3-test-model-serving'
+                                       ' for testing the model '
+                                       'serving.',
+        }
         ModelValidator()(path, model_zip, MODEL_SIZE_LIMIT_IN_BYTES,
                          **msg_kwargs)
 

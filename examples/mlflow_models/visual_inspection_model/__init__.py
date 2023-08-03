@@ -159,8 +159,10 @@ def setup(*args, **kwargs):
             'channels': ['defaults', 'conda-forge'],
             'dependencies': [
                 'python=3.9.12', 'pip=22.0.4', {
-                    'pip': ['Pillow', 'plotly', 'scipy', 'tensorflow==2.9.1',
-                            'mlflow==1.15.0', 'protobuf<3.20']
+                    'pip': [
+                        'Pillow', 'plotly', 'scipy', 'tensorflow==2.9.1',
+                        'mlflow==1.15.0', 'protobuf<3.20'
+                    ]
                 }
             ],
             'name': 'venv'

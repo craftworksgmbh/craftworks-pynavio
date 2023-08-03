@@ -1,8 +1,8 @@
 import pytest
 from mlflow_models import *
 from mlflow_models import __all__ as MODELS
-from pynavio._mlflow import ModelValidator, check_model_serving
 
+from pynavio._mlflow import ModelValidator, check_model_serving
 
 # these require custom tests - see corresponding test_<model_name>.py
 EXCLUDED_MODELS = [
@@ -56,11 +56,17 @@ class Helper(ModelValidator):
         except Exception:
             pytest.fail("Error in the model serving/prediction")
 
-    def __call__(self, model_path, expect_error: bool = False,
-                 validate_model_serving=True, validation_port=5001, **kwargs):
+    def __call__(self,
+                 model_path,
+                 expect_error: bool = False,
+                 validate_model_serving=True,
+                 validation_port=5001,
+                 **kwargs):
         self.setup_model(kwargs["model_name"], model_path)
         model_input, model_output = self.run_model_io(model_path)
-        self.verify_model_output(model_output, expect_error=expect_error, model_input=model_input)
+        self.verify_model_output(model_output,
+                                 expect_error=expect_error,
+                                 model_input=model_input)
         self.verify_model_serving(model_path, validation_port)
 
 

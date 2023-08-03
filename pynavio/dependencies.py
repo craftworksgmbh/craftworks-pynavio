@@ -42,10 +42,9 @@ def _generate_requirements_txt_file(requirements_txt_file,
 
     ignore_dirs_args = _generate_ignore_dirs_args(module_path, to_ignore_dirs)
 
-    result = subprocess.call(
-        ('pigar', '-P', f'{module_path}', '-p', f'{requirements_txt_file}',
-         *ignore_dirs_args),
-        stdin=yes.stdout)
+    result = subprocess.call(('pigar', '-P', f'{module_path}', '-p',
+                              f'{requirements_txt_file}', *ignore_dirs_args),
+                             stdin=yes.stdout)
     if result != 0:
         logging.error("please create and provide requirements.txt, as "
                       "there was an error using pigar to auto-generate "
