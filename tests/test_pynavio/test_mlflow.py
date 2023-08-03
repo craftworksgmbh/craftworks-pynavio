@@ -159,3 +159,30 @@ def test__is_wrapped_by_prediction_call():
     assert pynavio.mlflow._is_wrapped_by_prediction_call(wrapped_predict) \
            is True
     assert pynavio.mlflow._is_wrapped_by_prediction_call(predict) is False
+
+
+def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
+    import mlflow
+
+    from examples import mlflow_models
+    from examples.mlflow_models import tabular
+    model_path = str(tmp_path / 'model')
+
+    setup_arguments = dict(with_data=False,
+                           with_oodd=False,
+                           explanations=None,
+                           path=model_path,
+                           code_path=[mlflow_models.__path__[0]])
+
+    tabular.setup(**setup_arguments)
+
+    model = mlflow.pyfunc.load_model(model_path)
+    try:
+        pynavio.mlflow._is_model_predict_wrapped_by_prediction_call(model)
+    except AttributeError:
+        raise pytest.fail(
+            "did raise AttributeError, therefore currently prediction call"
+            " usage is not being checked"
+        )
+    except Exception:
+        raise pytest.fail(f"did raise {Exception}")

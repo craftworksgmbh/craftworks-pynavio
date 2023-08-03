@@ -288,6 +288,11 @@ def _is_wrapped_by_prediction_call(func):
     return getattr(func, '__wrapped_by_prediction_call__', False)
 
 
+def _is_model_predict_wrapped_by_prediction_call(model):
+    return _is_wrapped_by_prediction_call(
+        model._model_impl.python_model.predict)
+
+
 class ModelValidator:
     """
     A utility class for validating navio mlflow models.
@@ -354,8 +359,7 @@ class ModelValidator:
         used = True  # do not print warning if not sure
         # try checking the original model's predict function
         try:
-            used = _is_wrapped_by_prediction_call(
-                model._model_impl.python_model.predict)
+            used = _is_model_predict_wrapped_by_prediction_call(model)
         except AttributeError:
             pass
         if not used:
