@@ -149,6 +149,31 @@ def test_is_input_nested(rootpath, schema_file_name, is_nested):
            == is_nested
 
 
+def test__add_sys_dependencies():
+    import os
+    dep_path = "."
+    pynavio.mlflow._add_sys_dependencies(dep_path, ["lib1", "lib2"])
+
+    with open("sys_dependencies.txt", 'r') as result_file:
+        file_content = result_file.read()
+        # cleanup
+        os.remove(f"{dep_path}/sys_dependencies.txt")
+        assert file_content == "lib1\nlib2"
+
+
+def test__add_sys_dependencies_fails_on_str():
+    with pytest.raises(AssertionError):
+        pynavio.mlflow._add_sys_dependencies("", "lib1")
+
+
+def test__add_sys_dependencies_no_resulting_file():
+    import os
+    dep_path = ""
+    pynavio.mlflow._add_sys_dependencies(dep_path, None)
+
+    assert not os.path.exists("sys_dependencies.txt")
+
+
 def test__is_wrapped_by_prediction_call():
 
     def predict():
