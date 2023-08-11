@@ -505,12 +505,37 @@ def check_model_serving(model_path: Union[str, Path],
         time.sleep(2)
 
 
+def _is_valid_sys_dependency_list(sys_dependencies: List[str]) -> bool:
+    return isinstance(sys_dependencies, List) and \
+        all(isinstance(item, str) for item in sys_dependencies)
+
+
+def _add_sys_dependencies(path: str, sys_dependencies: List[str]) -> None:
+    """
+    Writes the system dependencies to a text file, one per line.
+
+    :param path: Path to save the sys_dependencies.txt file.
+    :param sys_dependencies: List of system dependencies.
+    :return: None
+    """
+    if sys_dependencies is None:
+        return
+
+    assert _is_valid_sys_dependency_list(sys_dependencies)
+
+    file_path = Path(path) / 'sys_dependencies.txt'
+
+    with open(file_path, 'w') as f:
+        f.write("\n".join(sys_dependencies))
+
+
 def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
              example_request: ExampleRequestType = None,
              pip_packages: List[str] = None,
              code_path: Optional[List[Union[str, Path]]] = None,
              conda_packages: List[str] = None,
+             sys_dependencies: List[str] = None,
              conda_channels: List[str] = None,
              conda_env: str = None,
              artifacts: ArtifactsType = None,
@@ -535,6 +560,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param code_path: A list of local filesystem paths to Python file
     dependencies (or directories containing file dependencies)
     @param conda_packages: list of conda packages
+    @param sys_dependencies: list of system library dependencies
     @param conda_channels: list of conda channels
     @param conda_env: the path of a conda.yaml file to use. If specified,
     the values of conda_channels, conda_packages and pip_packages would be
@@ -600,7 +626,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       explanations=explanations,
                       oodd=oodd,
                       num_gpus=num_gpus)
-
+        _add_sys_dependencies(path, sys_dependencies)
         shutil.make_archive(path, 'zip', path)
         model_zip = Path(path + '.zip')
 
