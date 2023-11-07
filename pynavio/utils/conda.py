@@ -12,7 +12,7 @@ def make_env(
 ) -> Dict[str, Any]:
     """
     makes the value for the mlflow.pyfunc.save_model()'s conda_env argument
-    Usage: either pip_packages or conda_env need to be set.
+
     @param pip_packages:
     @param conda_packages:
     @param conda_channels:
@@ -21,10 +21,9 @@ def make_env(
     ignored.
     @return:
     """
-    assert any(item is not None for item in [pip_packages, conda_env]),\
-        "either 'pip_packages' or 'conda_env' need to be set"
-
-    if conda_env is None:
+    if conda_env is None and pip_packages is None:
+        conda_env = None
+    elif conda_env is None:
         conda_env = {
             'channels': ['defaults', 'conda-forge', *(conda_channels or [])],
             'dependencies': [

@@ -546,7 +546,6 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              validate_model: Optional[bool] = True) -> Path:
     """
     create a .zip mlflow model file for navio
-    Usage: either pip_packages or conda_env need to be set.
 
     @param model: model to save
     @param path: path of where model .zip file needs to be saved
@@ -615,6 +614,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                                              artifacts)
 
         shutil.rmtree(path, ignore_errors=True)
+
         mlflow.pyfunc.save_model(path=path,
                                  python_model=model,
                                  conda_env=conda_env,
