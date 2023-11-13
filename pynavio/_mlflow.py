@@ -528,11 +528,35 @@ def _add_sys_dependencies(path: str, sys_dependencies: List[str]) -> None:
     with open(file_path, 'w') as f:
         f.write("\n".join(sys_dependencies))
 
+def _add_extra_dependencies(path: str, extra_pip_packages: List[str]) -> None:
+    """
+    Writes the extra dependencies in the conda env file.
+
+    :param path: Path to save the sys_dependencies.txt file.
+    :param extra_pip_packages: List of extra dependencies we want to add.
+    :return: None
+    """
+    if extra_pip_packages is None:
+        return
+
+    file_path = Path(path) / 'conda.yaml'
+
+    # Add assertion for if it exists (path)
+
+    with open(file_path) as f:
+        f = yaml.safe_load(f)
+        index = [i for i, d in enumerate(f['dependencies']) if (type(d) == dict and 'pip' in d.keys())]
+        element, = index
+        f['dependencies'][element]['pip'].extend(extra_pip_packages)
+
+    with open(file_path, 'w') as file:
+        yaml.dump(f, file, sort_keys=False)
 
 def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
              example_request: ExampleRequestType = None,
              pip_packages: List[str] = None,
+             extra_pip_packages: List[str] = None,
              code_path: Optional[List[Union[str, Path]]] = None,
              conda_packages: List[str] = None,
              sys_dependencies: List[str] = None,
@@ -546,6 +570,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              validate_model: Optional[bool] = True) -> Path:
     """
     create a .zip mlflow model file for navio
+    Usage: either pip_packages or conda_env need to be set. If both are not set
+    then the env will be inferred by mlflow.
 
     @param model: model to save
     @param path: path of where model .zip file needs to be saved
@@ -556,6 +582,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].
     Tip: For most cases it should be enough to use
     pynavio.utils.infer_dependencies.infer_external_dependencies().
+    @param extra_pip_packages: list of extra necessary pip packages(optionally with versions)
     @param code_path: A list of local filesystem paths to Python file
     dependencies (or directories containing file dependencies)
     @param conda_packages: list of conda packages
@@ -627,6 +654,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
         _add_sys_dependencies(path, sys_dependencies)
+        _add_extra_dependencies(path, extra_pip_packages)
         shutil.make_archive(path, 'zip', path)
         model_zip = Path(path + '.zip')
 

@@ -2,6 +2,7 @@ import jsonschema
 import pytest
 
 import pynavio
+from pynavio._mlflow import _add_extra_dependencies
 
 
 @pytest.mark.parametrize(
@@ -207,7 +208,50 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
     except AttributeError:
         raise pytest.fail(
             "did raise AttributeError, therefore currently prediction call"
-            " usage is not being checked"
-        )
+            " usage is not being checked")
     except Exception:
         raise pytest.fail(f"did raise {Exception}")
+
+def test_is_extra_pip_env_inferred(tmp_path, envpath):
+    import shutil
+    import filecmp
+    from pathlib import Path
+
+    extra_dependencies = ['joblib', 'matplotlib==3.8.1']
+
+    shutil.copy(envpath, tmp_path)
+    pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)
+    file_path = Path(tmp_path, 'conda.yaml')
+
+    result = filecmp.cmp(file_path, envpath, shallow=False)
+
+    if result is False:
+        import difflib
+
+        diffs = []
+        with open(envpath, 'r') as file1, open(file_path, 'r') as file2:
+            file1_content = file1.readlines()
+            file2_content = file2.readlines()
+
+        differ = difflib.Differ()
+        diff = list(differ.compare(file1_content, file2_content))
+
+        for line in diff:
+            if line.startswith('- ') or line.startswith('+ '):
+                diffs.append(line)
+
+        clean_diffs = [line.strip('+ ').strip('- ').strip() for line in diffs]
+        equal = set(clean_diffs) == set(extra_dependencies)
+        assert equal is True
+
+def test_is_np_extra_pip_env_inferred(tmp_path, envpath):
+    import shutil
+    import filecmp
+    from pathlib import Path
+
+    shutil.copy(envpath, tmp_path)
+    pynavio.mlflow._add_extra_dependencies(tmp_path, None)
+    file_path = Path(tmp_path, 'conda.yaml')
+
+    assert filecmp.cmp(file_path, envpath, shallow=False) is True
+
