@@ -251,13 +251,18 @@ def test_is_extra_pip_env_inferred(tmp_path, file_name, rootpath):
         assert equal is True
 
 
-def test_is_no_extra_pip_env_inferred(tmp_path, envpath):
+@pytest.mark.parametrize("file_name", ['conda.yaml'])
+def test_is_no_extra_pip_env_inferred(tmp_path, file_name, rootpath):
     import filecmp
     import shutil
     from pathlib import Path
 
-    shutil.copy(envpath, tmp_path)
+    conda_path = rootpath / \
+        'tests' / 'test_pynavio' / \
+        'fixtures' / 'conda_env' / file_name
+
+    shutil.copy(conda_path, tmp_path)
     pynavio.mlflow._add_extra_dependencies(tmp_path, None)
     file_path = Path(tmp_path, 'conda.yaml')
 
-    assert filecmp.cmp(file_path, envpath, shallow=False) is True
+    assert filecmp.cmp(file_path, conda_path, shallow=False) is True
