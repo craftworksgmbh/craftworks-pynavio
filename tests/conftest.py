@@ -7,6 +7,3 @@ import pytest
 def rootpath():
     return Path(__file__).parents[1]
 
-@pytest.fixture
-def envpath():
-    return '<path_to_conda_file>'

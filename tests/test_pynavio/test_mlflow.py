@@ -99,6 +99,7 @@ call_kwargs = {
     (call_kwargs, call_kwargs['append_to_succeeded_msg']),
 ])
 def test_ModelValidator_call_positive(monkeypatch, capfd, call_kwargs, msg):
+
     def mock_run(self, path, model_zip, model_zip_size_limit, **kwargs):
         pass
 
@@ -115,6 +116,7 @@ def test_ModelValidator_call_positive(monkeypatch, capfd, call_kwargs, msg):
     (call_kwargs, call_kwargs['append_to_failed_msg']),
 ])
 def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
+
     def mock_run(self, path, model_zip, model_zip_size_limit, **kwargs):
         assert False
 
@@ -136,8 +138,8 @@ def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
 def test_is_input_nested(rootpath, schema_file_name, is_nested):
     import json
     schema_path = rootpath / \
-                  'tests' / 'test_pynavio' / \
-                  'fixtures' / 'schemas' / schema_file_name
+        'tests' / 'test_pynavio' / \
+        'fixtures' / 'schemas' / schema_file_name
 
     with open(schema_path, 'r') as schema_file:
         example_request = json.load(schema_file)
@@ -174,6 +176,7 @@ def test__add_sys_dependencies_no_resulting_file():
 
 
 def test__is_wrapped_by_prediction_call():
+
     def predict():
         pass
 
@@ -219,8 +222,8 @@ def test_is_extra_pip_env_inferred(tmp_path, file_name, rootpath):
     extra_dependencies = ['joblib', 'matplotlib==3.8.1']
 
     conda_path = rootpath / \
-                 'tests' / 'test_pynavio' / \
-                 'fixtures' / 'conda_env' / file_name
+        'tests' / 'test_pynavio' / \
+        'fixtures' / 'conda_env' / file_name
 
     shutil.copy(conda_path, tmp_path)
     pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)

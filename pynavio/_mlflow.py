@@ -528,6 +528,7 @@ def _add_sys_dependencies(path: str, sys_dependencies: List[str]) -> None:
     with open(file_path, 'w') as f:
         f.write("\n".join(sys_dependencies))
 
+
 def _add_extra_dependencies(path: str, extra_pip_packages: List[str]) -> None:
     """
     Writes the extra dependencies in the conda env file.
@@ -545,12 +546,16 @@ def _add_extra_dependencies(path: str, extra_pip_packages: List[str]) -> None:
 
     with open(file_path) as f:
         f = yaml.safe_load(f)
-        index = [i for i, d in enumerate(f['dependencies']) if (type(d) == dict and 'pip' in d.keys())]
+        index = [
+            i for i, d in enumerate(f['dependencies'])
+            if (type(d) == dict and 'pip' in d.keys())
+        ]
         element, = index
         f['dependencies'][element]['pip'].extend(extra_pip_packages)
 
     with open(file_path, 'w') as file:
         yaml.dump(f, file, sort_keys=False)
+
 
 def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
@@ -582,7 +587,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].
     Tip: For most cases it should be enough to use
     pynavio.utils.infer_dependencies.infer_external_dependencies().
-    @param extra_pip_packages: list of extra necessary pip packages(optionally with versions)
+    @param extra_pip_packages: list of extra necessary
+    pip packages(optionally with versions)
     @param code_path: A list of local filesystem paths to Python file
     dependencies (or directories containing file dependencies)
     @param conda_packages: list of conda packages
