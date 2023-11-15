@@ -213,8 +213,7 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
         raise pytest.fail(f"did raise {Exception}")
 
 
-@pytest.mark.parametrize("file_name", ['conda.yaml'])
-def test_is_extra_pip_env_inferred(tmp_path, file_name, rootpath):
+def test_is_extra_pip_env(tmp_path, rootpath):
     import filecmp
     import shutil
     from pathlib import Path
@@ -223,7 +222,7 @@ def test_is_extra_pip_env_inferred(tmp_path, file_name, rootpath):
 
     conda_path = rootpath / \
         'tests' / 'test_pynavio' / \
-        'fixtures' / 'conda_env' / file_name
+        'fixtures' / 'conda_env' / 'conda.yaml'
 
     shutil.copy(conda_path, tmp_path)
     pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)
@@ -251,18 +250,29 @@ def test_is_extra_pip_env_inferred(tmp_path, file_name, rootpath):
         assert equal is True
 
 
-@pytest.mark.parametrize("file_name", ['conda.yaml'])
-def test_is_no_extra_pip_env_inferred(tmp_path, file_name, rootpath):
+def test_is_no_extra_pip_env(tmp_path, rootpath):
     import filecmp
     import shutil
     from pathlib import Path
 
     conda_path = rootpath / \
         'tests' / 'test_pynavio' / \
-        'fixtures' / 'conda_env' / file_name
+        'fixtures' / 'conda_env' / 'conda.yaml'
 
     shutil.copy(conda_path, tmp_path)
     pynavio.mlflow._add_extra_dependencies(tmp_path, None)
     file_path = Path(tmp_path, 'conda.yaml')
 
     assert filecmp.cmp(file_path, conda_path, shallow=False) is True
+
+
+def test_is_extra_pip_env_path_no_exists():
+    no_path = '/path/no/exists'
+    extra_dependencies = ['joblib', 'matplotlib==3.8.1']
+
+    try:
+        pynavio.mlflow._add_extra_dependencies(no_path, extra_dependencies)
+    except AssertionError as e:
+        print(f"\nAssertionError: {e}")
+    else:
+        print("\nNo AssertionError. The path exists.")
