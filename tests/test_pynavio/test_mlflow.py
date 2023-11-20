@@ -213,66 +213,34 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
         raise pytest.fail(f"did raise {Exception}")
 
 
-def test_is_extra_pip_env(tmp_path, rootpath):
+@pytest.mark.parametrize("extra_dependencies, output",
+                         [(['joblib', 'matplotlib==3.8.1'], True),
+                          (None, False)])
+def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
+                                output):
     import filecmp
     import shutil
     from pathlib import Path
-
-    extra_dependencies = ['joblib', 'matplotlib==3.8.1']
 
     conda_path = rootpath / \
         'tests' / 'test_pynavio' / \
         'fixtures' / 'conda_env' / 'conda.yaml'
 
+    conda_output_path = rootpath / \
+        'tests' / 'test_pynavio' / \
+        'fixtures' / 'conda_env' / 'conda_output.yaml'
+
+    # Create file with expected output and compare
     shutil.copy(conda_path, tmp_path)
     pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)
     file_path = Path(tmp_path, 'conda.yaml')
 
-    result = filecmp.cmp(file_path, conda_path, shallow=False)
-
-    if result is False:
-        import difflib
-
-        diffs = []
-        with open(conda_path, 'r') as file1, open(file_path, 'r') as file2:
-            file1_content = file1.readlines()
-            file2_content = file2.readlines()
-
-        differ = difflib.Differ()
-        diff = list(differ.compare(file1_content, file2_content))
-
-        for line in diff:
-            if line.startswith('- ') or line.startswith('+ '):
-                diffs.append(line)
-
-        clean_diffs = [line.strip('+ ').strip('- ').strip() for line in diffs]
-        equal = set(clean_diffs) == set(extra_dependencies)
-        assert equal is True
+    assert filecmp.cmp(file_path, conda_output_path, shallow=False) == output
 
 
-def test_is_no_extra_pip_env(tmp_path, rootpath):
-    import filecmp
-    import shutil
-    from pathlib import Path
-
-    conda_path = rootpath / \
-        'tests' / 'test_pynavio' / \
-        'fixtures' / 'conda_env' / 'conda.yaml'
-
-    shutil.copy(conda_path, tmp_path)
-    pynavio.mlflow._add_extra_dependencies(tmp_path, None)
-    file_path = Path(tmp_path, 'conda.yaml')
-
-    assert filecmp.cmp(file_path, conda_path, shallow=False) is True
-
-
-def test_is_extra_pip_env_path_no_exists():
+def test_add_extra_dependencies_negative():
     no_path = '/path/no/exists'
     extra_dependencies = ['joblib', 'matplotlib==3.8.1']
 
-    try:
+    with pytest.raises(AssertionError):
         pynavio.mlflow._add_extra_dependencies(no_path, extra_dependencies)
-    except AssertionError as e:
-        print(f"\nAssertionError: {e}")
-    else:
-        print("\nNo AssertionError. The path exists.")

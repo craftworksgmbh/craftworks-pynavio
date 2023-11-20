@@ -1,6 +1,5 @@
 import copy
 import json
-import os
 import shutil
 import subprocess
 import time
@@ -534,7 +533,7 @@ def _add_extra_dependencies(path: str, extra_pip_packages: List[str]) -> None:
     """
     Writes the extra dependencies in the conda env file.
 
-    :param path: Path to save the sys_dependencies.txt file.
+    :param path: Path where the conda.yaml file exists.
     :param extra_pip_packages: List of extra dependencies we want to add.
     :return: None
     """
@@ -543,17 +542,15 @@ def _add_extra_dependencies(path: str, extra_pip_packages: List[str]) -> None:
 
     file_path = Path(path) / 'conda.yaml'
 
-    assert os.path.exists(
-        file_path), f"The file path {file_path} does not exist."
+    assert file_path.exists(),\
+        f"The file path {file_path} does not exist."
 
     with open(file_path) as f:
         f = yaml.safe_load(f)
-        index = [
-            i for i, d in enumerate(f['dependencies'])
-            if (type(d) == dict and 'pip' in d.keys())
-        ]
-        element, = index
-        f['dependencies'][element]['pip'].extend(extra_pip_packages)
+
+        for i, d in enumerate(f['dependencies']):
+            if isinstance(d, dict) and 'pip' in d.keys():
+                d['pip'].extend(extra_pip_packages)
 
     with open(file_path, 'w') as file:
         yaml.dump(f, file, sort_keys=False)
@@ -590,7 +587,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     Tip: For most cases it should be enough to use
     pynavio.utils.infer_dependencies.infer_external_dependencies().
     @param extra_pip_packages: list of extra necessary
-    pip packages(optionally with versions). This option is to be used in
+    pip packages (optionally with versions). This option is to be used in
     case if the env is inferred by mlflow and there is a need to add
     extra pip packages (pip_packages or conda_env are not set).
     @param code_path: A list of local filesystem paths to Python file
