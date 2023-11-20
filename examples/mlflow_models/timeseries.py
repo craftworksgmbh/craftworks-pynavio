@@ -124,9 +124,7 @@ def mock_data():
         TARGET: list('abc'),
         'X': [4, 5, 6],
         DATETIME_COLUMN: [1, 2, 3],
-        **{
-            key: [1, 1, 1] for key in GROUP_COLUMNS
-        }
+        **{key: [1, 1, 1] for key in GROUP_COLUMNS}
     }).astype({TARGET: 'category'})
 
 
@@ -157,6 +155,11 @@ def setup(with_data: bool,
         model_path = f'{tmp_dir}/model.joblib'
         joblib.dump(model, model_path)
 
+        pip_packages = ['mlflow', 'scikit-learn', 'joblib']
+
+        if explanations == 'plotly':
+            pip_packages.extend(['plotly', 'shap'])
+
         pynavio.mlflow.to_navio(mlflow_model,
                                 example_request=request_schema,
                                 artifacts={'model': model_path},
@@ -164,4 +167,5 @@ def setup(with_data: bool,
                                 path=path,
                                 code_path=code_path,
                                 explanations=explanations,
+                                pip_packages=pip_packages,
                                 oodd='default' if with_oodd else 'disabled')
