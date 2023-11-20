@@ -537,6 +537,7 @@ def _add_extra_dependencies(path: str, extra_pip_packages: List[str]) -> None:
     :param extra_pip_packages: List of extra dependencies we want to add.
     :return: None
     """
+
     if extra_pip_packages is None:
         return
 

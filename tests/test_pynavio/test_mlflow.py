@@ -213,9 +213,10 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
         raise pytest.fail(f"did raise {Exception}")
 
 
-@pytest.mark.parametrize("extra_dependencies, output",
-                         [(['joblib', 'matplotlib==3.8.1'], True),
-                          (None, False)])
+@pytest.mark.parametrize(
+    "extra_dependencies, output",
+    [(['joblib', 'matplotlib==3.8.1'], 'conda_output.yaml'),
+     (None, 'conda.yaml')])
 def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
                                 output):
     import filecmp
@@ -228,14 +229,14 @@ def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
 
     conda_output_path = rootpath / \
         'tests' / 'test_pynavio' / \
-        'fixtures' / 'conda_env' / 'conda_output.yaml'
+        'fixtures' / 'conda_env' / f'{output}'
 
-    # Create file with expected output and compare
     shutil.copy(conda_path, tmp_path)
     pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)
+
     file_path = Path(tmp_path, 'conda.yaml')
 
-    assert filecmp.cmp(file_path, conda_output_path, shallow=False) == output
+    assert filecmp.cmp(file_path, conda_output_path, shallow=False)
 
 
 def test_add_extra_dependencies_negative():
