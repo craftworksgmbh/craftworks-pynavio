@@ -138,14 +138,15 @@ def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
 def test_is_input_nested(rootpath, schema_file_name, is_nested):
     import json
     schema_path = rootpath / \
-        'tests'/'test_pynavio'/'fixtures'/'schemas'/schema_file_name
+        'tests' / 'test_pynavio' / \
+        'fixtures' / 'schemas' / schema_file_name
 
     with open(schema_path, 'r') as schema_file:
         example_request = json.load(schema_file)
 
     assert pynavio.mlflow.is_input_nested(example_request,
                                           pynavio.mlflow.
-                                          not_nested_request_schema())\
+                                          not_nested_request_schema()) \
            == is_nested
 
 
@@ -207,7 +208,37 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
     except AttributeError:
         raise pytest.fail(
             "did raise AttributeError, therefore currently prediction call"
-            " usage is not being checked"
-        )
+            " usage is not being checked")
     except Exception:
         raise pytest.fail(f"did raise {Exception}")
+
+
+@pytest.mark.parametrize(
+    "extra_dependencies, output",
+    [(['joblib', 'matplotlib==3.8.1'], 'conda_output.yaml'),
+     (None, 'conda.yaml')])
+def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
+                                output):
+    import filecmp
+    import shutil
+    from pathlib import Path
+    conda_env_path = rootpath / 'tests' / 'test_pynavio' /\
+        'fixtures' / 'conda_env'
+
+    conda_path = conda_env_path / 'conda.yaml'
+    conda_output_path = conda_env_path / f'{output}'
+
+    shutil.copy(conda_path, tmp_path)
+    pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)
+
+    file_path = Path(tmp_path, 'conda.yaml')
+
+    assert filecmp.cmp(file_path, conda_output_path, shallow=False)
+
+
+def test_add_extra_dependencies_negative():
+    no_path = '/path/no/exists'
+    extra_dependencies = ['joblib', 'matplotlib==3.8.1']
+
+    with pytest.raises(AssertionError):
+        pynavio.mlflow._add_extra_dependencies(no_path, extra_dependencies)
