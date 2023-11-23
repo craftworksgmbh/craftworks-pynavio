@@ -222,14 +222,11 @@ def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
     import filecmp
     import shutil
     from pathlib import Path
+    conda_env_path = rootpath / 'tests' / 'test_pynavio' /\
+        'fixtures' / 'conda_env'
 
-    conda_path = rootpath / \
-        'tests' / 'test_pynavio' / \
-        'fixtures' / 'conda_env' / 'conda.yaml'
-
-    conda_output_path = rootpath / \
-        'tests' / 'test_pynavio' / \
-        'fixtures' / 'conda_env' / f'{output}'
+    conda_path = conda_env_path / 'conda.yaml'
+    conda_output_path = conda_env_path / f'{output}'
 
     shutil.copy(conda_path, tmp_path)
     pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)
