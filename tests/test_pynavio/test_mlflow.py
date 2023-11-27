@@ -187,19 +187,47 @@ def test__is_wrapped_by_prediction_call():
 
 
 def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
+
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
     import mlflow
 
-    from examples import mlflow_models
-    from examples.mlflow_models import tabular
+    import pynavio
+
+    TARGET = 'target'
+    _columns = ['x', 'y']
+    example_request = pynavio.make_example_request(
+        {
+            TARGET: float(sum(range(len(_columns)))),
+            **{col: float(i) for i, col in enumerate(_columns)}
+        },
+        target=TARGET)
+
+    class SampleModel(mlflow.pyfunc.PythonModel):
+
+        @pynavio.prediction_call
+        def predict(self, context, model_input):
+            return {
+                'prediction': [1.] * model_input.shape[0]
+            }
+
+    def setup(path: Path, *args, **kwargs):
+        with TemporaryDirectory() as tmp_dir:
+            pynavio.mlflow.to_navio(SampleModel(),
+                                    example_request=example_request,
+                                    code_path=kwargs.get('code_path'),
+                                    path=path,
+                                    pip_packages=['mlflow'])
+
+
     model_path = str(tmp_path / 'model')
 
     setup_arguments = dict(with_data=False,
                            with_oodd=False,
                            explanations=None,
-                           path=model_path,
-                           code_path=[mlflow_models.__path__[0]])
+                           path=model_path)
 
-    tabular.setup(**setup_arguments)
+    setup(**setup_arguments)
 
     model = mlflow.pyfunc.load_model(model_path)
     try:
