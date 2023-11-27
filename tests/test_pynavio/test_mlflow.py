@@ -219,9 +219,10 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
      (None, 'conda.yaml')])
 def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
                                 output):
-    import filecmp
     import shutil
+    import yaml
     from pathlib import Path
+    from deepdiff import DeepDiff
     conda_env_path = rootpath / 'tests' / 'test_pynavio' /\
         'fixtures' / 'conda_env'
 
@@ -233,7 +234,18 @@ def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
 
     file_path = Path(tmp_path, 'conda.yaml')
 
-    assert filecmp.cmp(file_path, conda_output_path, shallow=False)
+    # Load contents of the files into dictionaries
+    with open(file_path, 'r') as file:
+        actual_data = yaml.safe_load(file)
+
+    with open(conda_output_path, 'r') as file:
+        expected_data = yaml.safe_load(file)
+
+    # Compare dictionaries using deepdiff
+    diff = DeepDiff(actual_data, expected_data)
+
+    # Assert that there are no differences
+    assert not diff, f'Differences: {diff}'
 
 
 def test_add_extra_dependencies_negative():
