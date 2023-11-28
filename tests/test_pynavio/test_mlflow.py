@@ -135,10 +135,9 @@ def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
 @pytest.mark.parametrize("schema_file_name, is_nested",
                          [('example_request_nested.json', True),
                           ('example_request.json', False)])
-def test_is_input_nested(rootpath, schema_file_name, is_nested):
+def test_is_input_nested(rootpath, pytests_fixtures_path, schema_file_name, is_nested):
     import json
-    schema_path = rootpath / \
-        'tests'/'test_pynavio'/'fixtures'/'schemas'/schema_file_name
+    schema_path = pytests_fixtures_path /'schemas'/schema_file_name
 
     with open(schema_path, 'r') as schema_file:
         example_request = json.load(schema_file)
@@ -149,29 +148,26 @@ def test_is_input_nested(rootpath, schema_file_name, is_nested):
            == is_nested
 
 
-def test__add_sys_dependencies():
-    import os
-    dep_path = "."
-    pynavio.mlflow._add_sys_dependencies(dep_path, ["lib1", "lib2"])
+def test__add_sys_dependencies(tmp_path):
+    pynavio.mlflow._add_sys_dependencies(tmp_path, ["lib1", "lib2"])
+    file_path = tmp_path / 'sys_dependencies.txt'
 
-    with open("sys_dependencies.txt", 'r') as result_file:
+    with open(file_path, 'r') as result_file:
         file_content = result_file.read()
-        # cleanup
-        os.remove(f"{dep_path}/sys_dependencies.txt")
         assert file_content == "lib1\nlib2"
 
 
-def test__add_sys_dependencies_fails_on_str():
+def test__add_sys_dependencies_fails_on_str(tmp_path):
     with pytest.raises(AssertionError):
-        pynavio.mlflow._add_sys_dependencies("", "lib1")
+        pynavio.mlflow._add_sys_dependencies(tmp_path, "lib1")
 
 
-def test__add_sys_dependencies_no_resulting_file():
+def test__add_sys_dependencies_no_resulting_file(tmp_path):
     import os
-    dep_path = ""
-    pynavio.mlflow._add_sys_dependencies(dep_path, None)
+    pynavio.mlflow._add_sys_dependencies(tmp_path, None)
+    file_path = tmp_path / 'sys_dependencies.txt'
 
-    assert not os.path.exists("sys_dependencies.txt")
+    assert not os.path.exists(file_path)
 
 
 def test__is_wrapped_by_prediction_call():
