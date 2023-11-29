@@ -214,13 +214,15 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
 
 
 @pytest.mark.parametrize(
-    "extra_dependencies, output",
+    "pip_extra_requirements, output",
     [(['joblib', 'matplotlib==3.8.1'], 'conda_output.yaml'),
      (None, 'conda.yaml')])
-def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
+def test_add_extra_dependencies(tmp_path, rootpath, pip_extra_requirements,
                                 output):
     import shutil
     import yaml
+    from examples import mlflow_models
+    from examples.mlflow_models import tabular
     from pathlib import Path
     from deepdiff import DeepDiff
     conda_env_path = rootpath / 'tests' / 'test_pynavio' /\
@@ -230,9 +232,16 @@ def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
     conda_output_path = conda_env_path / f'{output}'
 
     shutil.copy(conda_path, tmp_path)
-    pynavio.mlflow._add_extra_dependencies(tmp_path, extra_dependencies)
+    model_path = str(tmp_path / 'model')
 
-    file_path = Path(tmp_path, 'conda.yaml')
+    setup_arguments = dict(with_data=False,
+                           with_oodd=False,
+                           explanations=None,
+                           path=model_path,
+                           code_path=[mlflow_models.__path__[0]])
+
+    tabular.setup(**setup_arguments)
+    file_path = Path(model_path, 'conda.yaml')
 
     with open(file_path, 'r') as file:
         actual_data = yaml.safe_load(file)
@@ -244,10 +253,97 @@ def test_add_extra_dependencies(tmp_path, rootpath, extra_dependencies,
 
     assert not diff, f'Differences: {diff}'
 
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], ['numpy'], 'cucut'),
+                          (['mlflow'], ['numpy'], None),
+                          (['mlflow'], None, 'cucut')])
+def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages, pip_packages, conda_env):
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+    import mlflow
+    import pytest
 
-def test_add_extra_dependencies_negative():
-    no_path = '/path/no/exists'
-    extra_dependencies = ['joblib', 'matplotlib==3.8.1']
+    import pynavio
 
-    with pytest.raises(AssertionError):
-        pynavio.mlflow._add_extra_dependencies(no_path, extra_dependencies)
+    with pytest.raises(AssertionError,
+                       match="If 'extra_pip_packages' is specified, "
+                             "both 'pip_packages' and 'conda_env' must be None."):
+        TARGET = 'target'
+        _columns = ['x', 'y']
+        example_request = pynavio.make_example_request(
+            {
+                TARGET: float(sum(range(len(_columns)))),
+                **{col: float(i) for i, col in enumerate(_columns)}
+            },
+            target=TARGET)
+
+        class SampleModel(mlflow.pyfunc.PythonModel):
+
+            @pynavio.prediction_call
+            def predict(self, context, model_input):
+                return {
+                    'prediction': [1.] * model_input.shape[0]
+                }
+
+        def setup(path: Path, *args, **kwargs):
+            with TemporaryDirectory() as tmp_path:
+                pynavio.mlflow.to_navio(SampleModel(),
+                                        example_request=example_request,
+                                        code_path=kwargs.get('code_path'),
+                                        conda_env=conda_env,
+                                        pip_packages=pip_packages,
+                                        extra_pip_packages=extra_pip_packages,
+                                        path=path)
+
+        model_path = str(tmp_path / 'model')
+
+        setup_arguments = dict(with_data=False,
+                               with_oodd=False,
+                               explanations=None,
+                               path=model_path)
+
+        setup(**setup_arguments)
+
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], None, None)])
+def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages, pip_packages, conda_env):
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+    import mlflow
+
+    import pynavio
+    TARGET = 'target'
+    _columns = ['x', 'y']
+    example_request = pynavio.make_example_request(
+        {
+            TARGET: float(sum(range(len(_columns)))),
+            **{col: float(i) for i, col in enumerate(_columns)}
+        },
+        target=TARGET)
+
+    class SampleModel(mlflow.pyfunc.PythonModel):
+
+        @pynavio.prediction_call
+        def predict(self, context, model_input):
+            return {
+                'prediction': [1.] * model_input.shape[0]
+            }
+
+    def setup(path: Path, *args, **kwargs):
+        with TemporaryDirectory() as tmp_path:
+            pynavio.mlflow.to_navio(SampleModel(),
+                                    example_request=example_request,
+                                    code_path=kwargs.get('code_path'),
+                                    conda_env=conda_env,
+                                    pip_packages=pip_packages,
+                                    extra_pip_packages=extra_pip_packages,
+                                    path=path)
+
+    model_path = str(tmp_path / 'model')
+
+    setup_arguments = dict(with_data=False,
+                           with_oodd=False,
+                           explanations=None,
+                           path=model_path)
+
+    assert not setup(**setup_arguments)

@@ -528,35 +528,6 @@ def _add_sys_dependencies(path: str, sys_dependencies: List[str]) -> None:
     with open(file_path, 'w') as f:
         f.write("\n".join(sys_dependencies))
 
-
-def _add_extra_dependencies(path: str, extra_pip_packages: List[str]) -> None:
-    """
-    Writes the extra dependencies in the conda env file.
-
-    :param path: Path where the conda.yaml file exists.
-    :param extra_pip_packages: List of extra dependencies we want to add.
-    :return: None
-    """
-
-    if extra_pip_packages is None:
-        return
-
-    file_path = Path(path) / 'conda.yaml'
-
-    assert file_path.exists(),\
-        f"The file path {file_path} does not exist."
-
-    with open(file_path) as f:
-        f = yaml.safe_load(f)
-
-        for i, d in enumerate(f['dependencies']):
-            if isinstance(d, dict) and 'pip' in d.keys():
-                d['pip'].extend(extra_pip_packages)
-
-    with open(file_path, 'w') as file:
-        yaml.dump(f, file, sort_keys=False)
-
-
 def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
              example_request: ExampleRequestType = None,
@@ -640,6 +611,9 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
             _check_data_spec(dataset)
             artifacts.update(dataset=dataset['path'])
 
+        assert extra_pip_packages is None or (pip_packages is None and conda_env is None), \
+            "If 'extra_pip_packages' is specified, both 'pip_packages' and 'conda_env' must be None."
+
         conda_env = make_env(pip_packages, conda_packages, conda_channels,
                              conda_env)
 
@@ -653,6 +627,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
         mlflow.pyfunc.save_model(path=path,
                                  python_model=model,
                                  conda_env=conda_env,
+                                 extra_pip_requirements=extra_pip_packages,
                                  artifacts=artifacts,
                                  code_path=code_path)
 
@@ -662,7 +637,6 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       oodd=oodd,
                       num_gpus=num_gpus)
         _add_sys_dependencies(path, sys_dependencies)
-        _add_extra_dependencies(path, extra_pip_packages)
         shutil.make_archive(path, 'zip', path)
         model_zip = Path(path + '.zip')
 
