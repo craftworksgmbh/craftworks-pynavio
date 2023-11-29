@@ -213,68 +213,14 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
         raise pytest.fail(f"did raise {Exception}")
 
 
-@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
-                         [(['mlflow'], ['numpy'], 'cucut'),
-                          (['mlflow'], ['numpy'], None),
-                          (['mlflow'], None, 'cucut')])
-def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages,
-                                              pip_packages, conda_env):
-    from pathlib import Path
-    from tempfile import TemporaryDirectory
-
-    import mlflow
-    import pytest
-
-    import pynavio
-
-    with pytest.raises(AssertionError,
-                       match="If 'extra_pip_packages' is specified, "
-                       "both 'pip_packages' and 'conda_env' must be None."):
-        TARGET = 'target'
-        _columns = ['x', 'y']
-        example_request = pynavio.make_example_request(
-            {
-                TARGET: float(sum(range(len(_columns)))),
-                **{col: float(i) for i, col in enumerate(_columns)}
-            },
-            target=TARGET)
-
-        class SampleModel(mlflow.pyfunc.PythonModel):
-
-            @pynavio.prediction_call
-            def predict(self, context, model_input):
-                return {'prediction': [1.] * model_input.shape[0]}
-
-        def setup(path: Path, *args, **kwargs):
-            with TemporaryDirectory():
-                pynavio.mlflow.to_navio(SampleModel(),
-                                        example_request=example_request,
-                                        code_path=kwargs.get('code_path'),
-                                        conda_env=conda_env,
-                                        pip_packages=pip_packages,
-                                        extra_pip_packages=extra_pip_packages,
-                                        path=path)
-
-        model_path = str(tmp_path / 'model')
-
-        setup_arguments = dict(with_data=False,
-                               with_oodd=False,
-                               explanations=None,
-                               path=model_path)
-
-        setup(**setup_arguments)
-
-
-@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
-                         [(['mlflow'], None, None)])
-def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
-                                     pip_packages, conda_env):
+def sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env):
     from pathlib import Path
     from tempfile import TemporaryDirectory
 
     import mlflow
 
     import pynavio
+
     TARGET = 'target'
     _columns = ['x', 'y']
     example_request = pynavio.make_example_request(
@@ -307,4 +253,24 @@ def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
                            explanations=None,
                            path=model_path)
 
-    assert not setup(**setup_arguments)
+    return setup(**setup_arguments)
+
+
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], ['numpy'], 'dummy_conda_env'),
+                          (['mlflow'], ['numpy'], None),
+                          (['mlflow'], None, 'dummy_conda_env')])
+def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages,
+                                              pip_packages, conda_env):
+    with pytest.raises(AssertionError,
+                       match="If 'extra_pip_packages' is specified, "
+                       "both 'pip_packages' and 'conda_env' must be None."):
+        sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env)
+
+
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], None, None)])
+def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
+                                     pip_packages, conda_env):
+    assert not sample_model(tmp_path, extra_pip_packages, pip_packages,
+                            conda_env)
