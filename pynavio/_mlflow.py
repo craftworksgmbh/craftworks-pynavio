@@ -528,6 +528,7 @@ def _add_sys_dependencies(path: str, sys_dependencies: List[str]) -> None:
     with open(file_path, 'w') as f:
         f.write("\n".join(sys_dependencies))
 
+
 def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
              example_request: ExampleRequestType = None,
@@ -611,8 +612,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
             _check_data_spec(dataset)
             artifacts.update(dataset=dataset['path'])
 
-        assert extra_pip_packages is None or (pip_packages is None and conda_env is None), \
-            "If 'extra_pip_packages' is specified, both 'pip_packages' and 'conda_env' must be None."
+        assert extra_pip_packages is None or \
+            (pip_packages is None and conda_env is None), \
+            "If 'extra_pip_packages' is specified, " \
+            "both 'pip_packages' and 'conda_env' must be None."
 
         conda_env = make_env(pip_packages, conda_packages, conda_channels,
                              conda_env)
