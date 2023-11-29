@@ -2,6 +2,7 @@
 pynavio
 =======
 
+outside Lukas edited this
 
 .. image:: https://img.shields.io/pypi/v/pynavio.svg
         :target: https://pypi.python.org/pypi/pynavio
