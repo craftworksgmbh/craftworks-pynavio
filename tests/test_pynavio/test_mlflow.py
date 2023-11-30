@@ -135,9 +135,9 @@ def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
 @pytest.mark.parametrize("schema_file_name, is_nested",
                          [('example_request_nested.json', True),
                           ('example_request.json', False)])
-def test_is_input_nested(pytests_fixtures_path, schema_file_name, is_nested):
+def test_is_input_nested(fixtures_path, schema_file_name, is_nested):
     import json
-    schema_path = pytests_fixtures_path / 'schemas' / schema_file_name
+    schema_path = fixtures_path / 'schemas' / schema_file_name
 
     with open(schema_path, 'r') as schema_file:
         example_request = json.load(schema_file)

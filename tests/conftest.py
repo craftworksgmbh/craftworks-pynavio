@@ -9,5 +9,5 @@ def rootpath():
 
 
 @pytest.fixture()
-def pytests_fixtures_path(rootpath):
+def fixtures_path(rootpath):
     return Path(rootpath, 'tests', 'test_pynavio', 'fixtures')
