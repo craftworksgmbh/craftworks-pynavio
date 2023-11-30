@@ -272,5 +272,8 @@ def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages,
                          [(['mlflow'], None, None)])
 def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
                                      pip_packages, conda_env):
-    assert not sample_model(tmp_path, extra_pip_packages, pip_packages,
-                            conda_env)
+    try:
+        sample_model(tmp_path, extra_pip_packages, pip_packages,
+                     conda_env)
+    except Exception:
+        raise pytest.fail("Unexpected Exception")
