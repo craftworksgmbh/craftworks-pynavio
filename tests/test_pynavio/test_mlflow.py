@@ -212,13 +212,12 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
             }
 
     def setup(path: Path, *args, **kwargs):
-        with TemporaryDirectory() as tmp_dir:
+        with TemporaryDirectory():
             pynavio.mlflow.to_navio(SampleModel(),
                                     example_request=example_request,
                                     code_path=kwargs.get('code_path'),
                                     path=path,
                                     pip_packages=['mlflow'])
-
 
     model_path = str(tmp_path / 'model')
 
