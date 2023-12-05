@@ -10,7 +10,7 @@ Information:
 - Python version: Python 3.10.13
 
 Issue description:
-It is an issue related to the latest release of docker, where the context of the client is changed from `default` to `desktop-linux` which uses different endpoint and therefore breaks the docker client.
+It is an issue related to the latest release of docker, where the context of the client is changed from `default` to `desktop-linux` which uses different endpoint and therefore breaks the docker client.
 
 
 Solution
@@ -18,14 +18,12 @@ ____
 
 In order to solve the problem the following steps need to be followed:
 
-1. Run the following command → Check that the client is in the desktop one and not in the default. This is the issue and what needs to be changed.
-
-    ```bash
+#. Run the following command → Check that the client is in the desktop one and not in the default. This is the issue and what needs to be changed.::
     $ docker context ls
     NAME                TYPE                DESCRIPTION                               DOCKER ENDPOINT                                  KUBERNETES ENDPOINT   ORCHESTRATOR
     default             moby                Current DOCKER_HOST based configuration   unix:///var/run/docker.sock                                            swarm
     desktop-linux *     moby                                                          unix:///Users/ec2-user/.docker/run/docker.sock
-    ```
+
 
 2. Apply one of the possible solutions
     - Temporal solution → You can use one of the following command lines
