@@ -1,7 +1,7 @@
 Error description
 ====
 
-The using the following command line to start the deployment of navio models locally:
+When using the following command line to start the deployment of a navio model locally:
 
 .. code-block:: bash
 
