@@ -1,5 +1,6 @@
 Error description
 ====
+
 The using the following command line to start the deployment of navio models locally:
 
 .. code-block:: bash
@@ -33,6 +34,7 @@ I obtained the following error:
        <summary >Click to reveal the complete error details</summary>
 
         <pre>
+    <xmp>
     (pynavio) userhome@users-MBP test_models % mlflow models build-docker -m ./timeseries_trainer_model --install-mlflow -n mlflow-model-image
     Downloading artifacts: 100%|████████████████████████████████████████████████████████████████████████████████████████████| 1/1 [00:00<00:00, 1068.34it/s]
     2023/11/27 17:26:57 INFO mlflow.models.flavor_backend_registry: Selected backend for flavor 'python_function'
@@ -141,6 +143,7 @@ I obtained the following error:
         raise DockerException(
     docker.errors.DockerException: Error while fetching server API version: ('Connection aborted.', FileNotFoundError(2, 'No such file or directory'))
 
+        </xmp>
         </pre>
 
    </details>
