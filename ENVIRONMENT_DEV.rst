@@ -1,7 +1,10 @@
-Error description
+Handling Errors
 ====
+This section contains possible errors you may encounter related to the environment and their fixes.
 
-When using the following command line to start the deployment of a navio model locally:
+Error deploying models locally
+____
+When using the following command line to start the deployment of a mlflow model locally:
 
 .. code-block:: bash
 
@@ -148,10 +151,6 @@ I obtained the following error:
 
    </details>
 
-
-
-
-
 Information
 ____
 Information:
@@ -162,7 +161,6 @@ Information:
 
 Issue description:
 It is an issue related to the latest release of docker, where the context of the client is changed from ``default`` to ``desktop-linux`` which uses different endpoint and therefore breaks the docker client.
-
 
 Solution
 ____
