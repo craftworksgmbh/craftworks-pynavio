@@ -1,4 +1,4 @@
-Handling Errors
+Errors section
 ====
 This section contains possible errors you may encounter related to the environment and their fixes.
 
@@ -152,7 +152,7 @@ I obtained the following error:
    </details>
 
 Information
-____
+~~~~~~~~~~
 Information:
 
 - Computer: MacOs
@@ -163,7 +163,7 @@ Issue description:
 It is an issue related to the latest release of docker, where the context of the client is changed from ``default`` to ``desktop-linux`` which uses different endpoint and therefore breaks the docker client.
 
 Solution
-____
+~~~~~~~~~~
 
 In order to solve the problem the following steps need to be followed:
 
