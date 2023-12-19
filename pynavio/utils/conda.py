@@ -24,7 +24,7 @@ def make_env(
     @return:
     """
     if conda_env is None and pip_packages is None:
-        conda_env = None
+        return None
     elif conda_env is None:
         conda_env = {
             'channels': ['defaults', 'conda-forge', *(conda_channels or [])],
