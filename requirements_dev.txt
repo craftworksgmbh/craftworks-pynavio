@@ -28,3 +28,4 @@ onnx==1.12.0  # required by torch==2.0.0, otherwise gives error on onnx export
 
 onnxruntime==1.12.0
 pyarrow==9.0.0
+
