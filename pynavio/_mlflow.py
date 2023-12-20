@@ -90,7 +90,7 @@ def register_example_request(
     @param artifacts:If not set, need to set example_request
     @return: artifacts containing example request
     """
-    assert any(item is not None for item in [example_request, artifacts]),\
+    assert any(item is not None for item in [example_request, artifacts]), \
         f"either {EXAMPLE_REQUEST} or {ARTIFACTS} need to be set"
 
     if example_request:

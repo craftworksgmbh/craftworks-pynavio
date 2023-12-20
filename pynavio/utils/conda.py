@@ -21,7 +21,7 @@ def make_env(
     ignored.
     @return:
     """
-    assert any(item is not None for item in [pip_packages, conda_env]),\
+    assert any(item is not None for item in [pip_packages, conda_env]), \
         "either 'pip_packages' or 'conda_env' need to be set"
 
     if conda_env is None:
