@@ -8,11 +8,6 @@ from pynavio.utils import make_env
 yaml_path = 'conda.yaml'
 
 
-def test_make_conda_env_negative_wrong_arguments():
-    with pytest.raises(Exception):
-        make_env()
-
-
 @pytest.mark.parametrize("args", [
     ({
         'conda_env': yaml_path
@@ -62,6 +57,10 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
         ],
         'name': 'venv'
     }),
+    ({
+        'pip_packages': None,
+        'conda_env': None
+    }, None),
 ])
 def test_make_conda_env_positive(args, expected):
     conda_env = make_env(**args)
