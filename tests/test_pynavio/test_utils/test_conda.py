@@ -60,8 +60,21 @@ def test_make_conda_env_positive_yaml(args, expected=yaml_path):
     ({
         'pip_packages': None,
         'conda_env': None
-    }, None),
+    }, None)
 ])
 def test_make_conda_env_positive(args, expected):
     conda_env = make_env(**args)
     assert conda_env == expected
+
+
+@pytest.mark.parametrize("args", [
+    ({
+         'pip_packages': ['numpy'],
+         'conda_env': 'dummy_conda_env'
+     })
+])
+def test_make_conda_env_negative(args):
+    with pytest.raises(AssertionError,
+                       match="The parameters 'conda_env' and 'pip_ackages' "
+                             "cannot be specified at the same time"):
+        make_env(**args)

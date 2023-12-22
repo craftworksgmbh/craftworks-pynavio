@@ -90,7 +90,7 @@ def register_example_request(
     @param artifacts:If not set, need to set example_request
     @return: artifacts containing example request
     """
-    assert any(item is not None for item in [example_request, artifacts]),\
+    assert any(item is not None for item in [example_request, artifacts]), \
         f"either {EXAMPLE_REQUEST} or {ARTIFACTS} need to be set"
 
     if example_request:
@@ -612,10 +612,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
             _check_data_spec(dataset)
             artifacts.update(dataset=dataset['path'])
 
-        assert extra_pip_packages is None or \
-            (pip_packages is None and conda_env is None), \
-            "If 'extra_pip_packages' is specified, " \
-            "both 'pip_packages' and 'conda_env' must be None."
+        assert sum(x is not None for x in [extra_pip_packages, pip_packages,
+                                           conda_env]) <= 1, \
+            "The packages 'extra_pip_packages', 'pip_packages' " \
+            "and 'conda_env' cannot be specified at the same time."
 
         conda_env = make_env(pip_packages, conda_packages, conda_channels,
                              conda_env)
