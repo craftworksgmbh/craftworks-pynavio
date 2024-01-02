@@ -614,7 +614,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
 
         assert sum(x is not None for x in [extra_pip_packages, pip_packages,
                                            conda_env]) <= 1, \
-            "The packages 'extra_pip_packages', 'pip_packages' " \
+            "The arguments 'extra_pip_packages', 'pip_packages' " \
             "and 'conda_env' cannot be specified at the same time."
 
         conda_env = make_env(pip_packages, conda_packages, conda_channels,
