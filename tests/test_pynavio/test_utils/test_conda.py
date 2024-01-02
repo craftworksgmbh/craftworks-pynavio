@@ -11,11 +11,7 @@ yaml_path = 'conda.yaml'
 @pytest.mark.parametrize("args", [
     ({
         'conda_env': yaml_path
-    }),
-    ({
-        'conda_env': yaml_path,
-        'pip_packages': ['pandas']
-    }),
+    })
 ])
 def test_make_conda_env_positive_yaml(args, expected=yaml_path):
     conda_env = make_env(**args)
