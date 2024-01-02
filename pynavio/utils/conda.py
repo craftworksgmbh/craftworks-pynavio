@@ -24,7 +24,7 @@ def make_env(
     @return:
     """
     assert not (conda_env is not None and pip_packages is not None), \
-        "The parameters 'conda_env' and 'pip_ackages' cannot " \
+        "The parameters 'conda_env' and 'pip_packages' cannot " \
         "be specified at the same time"
 
     if conda_env is None and pip_packages is None:
