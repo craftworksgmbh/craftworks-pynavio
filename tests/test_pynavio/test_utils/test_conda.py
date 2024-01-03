@@ -71,6 +71,6 @@ def test_make_conda_env_positive(args, expected):
 ])
 def test_make_conda_env_negative(args):
     with pytest.raises(AssertionError,
-                       match="The parameters 'conda_env' and 'pip_packages' "
+                       match="The arguments 'conda_env' and 'pip_packages' "
                              "cannot be specified at the same time"):
         make_env(**args)

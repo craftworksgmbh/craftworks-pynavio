@@ -262,7 +262,7 @@ def sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env):
 def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages,
                                               pip_packages, conda_env):
     with pytest.raises(AssertionError,
-                       match="The packages 'extra_pip_packages', "
+                       match="The arguments 'extra_pip_packages', "
                              "'pip_packages' and 'conda_env' cannot "
                              "be specified at the same time."):
         sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env)

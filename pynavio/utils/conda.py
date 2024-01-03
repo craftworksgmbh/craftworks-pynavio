@@ -23,8 +23,9 @@ def make_env(
     ignored.
     @return:
     """
-    assert not (conda_env is not None and pip_packages is not None), \
-        "The parameters 'conda_env' and 'pip_packages' cannot " \
+    assert sum(x is not None for x in [pip_packages,
+                                       conda_env]) <= 1, \
+        "The arguments 'conda_env' and 'pip_packages' cannot " \
         "be specified at the same time"
 
     if conda_env is None and pip_packages is None:
