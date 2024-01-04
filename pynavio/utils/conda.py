@@ -13,7 +13,8 @@ def make_env(
     """
     makes the value for the mlflow.pyfunc.save_model()'s conda_env argument
     Usage: either pip_packages or conda_env need to be set. If both are not set
-    then the env will be inferred by mlflow.
+    then the env will be inferred by mlflow. The arguments are mutually
+    exclusive only one can be set.
 
     @param pip_packages:
     @param conda_packages:
