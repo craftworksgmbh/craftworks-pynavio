@@ -1,6 +1,6 @@
 from typing import Optional
 
-import numpy as np
+from numpy import ndarray
 import tensorflow as tf
 from albumentations import (Affine, Compose, ElasticTransform, GridDistortion,
                             HorizontalFlip, HueSaturationValue,
@@ -22,7 +22,7 @@ _transforms = Compose([
 ])
 
 
-def _augment(image: np.ndarray, mask: np.ndarray, img_size: list) -> tuple:
+def _augment(image: ndarray, mask: ndarray, img_size: list) -> tuple:
     aug_data = _transforms(image=image, mask=mask)
     aug_img = tf.image.resize(aug_data["image"], size=img_size)
     aug_mask = tf.image.resize(aug_data["mask"],
@@ -31,8 +31,8 @@ def _augment(image: np.ndarray, mask: np.ndarray, img_size: list) -> tuple:
     return aug_img, aug_mask
 
 
-def augment(image: np.ndarray,
-            mask: np.ndarray,
+def augment(image: ndarray,
+            mask: ndarray,
             img_size: Optional[list] = None) -> tuple:
     img_size = img_size or [128, 128]
     aug_img, aug_mask = tf.numpy_function(func=_augment,

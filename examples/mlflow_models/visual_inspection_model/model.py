@@ -1,6 +1,6 @@
 from typing import Optional
 
-import numpy as np
+from numpy import ndarray
 import tensorflow as tf
 from scipy.special import softmax
 from tensorflow.keras import backend as K
@@ -97,7 +97,7 @@ def setup_model(input_shape: tuple, output_channels: int,
     model = _unet_model(output_channels=output_channels,
                         input_shape=input_shape)
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    #optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     model.compile(optimizer='adam',
                   loss=loss,
                   metrics=['accuracy', _dice_coef])
@@ -109,7 +109,7 @@ def load_model(path: str) -> tf.keras.Model:
         path, custom_objects={'_dice_coef': _dice_coef})
 
 
-def predict(model: tf.keras.Model, image: np.ndarray) -> np.ndarray:
+def predict(model: tf.keras.Model, image: ndarray) -> ndarray:
     input_shape = model.layers[0].input.shape[1:3]
     normed_resized = tf.image.resize(image / 255, input_shape)
     logits = model.predict(normed_resized[None, ...])[0]
