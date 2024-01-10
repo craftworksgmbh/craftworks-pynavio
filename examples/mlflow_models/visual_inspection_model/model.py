@@ -97,8 +97,7 @@ def setup_model(input_shape: tuple, output_channels: int,
     model = _unet_model(output_channels=output_channels,
                         input_shape=input_shape)
     loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
-    # It is not used
-    #optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+    optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
     model.compile(optimizer='adam',
                   loss=loss,
                   metrics=['accuracy', _dice_coef])
