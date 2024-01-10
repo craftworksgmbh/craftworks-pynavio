@@ -550,7 +550,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     Usage: If both pip_packages or conda_env are not set, then
     the env will be inferred by mlflow. If there are some specific
     packages needed the argument extra_pip_packages can be used. The
-    mentioned arguments are mutually exclusive only one can be set.
+    arguments pip_packages, extra_pip_packages and conda_env are
+    mutually exclusive, only one can be set.
 
     @param model: model to save
     @param path: path of where model .zip file needs to be saved
