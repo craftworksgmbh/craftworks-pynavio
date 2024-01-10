@@ -3,6 +3,9 @@ import pytest
 
 import pynavio
 
+import platform
+import pip
+
 
 @pytest.mark.parametrize(
     "args",
@@ -206,3 +209,87 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
             " usage is not being checked")
     except Exception:
         raise pytest.fail(f"did raise {Exception}")
+
+
+def sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env):
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    import mlflow
+
+    import pynavio
+
+    TARGET = 'target'
+    _columns = ['x', 'y']
+    example_request = pynavio.make_example_request(
+        {
+            TARGET: float(sum(range(len(_columns)))),
+            **{col: float(i) for i, col in enumerate(_columns)}
+        },
+        target=TARGET)
+
+    class SampleModel(mlflow.pyfunc.PythonModel):
+
+        @pynavio.prediction_call
+        def predict(self, context, model_input):
+            return {'prediction': [1.] * model_input.shape[0]}
+
+    def setup(path: Path, *args, **kwargs):
+        with TemporaryDirectory():
+            pynavio.mlflow.to_navio(SampleModel(),
+                                    example_request=example_request,
+                                    code_path=kwargs.get('code_path'),
+                                    conda_env=conda_env,
+                                    pip_packages=pip_packages,
+                                    extra_pip_packages=extra_pip_packages,
+                                    path=path)
+
+    model_path = str(tmp_path / 'model')
+
+    setup_arguments = dict(with_data=False,
+                           with_oodd=False,
+                           explanations=None,
+                           path=model_path)
+
+    return setup(**setup_arguments)
+
+
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], ['numpy'], 'dummy_conda_env'),
+                          (['mlflow'], ['numpy'], None),
+                          (['mlflow'], None, 'dummy_conda_env'),
+                          (None, ['numpy'], 'dummy_conda_env')])
+def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages,
+                                              pip_packages, conda_env):
+    with pytest.raises(AssertionError,
+                       match="The arguments 'extra_pip_packages', "
+                             "'pip_packages' and 'conda_env' cannot "
+                             "be specified at the same time."):
+        sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env)
+
+
+# Create dummy conda env required for the test
+dummy_conda_env = conda_env = {
+            'channels': ['defaults', 'conda-forge'],
+            'dependencies': [
+                f'python={platform.python_version()}',
+                f'pip={pip.__version__}', {
+                    'pip': ['numpy']
+                }
+            ],
+            'name': 'venv'
+        }
+
+
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], None, None),
+                          (None, None, dummy_conda_env),
+                          (None, ['numpy'], None)
+                          ])
+def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
+                                     pip_packages, conda_env):
+    try:
+        sample_model(tmp_path, extra_pip_packages, pip_packages,
+                     conda_env)
+    except Exception:
+        raise pytest.fail("Unexpected Exception")
