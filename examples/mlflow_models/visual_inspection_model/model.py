@@ -1,6 +1,6 @@
 from typing import Optional
 
-from numpy import ndarray
+import numpy as np
 import tensorflow as tf
 from scipy.special import softmax
 from tensorflow.keras import backend as K
@@ -109,7 +109,7 @@ def load_model(path: str) -> tf.keras.Model:
         path, custom_objects={'_dice_coef': _dice_coef})
 
 
-def predict(model: tf.keras.Model, image: ndarray) -> ndarray:
+def predict(model: tf.keras.Model, image: np.ndarray) -> np.ndarray:
     input_shape = model.layers[0].input.shape[1:3]
     normed_resized = tf.image.resize(image / 255, input_shape)
     logits = model.predict(normed_resized[None, ...])[0]

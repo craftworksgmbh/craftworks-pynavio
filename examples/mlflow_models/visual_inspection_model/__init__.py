@@ -3,7 +3,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import mlflow
-from numpy import ndarray, array, random, arange, dstack, uint8, meshgrid, where
+#from numpy import ndarray, array, random, arange, dstack, uint8, meshgrid, where
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import tensorflow as tf
@@ -30,29 +31,29 @@ def _fake_data(path: str) -> None:
       .to_csv(path, index=False)
 
 
-def _close_open(image: ndarray) -> ndarray:
-    grid = meshgrid(arange(-2, 3), arange(-2, 3))
-    element = (dstack(grid)**2).sum(axis=-1) <= 4
+def _close_open(image: np.ndarray) -> np.ndarray:
+    grid = np.meshgrid(np.arange(-2, 3), np.arange(-2, 3))
+    element = (np.dstack(grid)**2).sum(axis=-1) <= 4
     closed = ndimage.binary_closing(image, element)
-    return ndimage.binary_opening(image, element).astype(uint8)
+    return ndimage.binary_opening(image, element).astype(np.uint8)
 
 
-def _prepare_image(image: ndarray) -> Image:
+def _prepare_image(image: np.ndarray) -> Image:
     # we want to limit image resolution here for performance reasons
     # plotly is very slow for high resolution heatmaps
     target = (256, 256)
     actual = image.shape[:2]
-    img = Image.fromarray(image.astype(uint8))
+    img = Image.fromarray(image.astype(np.uint8))
     if any(dim > desired for dim, desired in zip(actual, target)):
         img.thumbnail(target)  # resize, preserving aspect ratio
     return img
 
 
-def _count_components(image: ndarray) -> int:
+def _count_components(image: np.ndarray) -> int:
     return ndimage.label(image)[1]
 
 
-def _draw_plotly_explanation(image: Image, explanation: ndarray) -> Figure:
+def _draw_plotly_explanation(image: Image, explanation: np.ndarray) -> Figure:
     shape = (image.height, image.width)
     fig = px.imshow(explanation.squeeze(), color_continuous_scale=_COLOR_SCALE)
     img_b64 = pynavio.image.img_to_b64(image, False, "PNG")
@@ -91,16 +92,16 @@ class KnotDetector(mlflow.pyfunc.PythonModel):
     def load_context(self, context: mlflow.pyfunc.PythonModelContext) -> None:
         self._model = load_model(context.artifacts['model'])
 
-    def _detect(self, image: ndarray) -> tuple:
-        prediction = (predict(self._model, image) * 255).astype(uint8)
+    def _detect(self, image: np.ndarray) -> tuple:
+        prediction = (predict(self._model, image) * 255).astype(np.uint8)
         prediction = Image.fromarray(prediction)
         img = _prepare_image(image)
         shape = (img.width, img.height)
-        return array(prediction.resize(shape)) / 255, img
+        return np.array(prediction.resize(shape)) / 255, img
 
-    def _predict(self, image: ndarray) -> tuple:
+    def _predict(self, image: np.ndarray) -> tuple:
         detection, img = self._detect(image)
-        binary = _close_open((detection > _THRESHOLD).astype(uint8))
+        binary = _close_open((detection > _THRESHOLD).astype(np.uint8))
         return _count_components(binary), detection, img
 
     @pynavio.prediction_call
@@ -122,10 +123,10 @@ class KnotDetector(mlflow.pyfunc.PythonModel):
 
 def mock_data():
     # expects batches of shape _INPUT_SHAPE
-    feature = random.rand(*train._INPUT_SHAPE)[None, ...]
+    feature = np.random.rand(*train._INPUT_SHAPE)[None, ...]
 
     # expects batches of shape (_INPUT_SHAPE[0], _INPUT_SHAPE[1], 1)
-    label = where(feature[..., 0] > .5, 1, 0)[..., None]
+    label = np.where(feature[..., 0] > .5, 1, 0)[..., None]
 
     def _as_generator(feature, label):
         while True:
@@ -161,7 +162,7 @@ def setup(*args, **kwargs):
                 'python=3.9.12', 'pip=22.0.4', {
                     'pip': [
                         'Pillow==9.3.0', 'plotly==5.9.0', 'scipy==1.11.4', 'tensorflow==2.11.1',
-                        'mlflow==2.9.2', 'protobuf<3.20', 'pynavio==0.2.4', 'numpy==1.26.3'
+                        'mlflow==2.9.2', 'protobuf<3.20', 'pynavio==0.2.4'
                     ]
                 }
             ],

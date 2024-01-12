@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-from numpy import ndarray, random
+import numpy as np
 import pandas as pd
 import tensorflow as tf
 
@@ -14,7 +14,7 @@ def _rglob(path: Path, extensions: set) -> list:
     ]
 
 
-def _infer_instance_paths(img_paths: list) -> ndarray:
+def _infer_instance_paths(img_paths: list) -> np.ndarray:
     frame = pd.DataFrame({
         'path':
             img_paths,
@@ -63,9 +63,9 @@ def load_dataset(path: str,
                  validation_frac: float = .2,
                  resize: Optional[tuple] = None) -> tuple:
     paths = _infer_instance_paths(_rglob(Path(path), extensions))
-    random.seed(42)
-    is_validation = random.rand(paths.shape[-1]) < validation_frac
-    random.seed()
+    np.random.seed(42)
+    is_validation = np.random.rand(paths.shape[-1]) < validation_frac
+    np.random.seed()
     train = _as_dataset(*paths[:, ~is_validation], resize)
     valid = _as_dataset(*paths[:, is_validation], resize)
     return train, valid
