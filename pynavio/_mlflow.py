@@ -548,7 +548,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     """
     create a .zip mlflow model file for navio
     Usage: If both pip_packages or conda_env are not set, then
-    the env will be inferred by mlflow
+    the env will be inferred by mlflow. If there are some specific
+    packages needed the argument extra_pip_packages can be used. The
+    arguments pip_packages, extra_pip_packages and conda_env are
+    mutually exclusive, only one can be set.
 
     @param model: model to save
     @param path: path of where model .zip file needs to be saved
@@ -612,10 +615,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
             _check_data_spec(dataset)
             artifacts.update(dataset=dataset['path'])
 
-        assert extra_pip_packages is None or \
-            (pip_packages is None and conda_env is None), \
-            "If 'extra_pip_packages' is specified, " \
-            "both 'pip_packages' and 'conda_env' must be None."
+        assert sum(x is not None for x in [extra_pip_packages, pip_packages,
+                                           conda_env]) <= 1, \
+            "The arguments 'extra_pip_packages', 'pip_packages' " \
+            "and 'conda_env' cannot be specified at the same time."
 
         conda_env = make_env(pip_packages, conda_packages, conda_channels,
                              conda_env)
