@@ -3,7 +3,6 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 import mlflow
-#from numpy import ndarray, array, random, arange, dstack, uint8, meshgrid, where
 import numpy as np
 import pandas as pd
 import plotly.express as px
