@@ -253,7 +253,8 @@ def setup(with_data: bool,
         example_request['featureColumns'][0]['type'] = 'image'
 
         pip_packages = [
-            'Pillow', 'tensorflow==2.9.1', 'mlflow==1.15.0', 'protobuf<3.20'
+            'Pillow==9.3.0', 'tensorflow==2.11.1', 'mlflow==2.9.2', 'protobuf<3.20',
+            'pynavio==0.2.4'
         ]
         if explanations not in [None, 'disabled', 'default']:
             pip_packages.extend(['shap', 'IPython'])
