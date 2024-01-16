@@ -4,7 +4,7 @@ This section contains possible errors you may encounter related to the environme
 
 Error deploying models locally
 ____
-When using the following command line to start the deployment of a mlflow model locally:
+When using the following command to start the deployment of a mlflow model locally:
 
 .. code-block:: bash
 
@@ -153,21 +153,21 @@ I obtained the following error:
 
 Information
 ~~~~~~~~~~
-Information:
+Environment:
 
 - Computer: MacOs
 - Virtual environment: conda
 - Python version: Python 3.10.13
 
 Issue description:
-It is an issue related to the latest release of docker, where the context of the client is changed from ``default`` to ``desktop-linux`` which uses different endpoint and therefore breaks the docker client.
+It is an issue related to the latest release of docker, where the context of the client is changed from ``default`` to ``desktop-linux`` which uses a different endpoint and therefore breaks the docker client.
 
 Solution
 ~~~~~~~~~~
 
-In order to solve the problem the following steps need to be followed:
+In order to solve the problem, the following steps need to be followed:
 
-#. Run the following command → Check that the client is in the desktop one and not in the default. This is the issue and what needs to be changed.
+#. Run the following command → If the client is in the desktop context and not in the default context, follow the next steps to switch to the default context.
 
    .. code-block:: bash
 
@@ -178,7 +178,7 @@ In order to solve the problem the following steps need to be followed:
 
 #. Apply one of the possible solutions
 
-   - Temporal solution → You can use one of the following command lines
+   - Temporal solution → You can use one of the following commands
 
       .. code-block:: bash
 
@@ -186,12 +186,12 @@ In order to solve the problem the following steps need to be followed:
          # or
          docker context use default
 
-   - Definitive solution → Run the following command line
+   - Permanent solution → Run the following command line
 
       .. code-block:: bash
 
          sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
 
-#. Run again the firs command and check that the (*) has changed to the ``default`` one.
+#. Run the firs command again and check that the (*) has changed to the ``default`` context.
 
 Theoretically, each time you open a new terminal you will have to follow the same steps if you chose the temporal solution. However, for me I did it once and now it always works.
