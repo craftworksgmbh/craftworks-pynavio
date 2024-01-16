@@ -12,7 +12,10 @@ def make_env(
 ) -> Dict[str, Any]:
     """
     makes the value for the mlflow.pyfunc.save_model()'s conda_env argument
-    Usage: either pip_packages or conda_env need to be set.
+    Usage: pip_packages and conda_env are mutually exclusive and cannot be
+    set simultaneously. If neither is set, the environment will be inferred
+    by mlflow.
+
     @param pip_packages:
     @param conda_packages:
     @param conda_channels:
@@ -21,10 +24,14 @@ def make_env(
     ignored.
     @return:
     """
-    assert any(item is not None for item in [pip_packages, conda_env]),\
-        "either 'pip_packages' or 'conda_env' need to be set"
+    assert sum(x is not None for x in [pip_packages,
+                                       conda_env]) <= 1, \
+        "The arguments 'conda_env' and 'pip_packages' cannot " \
+        "be specified at the same time"
 
-    if conda_env is None:
+    if conda_env is None and pip_packages is None:
+        return None
+    elif conda_env is None:
         conda_env = {
             'channels': ['defaults', 'conda-forge', *(conda_channels or [])],
             'dependencies': [

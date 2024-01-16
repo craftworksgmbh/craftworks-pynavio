@@ -90,7 +90,7 @@ def register_example_request(
     @param artifacts:If not set, need to set example_request
     @return: artifacts containing example request
     """
-    assert any(item is not None for item in [example_request, artifacts]),\
+    assert any(item is not None for item in [example_request, artifacts]), \
         f"either {EXAMPLE_REQUEST} or {ARTIFACTS} need to be set"
 
     if example_request:
@@ -533,6 +533,7 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              path,
              example_request: ExampleRequestType = None,
              pip_packages: List[str] = None,
+             extra_pip_packages: List[str] = None,
              code_path: Optional[List[Union[str, Path]]] = None,
              conda_packages: List[str] = None,
              sys_dependencies: List[str] = None,
@@ -546,7 +547,11 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              validate_model: Optional[bool] = True) -> Path:
     """
     create a .zip mlflow model file for navio
-    Usage: either pip_packages or conda_env need to be set.
+    Usage: If both pip_packages or conda_env are not set, then
+    the env will be inferred by mlflow. If there are some specific
+    packages needed the argument extra_pip_packages can be used. The
+    arguments pip_packages, extra_pip_packages and conda_env are
+    mutually exclusive, only one can be set.
 
     @param model: model to save
     @param path: path of where model .zip file needs to be saved
@@ -557,6 +562,10 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     ['mlflow==1.15.0', 'scikit_learn == 0.24.1'].
     Tip: For most cases it should be enough to use
     pynavio.utils.infer_dependencies.infer_external_dependencies().
+    @param extra_pip_packages: list of extra necessary
+    pip packages (optionally with versions). This option is to be used in
+    case if the env is inferred by mlflow and there is a need to add
+    extra pip packages (pip_packages or conda_env are not set).
     @param code_path: A list of local filesystem paths to Python file
     dependencies (or directories containing file dependencies)
     @param conda_packages: list of conda packages
@@ -606,6 +615,11 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
             _check_data_spec(dataset)
             artifacts.update(dataset=dataset['path'])
 
+        assert sum(x is not None for x in [extra_pip_packages, pip_packages,
+                                           conda_env]) <= 1, \
+            "The arguments 'extra_pip_packages', 'pip_packages' " \
+            "and 'conda_env' cannot be specified at the same time."
+
         conda_env = make_env(pip_packages, conda_packages, conda_channels,
                              conda_env)
 
@@ -615,9 +629,11 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                                              artifacts)
 
         shutil.rmtree(path, ignore_errors=True)
+
         mlflow.pyfunc.save_model(path=path,
                                  python_model=model,
                                  conda_env=conda_env,
+                                 extra_pip_requirements=extra_pip_packages,
                                  artifacts=artifacts,
                                  code_path=code_path)
 

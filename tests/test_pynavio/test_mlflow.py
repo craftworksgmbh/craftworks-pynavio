@@ -3,6 +3,9 @@ import pytest
 
 import pynavio
 
+import platform
+import pip
+
 
 @pytest.mark.parametrize(
     "args",
@@ -135,10 +138,9 @@ def test_ModelValidator_call_negative(monkeypatch, capfd, call_kwargs, msg):
 @pytest.mark.parametrize("schema_file_name, is_nested",
                          [('example_request_nested.json', True),
                           ('example_request.json', False)])
-def test_is_input_nested(rootpath, schema_file_name, is_nested):
+def test_is_input_nested(fixtures_path, schema_file_name, is_nested):
     import json
-    schema_path = rootpath / \
-        'tests'/'test_pynavio'/'fixtures'/'schemas'/schema_file_name
+    schema_path = fixtures_path / 'schemas' / schema_file_name
 
     with open(schema_path, 'r') as schema_file:
         example_request = json.load(schema_file)
@@ -149,29 +151,26 @@ def test_is_input_nested(rootpath, schema_file_name, is_nested):
            == is_nested
 
 
-def test__add_sys_dependencies():
-    import os
-    dep_path = "."
-    pynavio.mlflow._add_sys_dependencies(dep_path, ["lib1", "lib2"])
+def test__add_sys_dependencies(tmp_path):
+    pynavio.mlflow._add_sys_dependencies(tmp_path, ["lib1", "lib2"])
+    file_path = tmp_path / 'sys_dependencies.txt'
 
-    with open("sys_dependencies.txt", 'r') as result_file:
+    with open(file_path, 'r') as result_file:
         file_content = result_file.read()
-        # cleanup
-        os.remove(f"{dep_path}/sys_dependencies.txt")
         assert file_content == "lib1\nlib2"
 
 
-def test__add_sys_dependencies_fails_on_str():
+def test__add_sys_dependencies_fails_on_str(tmp_path):
     with pytest.raises(AssertionError):
-        pynavio.mlflow._add_sys_dependencies("", "lib1")
+        pynavio.mlflow._add_sys_dependencies(tmp_path, "lib1")
 
 
-def test__add_sys_dependencies_no_resulting_file():
+def test__add_sys_dependencies_no_resulting_file(tmp_path):
     import os
-    dep_path = ""
-    pynavio.mlflow._add_sys_dependencies(dep_path, None)
+    pynavio.mlflow._add_sys_dependencies(tmp_path, None)
+    file_path = tmp_path / 'sys_dependencies.txt'
 
-    assert not os.path.exists("sys_dependencies.txt")
+    assert not os.path.exists(file_path)
 
 
 def test__is_wrapped_by_prediction_call():
@@ -207,7 +206,90 @@ def test_is_model_predict_wrapped_by_prediction_call(tmp_path):
     except AttributeError:
         raise pytest.fail(
             "did raise AttributeError, therefore currently prediction call"
-            " usage is not being checked"
-        )
+            " usage is not being checked")
     except Exception:
         raise pytest.fail(f"did raise {Exception}")
+
+
+def sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env):
+    from pathlib import Path
+    from tempfile import TemporaryDirectory
+
+    import mlflow
+
+    import pynavio
+
+    TARGET = 'target'
+    _columns = ['x', 'y']
+    example_request = pynavio.make_example_request(
+        {
+            TARGET: float(sum(range(len(_columns)))),
+            **{col: float(i) for i, col in enumerate(_columns)}
+        },
+        target=TARGET)
+
+    class SampleModel(mlflow.pyfunc.PythonModel):
+
+        @pynavio.prediction_call
+        def predict(self, context, model_input):
+            return {'prediction': [1.] * model_input.shape[0]}
+
+    def setup(path: Path, *args, **kwargs):
+        with TemporaryDirectory():
+            pynavio.mlflow.to_navio(SampleModel(),
+                                    example_request=example_request,
+                                    code_path=kwargs.get('code_path'),
+                                    conda_env=conda_env,
+                                    pip_packages=pip_packages,
+                                    extra_pip_packages=extra_pip_packages,
+                                    path=path)
+
+    model_path = str(tmp_path / 'model')
+
+    setup_arguments = dict(with_data=False,
+                           with_oodd=False,
+                           explanations=None,
+                           path=model_path)
+
+    return setup(**setup_arguments)
+
+
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], ['numpy'], 'dummy_conda_env'),
+                          (['mlflow'], ['numpy'], None),
+                          (['mlflow'], None, 'dummy_conda_env'),
+                          (None, ['numpy'], 'dummy_conda_env')])
+def test_to_navio_extra_dependencies_negative(tmp_path, extra_pip_packages,
+                                              pip_packages, conda_env):
+    with pytest.raises(AssertionError,
+                       match="The arguments 'extra_pip_packages', "
+                             "'pip_packages' and 'conda_env' cannot "
+                             "be specified at the same time."):
+        sample_model(tmp_path, extra_pip_packages, pip_packages, conda_env)
+
+
+# Create dummy conda env required for the test
+dummy_conda_env = conda_env = {
+            'channels': ['defaults', 'conda-forge'],
+            'dependencies': [
+                f'python={platform.python_version()}',
+                f'pip={pip.__version__}', {
+                    'pip': ['numpy']
+                }
+            ],
+            'name': 'venv'
+        }
+
+
+@pytest.mark.parametrize("extra_pip_packages, pip_packages, conda_env",
+                         [(['mlflow'], None, None),
+                          (None, None, dummy_conda_env),
+                          (None, ['numpy'], None)
+                          ])
+def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
+                                     pip_packages, conda_env):
+    try:
+        sample_model(tmp_path, extra_pip_packages, pip_packages,
+                     conda_env)
+    except Exception:
+        raise pytest.fail("Unexpected Exception")
