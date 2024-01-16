@@ -110,3 +110,10 @@ History
 * adds (pynavio model validation) to the validation messages so it is clear where they come from
 * adds messages for pynavio model validation checks failed(how to disable)/succeeded(how to check model serving)
 * updates readme with model validation info
+
+
+0.3.0 (2024-01-17)
+------------------
+* adds possibility to allow the conda enviroment be inferred
+* adds possibility to add extra dependencies in the conda environment
+
