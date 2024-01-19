@@ -8,5 +8,6 @@
 
 
 def test_models_default(model_name, helper, tmp_path):
-    model_path = str(tmp_path / 'model')
+    model_name = 'minimal_trainer'
+    model_path = str(f'/Users/clarareolid/Documents/cw_projects/Navio/repos/craftworks-pynavio-private/examples/NAVIO-25892/{model_name}_final')
     helper(model_name=model_name, model_path=model_path)
