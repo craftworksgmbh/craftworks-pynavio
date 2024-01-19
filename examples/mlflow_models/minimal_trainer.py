@@ -83,5 +83,5 @@ def setup(with_data: bool,
                                 example_request=example,
                                 path=path,
                                 code_path=code_path,
-                                pip_packages=['mlflow'],
+                                pip_packages=['mlflow==2.9.2', 'pynavio==0.2.4'],
                                 oodd='disabled')

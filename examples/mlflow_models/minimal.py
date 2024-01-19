@@ -74,7 +74,7 @@ def setup(with_data: bool,
             dataset = dict(name='minimal-data', path=data_path)
 
         model = Minimal()
-        pip_packages = ['mlflow']
+        pip_packages = ['mlflow==2.9.2', 'pynavio==0.2.4']
         if explanations == 'plotly':
             model = MinimalPlotly()
             pip_packages.append('plotly')
