@@ -111,9 +111,14 @@ History
 * adds messages for pynavio model validation checks failed(how to disable)/succeeded(how to check model serving)
 * updates readme with model validation info
 
+0.2.4 (2023-08-22 )
+------------------
+
+* add possibility for user to add sys dependencies to the navio model
 
 0.3.0 (2024-01-17)
 ------------------
-* adds possibility to allow the conda enviroment be inferred
-* adds possibility to add extra dependencies in the conda environment
+
+* allows for a conda environment with pip requirements to be inferred
+* adds possibility to add extra pip dependencies to the inferred environment
 

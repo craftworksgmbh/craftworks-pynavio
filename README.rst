@@ -13,12 +13,14 @@ Python lib for navio
 
 Features
 --------
-* Pynavio.Client, navio API client, allows to upload models and data, deploy and retrain models etc.
+* Pynavio.Client is a navio API client,that enables users to upload models and data, deploy and retrain models etc.
 * Pynavio.mlflow.to_navio function calls mlflow.pyfunc.save_model function, saving a model zip file as required by navio.
-    * it also validated the models with Pynavio.mlflow.ModelValidator by default
+    * it enables inferring the conda environment (with pip requirements) and adding extra pip dependencies to the inferred environment
+    * it enables adding sys dependencies to the navio model
+    * it also validates the models with Pynavio.mlflow.ModelValidator by default
 * Pynavio.mlflow.ModelValidator is a class that validates the model (prediction/example request/MLmodel metadata schema checks, warnings related nested types/big model sizes)
-* Pynavio.infer_external_dependencies is a helper function that infers the external dependencies based on the file path. For its limitations please refer to its doc string.
-* Pynavio.infer_imported_code_path is a helper function that  infers the imported code paths based on the file path and the root path. For its limitations please refer to its doc string.
+* Pynavio.infer_external_dependencies is a helper function that infers the external dependencies based on the file path. Please refer to its doc string for limitations.
+* Pynavio.infer_imported_code_path is a helper function that infers the imported code paths based on the file path and the root path. Please refer to its doc string for limitations.
 * Pynavio.make_example_request generates a request schema for a navio model from data.
 
 Documentation
