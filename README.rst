@@ -13,7 +13,7 @@ Python lib for navio
 
 Features
 --------
-* Pynavio.Client is a navio API client,that enables users to upload models and data, deploy and retrain models etc.
+* Pynavio.Client is a navio API client that enables users to upload models and data, deploy and retrain models etc.
 * Pynavio.mlflow.to_navio function calls mlflow.pyfunc.save_model function, saving a model zip file as required by navio.
     * it enables inferring the conda environment (with pip requirements) and adding extra pip dependencies to the inferred environment
     * it enables adding sys dependencies to the navio model
