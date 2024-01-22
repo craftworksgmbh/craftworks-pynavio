@@ -200,3 +200,15 @@ def test_retrain_model(client: Client) -> None:
         assert payload.get('auth') == f'Bearer {MOCK_SERVER_TOKEN}'
         assert model_id in payload.get('path')
         assert dataset_id.encode() in payload.get('content')
+
+
+def test_delete_model(client: Client) -> None:
+    model_id = 'fake-model-id'
+
+    with _request_capture() as capture:
+        client.delete_model(model_id)
+
+        payload = capture.get()
+        assert payload.get('auth') == f'Bearer {MOCK_SERVER_TOKEN}'
+
+        assert model_id in payload.get('path')

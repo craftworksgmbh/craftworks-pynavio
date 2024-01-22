@@ -1,6 +1,6 @@
 pip==22.1.2
 bump2version==1.0.1
-wheel==0.37.1
+wheel==0.38.1
 watchdog==2.1.9
 flake8==4.0.1
 tox==3.25.1
@@ -11,18 +11,21 @@ twine==4.0.1
 pytest==7.1.2
 scikit-learn==1.1.1
 shap==0.41.0
-ipython==8.4.0
+ipython==8.10.0
 matplotlib==3.5.2
 isort==5.10.1
 yapf==0.32.0
 
-tensorflow==2.9.1
+tensorflow==2.11.1
 albumentations==1.2.1
 git+https://github.com/tensorflow/examples.git
 
 --extra-index-url https://download.pytorch.org/whl/cu113
-torch
-torchvision
-torchaudio
+torch==2.0.0
+torchvision==0.15.1
+torchaudio==2.0.1
+onnx==1.12.0  # required by torch==2.0.0, otherwise gives error on onnx export
 
-onnxruntime
+onnxruntime==1.12.0
+pyarrow==9.0.0
+

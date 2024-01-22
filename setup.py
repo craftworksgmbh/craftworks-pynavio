@@ -31,6 +31,7 @@ setup(
     description="Python lib for navio",
     install_requires=requirements,
     license="MIT license",
+    long_description_content_type='text/markdown',
     long_description=readme + '\n\n' + history,
     include_package_data=True,
     keywords='pynavio',
@@ -38,7 +39,8 @@ setup(
     packages=find_packages(include=['pynavio', 'pynavio.*']),
     test_suite='tests',
     tests_require=test_requirements,
-    url='https://github.com/craftworksgmbh/pynavio',
-    version='0.1.2',
+    url='https://github.com/craftworksgmbh/craftworks-pynavio',
+    version='0.3.0',
     zip_safe=False,
+
 )
