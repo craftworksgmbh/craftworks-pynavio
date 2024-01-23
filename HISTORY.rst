@@ -100,7 +100,7 @@ History
 * improves the docstring of to_navio function
 * bump wheel from 0.37.1 to 0.38.1
 
-0.2.3 (2023-04-xx)
+0.2.3 (2023-08-08)
 ------------------
 
 * adds warnings related to limitations for nested inputs and big model.zip size
