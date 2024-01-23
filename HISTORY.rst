@@ -1,6 +1,6 @@
-=======
+=========
 History
-=======
+=========
 
 0.0.1 (2021-09-07)
 ------------------
@@ -89,7 +89,7 @@ History
 * brings a descriptive error if model path in code_path
 * brings a descriptive error if code_path is not a list
 
-0.2.2 (2023-04-03 )
+0.2.2 (2023-04-03)
 ------------------
 
 * bump tensorflow from 2.9.3 to 2.11.1
@@ -100,7 +100,7 @@ History
 * improves the docstring of to_navio function
 * bump wheel from 0.37.1 to 0.38.1
 
-0.2.3 (2023-04-xx )
+0.2.3 (2023-08-08)
 ------------------
 
 * adds warnings related to limitations for nested inputs and big model.zip size
@@ -111,7 +111,7 @@ History
 * adds messages for pynavio model validation checks failed(how to disable)/succeeded(how to check model serving)
 * updates readme with model validation info
 
-0.2.4 (2023-08-22 )
+0.2.4 (2023-08-22)
 ------------------
 
 * add possibility for user to add sys dependencies to the navio model
@@ -121,4 +121,9 @@ History
 
 * allows for a conda environment with pip requirements to be inferred
 * adds possibility to add extra pip dependencies to the inferred environment
+
+0.3.1 (2024-01-23)
+------------------
+
+* minor reformatting fix
 

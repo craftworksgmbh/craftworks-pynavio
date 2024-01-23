@@ -1,6 +1,6 @@
-=======
+=========
 pynavio
-=======
+=========
 
 
 .. image:: https://img.shields.io/pypi/v/pynavio.svg
