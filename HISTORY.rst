@@ -122,3 +122,8 @@ History
 * allows for a conda environment with pip requirements to be inferred
 * adds possibility to add extra pip dependencies to the inferred environment
 
+0.3.1 (2024-01-23)
+------------------
+
+* minor reformatting fix
+
