@@ -1,7 +1,7 @@
 Errors section
 ====
 This section contains possible errors you may encounter related to the environment and their fixes. These errors where encountered when
-follwing the steps to deploy a model locally as explained in the Navio documentation
+following the steps to deploy a model locally as explained in the navio documentation
 (https://navio.craftworks.io/docs/guides/navio-models/model_creation#3-test-model-serving)
 
 Error deploying models locally
