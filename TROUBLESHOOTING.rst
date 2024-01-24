@@ -1,12 +1,12 @@
 Errors section
 ====
-This section contains possible errors you may encounter related to the environment and their fixes. This errors where encountered when
+This section contains possible errors you may encounter related to the environment and their fixes. These errors where encountered when
 follwing the steps to deploy a model locally as explained in the Navio documentation
 (https://navio.craftworks.io/docs/guides/navio-models/model_creation#3-test-model-serving)
 
 Error deploying models locally
 ____
-When using the following command to start the deployment of a mlflow model locally:
+When using the following command to start the deployment of an mlflow model locally:
 
 .. code-block:: bash
 
@@ -194,6 +194,6 @@ In order to solve the problem, the following steps need to be followed:
 
          sudo ln -s "$HOME/.docker/run/docker.sock" /var/run/docker.sock
 
-#. Run the firs command again and check that the (*) has changed to the ``default`` context.
+#. Run the first command again and check that the (*) has changed to the ``default`` context.
 
-Theoretically, each time you open a new terminal you will have to follow the same steps if you chose the temporal solution. However, for me I did it once and now it always works.
+Theoretically, each time you open a new terminal you will have to follow the same steps if you chose the temporal solution. However, the temporary solution might sometimes work permanently.
