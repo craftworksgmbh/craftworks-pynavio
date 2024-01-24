@@ -91,6 +91,9 @@ servedocs: docs ## compile the docs watching for changes
 release: dist ## package and upload a release to PyPI
 	twine upload dist/*
 
+release-testpypi: dist ## package and upload a release to TestPyPI
+	twine upload --repository testpypi dist/*
+
 release-nexus: dist ## package and upload a release to nexus
 	twine upload -r nexus dist/*
 
