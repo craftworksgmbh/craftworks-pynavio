@@ -8,6 +8,5 @@
 
 
 def test_models_default(model_name, helper, tmp_path):
-    model_name = 'minimal_trainer'
     model_path = str(tmp_path / 'model')
     helper(model_name=model_name, model_path=model_path)
