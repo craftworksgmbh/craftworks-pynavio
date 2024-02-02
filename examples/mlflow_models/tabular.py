@@ -101,7 +101,7 @@ def setup(with_data: bool,
         pip_packages = ['mlflow==2.9.1', 'scikit-learn==1.2.2', 'joblib==1.3.2', 'pynavio==0.3.1']
 
         if explanations == 'plotly':
-            pip_packages.extend(['plotly', 'shap'])
+            pip_packages.extend(['plotly==5.9.0', 'shap==0.44.1'])
 
         pynavio.mlflow.to_navio(Tabular(data[TARGET].cat.categories.tolist(),
                                         column_order, explanations),
