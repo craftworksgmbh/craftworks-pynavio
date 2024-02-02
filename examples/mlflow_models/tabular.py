@@ -98,7 +98,7 @@ def setup(with_data: bool,
             data.to_csv(data_path, index=False)
             dataset = dict(name='tabular-data', path=data_path)
 
-        pip_packages = ['mlflow', 'scikit-learn', 'joblib']
+        pip_packages = ['mlflow==2.9.1', 'scikit-learn==1.2.2', 'joblib==1.3.2', 'pynavio==0.3.1']
 
         if explanations == 'plotly':
             pip_packages.extend(['plotly', 'shap'])
