@@ -40,4 +40,4 @@ def setup(path: Path, *args, **kwargs):
                                 example_request=example_request,
                                 code_path=kwargs.get('code_path'),
                                 path=path,
-                                pip_packages=['mlflow'])
+                                pip_packages=['mlflow==2.9.2', 'pynavio==0.2.4'])
