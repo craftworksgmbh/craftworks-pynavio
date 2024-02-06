@@ -52,7 +52,7 @@ class MinimalTrainer(mlflow.pyfunc.PythonModel):
             tmp_path = pynavio.mlflow.to_navio(
                 Minimal(),
                 example_request=example_request,
-                pip_packages=['mlflow'],
+                pip_packages=['mlflow==2.9.2', 'pynavio==0.2.4'],
                 code_path=[mlflow_models.__path__[0], pynavio.__path__[0]],
                 path=model_path)
 
@@ -83,5 +83,5 @@ def setup(with_data: bool,
                                 example_request=example,
                                 path=path,
                                 code_path=code_path,
-                                pip_packages=['mlflow'],
+                                pip_packages=['mlflow==2.9.2', 'pynavio==0.2.4'],
                                 oodd='disabled')
