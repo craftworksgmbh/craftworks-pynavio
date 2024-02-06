@@ -74,10 +74,10 @@ def setup(with_data: bool,
             dataset = dict(name='minimal-data', path=data_path)
 
         model = Minimal()
-        pip_packages = ['mlflow==2.9.2', 'pynavio==0.2.4']
+        pip_packages = ['mlflow==2.9.2', 'pynavio==0.3.1']
         if explanations == 'plotly':
             model = MinimalPlotly()
-            pip_packages.append('plotly')
+            pip_packages.append('plotly==5.9.0')
 
         pynavio.mlflow.to_navio(model,
                                 example_request=example_request,
