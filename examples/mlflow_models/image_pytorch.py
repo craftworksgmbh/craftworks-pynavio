@@ -139,15 +139,15 @@ def setup(with_data: bool,
         example_request['featureColumns'][0]['type'] = 'image'
 
         conda_packages = [
-            'cudatoolkit=11.3.1', 'cudnn=8.2.1', 'pytorch=1.10.0',
-            'torchaudio=0.10.0', 'torchvision=0.11.0'
+            'cudatoolkit=11.3.1', 'cudnn=8.2.1', 'pytorch=2.1.1',
+            'torchaudio=2.1.1', 'torchvision=0.16.1'
         ]
 
         conda_env = {
             'channels': ['defaults', 'conda-forge', 'pytorch'],
             'dependencies': [
                 *conda_packages, {
-                    'pip': ['mlflow', 'Pillow', 'tqdm']
+                    'pip': ['mlflow==2.9.2', 'Pillow==9.3.0', 'tqdm==4.66.1', 'pynavio==0.3.1']
                 }
             ],
             'name': 'venv'
