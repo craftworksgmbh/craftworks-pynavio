@@ -157,7 +157,7 @@ def setup(with_data: bool,
                                     'scaler': scaler_path
                                 },
                                 path=path,
-                                pip_packages=['scikit-learn'],
+                                pip_packages=['scikit-learn==1.3.2', 'pynavio==0.2.4'],
                                 code_path=code_path,
                                 dataset=dataset,
                                 oodd='default' if with_oodd else 'disabled')
