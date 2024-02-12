@@ -1,8 +1,12 @@
 import base64
+from pathlib import Path
+
 import numpy as np
 import pytest
-from pynavio.image import imread, imwrite, img_from_b64, img_to_b64, _import_image
-from pathlib import Path
+
+from pynavio.image import (_import_image, img_from_b64, img_to_b64, imread,
+                           imwrite)
+
 
 @pytest.fixture
 def sample_image_paths(fixtures_path):
@@ -10,6 +14,7 @@ def sample_image_paths(fixtures_path):
     sample_image_path = Path(fixtures_path, "Images/num_img.jpeg")
     sample_image_output_path = Path(fixtures_path, "Images/num_img_out.jpeg")
     return sample_image_path, sample_image_output_path
+
 
 @pytest.fixture
 def sample_image_array(sample_image_paths):
@@ -23,16 +28,12 @@ def test_imread(sample_image_paths):
     """Test reading an image file and encoding it to base64."""
     encoded_str = imread(sample_image_paths[0])
     assert isinstance(encoded_str, str)
-    # Further checks can include decoding and comparing to original file's bytes,
-    # but this requires reading the original file again.
 
 
 def test_imwrite(sample_image_array, sample_image_paths):
     """Test writing a numpy array as an image file."""
     # Assuming sample_image_array is an RGB image
     imwrite(sample_image_paths[1], sample_image_array.astype(np.uint8))
-    # Verify file exists or reopen and check content matches expected image content.
-    # This might require reading the image back and comparing arrays.
 
 
 def test_img_from_b64(sample_image_paths):
@@ -42,7 +43,6 @@ def test_img_from_b64(sample_image_paths):
 
     img_array = img_from_b64(b64_str)
     assert isinstance(img_array, np.ndarray)
-    # Additional checks can be made on the properties of the array (shape, dtype, etc.)
 
 
 def test_img_to_b64(sample_image_array):
@@ -51,6 +51,3 @@ def test_img_to_b64(sample_image_array):
     image = Image.fromarray(sample_image_array.astype('uint8'))
     encoded_str = img_to_b64(image, rgb=True)
     assert isinstance(encoded_str, str)
-    # You can decode and compare to the original image, but this might require
-    # converting the decoded data back into an image and comparing pixels.
-
