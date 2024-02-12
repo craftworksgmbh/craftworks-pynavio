@@ -4,8 +4,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from pynavio.image import (_import_image, img_from_b64, img_to_b64, imread,
-                           imwrite)
+from pynavio.image import (_import_image, img_from_b64, img_to_b64,
+                           imread, imwrite)
 
 
 @pytest.fixture
