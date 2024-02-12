@@ -2,39 +2,42 @@ import base64
 import numpy as np
 import pytest
 from pynavio.image import imread, imwrite, img_from_b64, img_to_b64, _import_image
-
-# Sample image path for reading and writing tests
-SAMPLE_IMAGE_PATH = '/Users/clarareolid/Documents/cw_projects/Navio/repos/craftworks-pynavio-private/tests/test_pynavio/fixtures/Images/num_img.jpeg'
-SAMPLE_IMAGE_PATH_OUTPUT = '/Users/clarareolid/Documents/cw_projects/Navio/repos/craftworks-pynavio-private/tests/test_pynavio/fixtures/Images/num_img_out.jpeg'
-
+from pathlib import Path
 
 @pytest.fixture
-def sample_image_array():
+def sample_image_paths(fixtures_path):
+    """Fixture to return the paths of the sample image and output image."""
+    sample_image_path = Path(fixtures_path, "Images/num_img.jpeg")
+    sample_image_output_path = Path(fixtures_path, "Images/num_img_out.jpeg")
+    return sample_image_path, sample_image_output_path
+
+@pytest.fixture
+def sample_image_array(sample_image_paths):
     """Fixture to load a sample image into a numpy array for testing."""
     Image = _import_image()
-    with Image.open(SAMPLE_IMAGE_PATH) as img:
+    with Image.open(sample_image_paths[0]) as img:
         return np.array(img).astype(float)
 
 
-def test_imread():
+def test_imread(sample_image_paths):
     """Test reading an image file and encoding it to base64."""
-    encoded_str = imread(SAMPLE_IMAGE_PATH)
+    encoded_str = imread(sample_image_paths[0])
     assert isinstance(encoded_str, str)
     # Further checks can include decoding and comparing to original file's bytes,
     # but this requires reading the original file again.
 
 
-def test_imwrite(sample_image_array):
+def test_imwrite(sample_image_array, sample_image_paths):
     """Test writing a numpy array as an image file."""
     # Assuming sample_image_array is an RGB image
-    imwrite(SAMPLE_IMAGE_PATH_OUTPUT, sample_image_array.astype(np.uint8))
+    imwrite(sample_image_paths[1], sample_image_array.astype(np.uint8))
     # Verify file exists or reopen and check content matches expected image content.
     # This might require reading the image back and comparing arrays.
 
 
-def test_img_from_b64():
+def test_img_from_b64(sample_image_paths):
     """Test decoding a base64 string into a numpy array."""
-    with open(SAMPLE_IMAGE_PATH, "rb") as img_file:
+    with open(sample_image_paths[0], "rb") as img_file:
         b64_str = base64.b64encode(img_file.read()).decode()
 
     img_array = img_from_b64(b64_str)
