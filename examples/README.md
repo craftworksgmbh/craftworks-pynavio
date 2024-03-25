@@ -22,7 +22,7 @@ Note: car_price_model and pump_leakage_models do not support plotly explanations
 ## Setup
 
 - Use `python >= 3.8`
-- Run `pip install -r requirements.txt && pip install -r requirements_dev.txt` from the repo root directory
+- Run `pip install -r requirements.txt && pip install -r requirements_dev.txt && pip install pynavio` from the repo root directory
 
 ## Running
 
