@@ -139,7 +139,7 @@ def setup(with_data: bool,
         example_request['featureColumns'][0]['type'] = 'image'
 
         conda_packages = [
-            'cudatoolkit=11.3.1', 'cudnn=8.2.1', 'pytorch=2.1.1',
+            'cudnn=8.2.1','cudatoolkit=11.3.1', 'pytorch=2.1.1',
             'torchaudio=2.1.1', 'torchvision=0.16.1'
         ]
 
