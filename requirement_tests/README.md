@@ -1,5 +1,5 @@
 # Tests agains different python versions
-The current approach for testing the different dependencies is based on a tox automation process, which is a tool that allows checking that the different packages/dependencies build and are installs correctly under different environments. It is described as a environment orchestrator, which is done by creating a file that contains an `enlist`  where you specifiy the dependencies and ranges you want to test and the `python` environment version against which you want to apply the tests.
+The current approach for testing the different dependencies is based on tox, which is an environment orchestrator that allows checking that the different packages/dependencies build and are installed correctly under different environments. It allows to create a file that contains an `envlist`  where you specify the dependencies and version ranges as well as the `python` environment version you want to test.
 
 An example of how it can be done:
 
