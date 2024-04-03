@@ -10,3 +10,11 @@ envlist = {py37}-Pillow{800,801,810,811,812,820,830,831,832,840,900,901,910,911,
 ```
 
 The way that tox works is the following, when specifying the `python` version tox looks in the env that you are running the file on a python interpreter that matches the version you have specified. Hence, you will need a env for each of the python versions you want to test. This means that for testing with the current approach, you will need to change the `{py37}` in the `enlist` for the python version `{pyXY}` that you need to run the tests in. The output tox will give is a list with the dependencies and versions that you have stablished and the state of the test, being `succeed` if it ha passed and some error if not.
+
+## Files
+In this folder we have the testing files:
+* tox.ini: It tests the mlflow versions against the python versions as it is widely used in pynavio
+* tox_version_packages.ini: This file contains the test of three libraries used by pynavio (Plotly, Pigar and Pillow)
+
+and the requirement files:
+* requirements_tox.txt: Contains the necessary requirements to run the test for the tox setup
