@@ -19,4 +19,9 @@ In this folder we have the testing files:
 and the requirement files:
 * requirements_tox.txt: Contains the necessary requirements to run the test for the tox setup
 
+## Python versions tested
+The versions of python that we have tested against is:
+* tox.ini: py38, py39, py310
+* tox_version_packages.ini: py37, py38, py39, py310, py311, py312
+
 
