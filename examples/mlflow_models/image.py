@@ -254,13 +254,13 @@ def setup(with_data: bool,
 
         pip_packages = [
             'Pillow==9.3.0', 'tensorflow==2.11.1', 'mlflow==2.9.2', 'protobuf<3.20',
-            'pynavio==0.2.4'
+            'pynavio==0.3.1'
         ]
         if explanations not in [None, 'disabled', 'default']:
             pip_packages.extend(['shap', 'IPython'])
             pip_packages.append({
-                'image': 'matplotlib',
-                'plotly': 'plotly'
+                'image': 'matplotlib==3.8.2',
+                'plotly': 'plotly==5.9.0'
             }[explanations])
 
         pynavio.mlflow.to_navio(ImageModel(explanations),

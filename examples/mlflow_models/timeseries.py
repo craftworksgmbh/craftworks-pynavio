@@ -155,10 +155,10 @@ def setup(with_data: bool,
         model_path = f'{tmp_dir}/model.joblib'
         joblib.dump(model, model_path)
 
-        pip_packages = ['mlflow', 'scikit-learn', 'joblib']
+        pip_packages = ['mlflow==2.9.2', 'scikit-learn==1.2.2', 'joblib==1.3.2', 'pynavio==0.2.4']
 
         if explanations == 'plotly':
-            pip_packages.extend(['plotly', 'shap'])
+            pip_packages.extend(['plotly==5.9.0', 'shap==0.44.1'])
 
         pynavio.mlflow.to_navio(mlflow_model,
                                 example_request=request_schema,

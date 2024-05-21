@@ -79,7 +79,7 @@ def setup(with_data: bool,
         example_request = pynavio.make_example_request(example, 'digit')
         example_request['featureColumns'][0]['type'] = 'image'
 
-        pip_packages = ['mlflow', 'onnxruntime', 'Pillow']
+        pip_packages = ['mlflow==2.9.2', 'onnxruntime==1.16.3', 'Pillow==9.3.0', 'pynavio==0.2.4']
 
         pynavio.mlflow.to_navio(ImageModel(),
                                 example_request=example_request,

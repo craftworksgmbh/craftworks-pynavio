@@ -57,7 +57,7 @@ class TimeseriesTrainer(mlflow.pyfunc.PythonModel):
 
         import mlflow_models
 
-        pip_packages = ['mlflow', 'scikit-learn', 'joblib']
+        pip_packages = ['mlflow==2.9.2', 'scikit-learn==1.4.0', 'joblib==1.3.2', 'pynavio==0.3.1']
 
         with TemporaryDirectory() as tmp_dir:
             model_path = f'{tmp_dir}/model.joblib'
@@ -83,7 +83,7 @@ def setup(with_data: bool,
           code_path: Optional[List[Union[str, Path]]] = None):
 
     with TemporaryDirectory() as tmp_dir:
-        pip_packages = ['mlflow', 'scikit-learn', 'joblib']
+        pip_packages = ['mlflow==2.9.2', 'scikit-learn==1.4.0', 'joblib==1.3.2', 'pynavio==0.3.1']
         example = pynavio.make_example_request(
             {
                 'dataPath': 'mlflow-models/data/activity_recognition.parquet',
