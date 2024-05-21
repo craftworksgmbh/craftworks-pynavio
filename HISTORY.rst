@@ -128,7 +128,7 @@ History
 * minor reformatting fix
 
 0.3.2 (2024-05-21)
- ------------------
+------------------
 
- * bump Pillow from 9.3.0 to >=8.0.0, <11.0.0
- * bump plotly from 5.9.0 to >=4.10.0, <6.0.0
+* bump Pillow from 9.3.0 to >=8.0.0, <11.0.0
+* bump plotly from 5.9.0 to >=4.10.0, <6.0.0
