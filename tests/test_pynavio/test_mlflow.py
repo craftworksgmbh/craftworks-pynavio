@@ -322,7 +322,7 @@ def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
         raise pytest.fail("Unexpected Exception")
 
 
-@pytest.mark.parametrize("to_navio_kwargs, metadata", [
+@pytest.mark.parametrize("to_navio_kwargs, expected_metadata", [
     (
         {
             "metadata": {"key1": "value1", "key2": "value2"},
@@ -350,7 +350,7 @@ def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
         }
     )
 ])
-def test_to_navio_metadata(tmp_path, to_navio_kwargs, metadata):
+def test_to_navio_metadata(tmp_path, to_navio_kwargs, expected_metadata):
     import yaml
     import mlflow
     import pynavio
@@ -397,4 +397,4 @@ def test_to_navio_metadata(tmp_path, to_navio_kwargs, metadata):
             cfg = yaml.safe_load(file)
 
     # Assert correct metadata
-    assert cfg["metadata"] == metadata
+    assert cfg["metadata"] == expected_metadata
