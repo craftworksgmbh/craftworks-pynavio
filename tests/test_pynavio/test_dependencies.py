@@ -55,5 +55,5 @@ def test_infer_external_dependencies():
     pip_requirements = infer_external_dependencies(Path(__file__).parent)
     pip_requirements = ' '.join(pip_requirements)
 
-    for item in ['pandas', 'numpy', 'mlflow', 'scikit_learn']:
+    for item in ['pandas', 'numpy', 'mlflow', 'scikit-learn']:
         assert item in pip_requirements
