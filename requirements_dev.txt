@@ -7,7 +7,7 @@ tox>=4.0.0,<5.0.0
 coverage==6.4.2
 Sphinx==5.0.2
 twine==4.0.1
-importlib-metadata<8.0.0
+importlib-metadata<8.0.0  # or upgrade twine to >=5.1.1 (https://stackoverflow.com/questions/78694572/unable-to-upload-pip-package-to-google-artifact-registry-using-twine-err-keyer)
 
 pytest==7.1.2
 scikit-learn==1.1.1
@@ -29,4 +29,4 @@ onnx==1.12.0  # required by torch==2.0.0, otherwise gives error on onnx export
 
 onnxruntime==1.12.0
 pyarrow==9.0.0
-numpy<2.0.0
+numpy<2.0.0  # pyarrow versions (and maybe other libraries) not yet compatible with numpy>=2
