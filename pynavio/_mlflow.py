@@ -143,7 +143,8 @@ def _add_metadata(model_path: str,
                   num_gpus: Optional[int] = 0,
                   metadata: Optional[dict] = None) -> None:
     """
-    The mlflow.pyfunc.save_model function supports the metadata argument for mlflow>=2.1.0 only.
+    The mlflow.pyfunc.save_model function supports the metadata argument for
+    mlflow>=2.1.0 only.
     """
     # Path to MLmodel file
     path = Path(model_path) / 'MLmodel'
@@ -158,7 +159,9 @@ def _add_metadata(model_path: str,
     # Add request_schema
     example_request_path_yml = 'flavors.python_function.artifacts.' \
                                'example_request.path'
-    cfg['metadata'].update(request_schema=dict(path=_get_field(cfg, example_request_path_yml)))
+    cfg['metadata'].update(
+        request_schema=dict(path=_get_field(cfg, example_request_path_yml))
+    )
 
     # Add dataset
     if dataset is not None:
@@ -600,7 +603,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param num_gpus:
     @param validate_model: if the output model should be validated by
      ModelValidator. On by default(True), to disable set to False.
-    @param metadata: metadata dictionary to be added to the metadata section in the MLmodel file
+    @param metadata: metadata dictionary to be added to the metadata section
+     in the MLmodel file
 
     Note: Please refer to check_model_serving() method and
     https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
