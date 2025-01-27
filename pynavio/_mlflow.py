@@ -140,36 +140,55 @@ def _add_metadata(model_path: str,
                   dataset: Optional[dict] = None,
                   explanations: Optional[str] = None,
                   oodd: Optional[str] = None,
-                  num_gpus: Optional[int] = 0) -> None:
+                  num_gpus: Optional[int] = 0,
+                  metadata: Optional[dict] = None) -> None:
+    """
+    The mlflow.pyfunc.save_model function supports the metadata argument for
+    mlflow>=2.1.0 only.
+    """
+    # Path to MLmodel file
     path = Path(model_path) / 'MLmodel'
+
+    # Read MLmodel file
     with path.open('r') as file:
         cfg = yaml.safe_load(file)
+
+    # Init metadata
+    cfg['metadata'] = metadata or {}
+
+    # Add request_schema
     example_request_path_yml = 'flavors.python_function.artifacts.' \
                                'example_request.path'
-    cfg.update(metadata=dict(request_schema=dict(
-        path=_get_field(cfg, example_request_path_yml))))
+    cfg['metadata'].update(
+        request_schema=dict(path=_get_field(cfg, example_request_path_yml))
+    )
 
+    # Add dataset
     if dataset is not None:
         dataset_path_yml = 'flavors.python_function.artifacts.dataset.path'
         cfg['metadata'].update(dataset=dataset)
         cfg['metadata']['dataset']['path'] = _get_field(cfg, dataset_path_yml)
 
+    # Add explanations
     explanations = explanations or 'default'
     accepted_values = ['disabled', 'default', 'plotly']
     assert explanations in accepted_values, \
         f'explanations config must be one of {accepted_values}'
     cfg['metadata'].update(explanations=explanations)
 
+    # Add oodDetection
     oodd = oodd or 'default'
     accepted_values = ['disabled', 'default']
     assert oodd in accepted_values, \
         f'oodd config must be one of {accepted_values}'
     cfg['metadata'].update(oodDetection=oodd)
 
+    # Add gpus
     assert num_gpus >= 0, 'num_gpus cannot be negative'
     if num_gpus > 0:
         cfg['metadata'].update(gpus=num_gpus)
 
+    # Write MLmodel file
     with path.open('w') as file:
         yaml.dump(cfg, file)
 
@@ -544,7 +563,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
              explanations: Optional[str] = None,
              oodd: Optional[str] = None,
              num_gpus: Optional[int] = 0,
-             validate_model: Optional[bool] = True) -> Path:
+             validate_model: Optional[bool] = True,
+             metadata: Optional[dict] = None) -> Path:
     """
     create a .zip mlflow model file for navio
     Usage: If both pip_packages or conda_env are not set, then
@@ -583,6 +603,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
     @param num_gpus:
     @param validate_model: if the output model should be validated by
      ModelValidator. On by default(True), to disable set to False.
+    @param metadata: metadata dictionary to be added to the metadata section
+     in the MLmodel file
 
     Note: Please refer to check_model_serving() method and
     https://navio.craftworks.io/docs/guides/navio-models/model_creation/#3-test-model-serving
@@ -641,7 +663,8 @@ def to_navio(model: mlflow.pyfunc.PythonModel,
                       dataset=dataset,
                       explanations=explanations,
                       oodd=oodd,
-                      num_gpus=num_gpus)
+                      num_gpus=num_gpus,
+                      metadata=metadata)
         _add_sys_dependencies(path, sys_dependencies)
         shutil.make_archive(path, 'zip', path)
         model_zip = Path(path + '.zip')
