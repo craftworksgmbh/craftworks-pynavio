@@ -132,3 +132,10 @@ History
 
 * bump Pillow from 9.3.0 to >=8.0.0, <11.0.0
 * bump plotly from 5.9.0 to >=4.10.0, <6.0.0
+
+0.3.3 (2024-05-21)
+------------------
+
+* adds optional metadata argument to to_navio function to be able to add custom metadata to the MLmodel file
+* updates tox configuration to test compatibility across multiple mlflow versions
+* updates requirements_dev.txt to avoid errors related to numpy>=2
