@@ -29,4 +29,6 @@ onnx==1.12.0  # required by torch==2.0.0, otherwise gives error on onnx export
 
 onnxruntime==1.12.0
 pyarrow==9.0.0
+
 numpy<2.0.0  # pyarrow versions (and maybe other libraries) not yet compatible with numpy>=2
+packaging<25  # incompatibility with mlflow-skinny<3

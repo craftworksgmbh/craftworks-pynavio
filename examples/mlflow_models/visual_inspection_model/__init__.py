@@ -13,7 +13,7 @@ from scipy import ndimage
 
 import pynavio
 
-from .model import load_model, predict
+from examples.mlflow_models.visual_inspection_model.model import load_model, predict
 
 _THRESHOLD = .2
 _COLOR_SCALE = ['rgba(30,136,229,0)', 'rgba(255,13,87,255)']
@@ -85,7 +85,7 @@ class KnotDetector(mlflow.pyfunc.PythonModel):
 
     BG_COLUMN = 'is_background'
 
-    def __init__(self, model: tf.keras.Model):
+    def __init__(self, model: tf.keras.Model = None):
         self._model = model
 
     def load_context(self, context: mlflow.pyfunc.PythonModelContext) -> None:
@@ -153,8 +153,6 @@ def setup(*args, **kwargs):
         schema = pynavio.make_example_request(frame, 'knots')
         schema['featureColumns'][0]['type'] = 'image'
 
-        detector._model = None  # do not save via pickle
-
         conda_env = {
             'channels': ['defaults', 'conda-forge'],
             'dependencies': [
@@ -171,7 +169,7 @@ def setup(*args, **kwargs):
         data_path = f'{tmp_dir}/knot-detections.csv'
         _fake_data(data_path)
 
-        pynavio.mlflow.to_navio(detector,
+        pynavio.mlflow.to_navio("examples/mlflow_models/visual_inspection_model/__init__.py",
                                 example_request=schema,
                                 explanations='plotly',
                                 artifacts={'model': model_path},
@@ -181,3 +179,6 @@ def setup(*args, **kwargs):
                                              path=data_path),
                                 code_path=kwargs.get('code_path'),
                                 oodd='disabled')
+
+
+mlflow.models.set_model(KnotDetector())

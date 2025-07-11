@@ -1,4 +1,5 @@
 import base64
+import joblib
 import json
 from io import BytesIO
 from pathlib import Path
@@ -53,9 +54,6 @@ def _write_jpgs(images: np.ndarray, path: str):
 class ImageModel(mlflow.pyfunc.PythonModel,
                  pynavio.traits.TabularExplainerTraits):
     BG_COLUMN = 'is_background'
-
-    def __init__(self, explanation_format: str):
-        super().__init__(explanation_format=explanation_format)
 
     @staticmethod
     def _imread(encoding: str) -> np.ndarray:
@@ -163,6 +161,7 @@ class ImageModel(mlflow.pyfunc.PythonModel,
         return self._draw_plotly_explanation(image, explanation)
 
     def load_context(self, context) -> None:
+        super().__init__(explanation_format=joblib.load(context.artifacts['explanations']))
         pynavio.assert_gpu_available()
         from tensorflow.keras.models import load_model
         self._model = load_model(context.artifacts['model'])
@@ -233,6 +232,9 @@ def setup(with_data: bool,
         model_path = f'{tmp_dir}/model.h5'
         model.save(model_path)
 
+        explanations_path = f'{tmp_dir}/explanations.pkl'
+        joblib.dump(explanations, explanations_path)
+
         dataset = None
         if with_data:
             df = _read_data('./background/',
@@ -263,7 +265,7 @@ def setup(with_data: bool,
                 'plotly': 'plotly==5.9.0'
             }[explanations])
 
-        pynavio.mlflow.to_navio(ImageModel(explanations),
+        pynavio.mlflow.to_navio("examples/mlflow_models/image.py",
                                 example_request=example_request,
                                 pip_packages=pip_packages,
                                 dataset=dataset,
@@ -271,6 +273,9 @@ def setup(with_data: bool,
                                 conda_packages=_conda_packages(with_gpu),
                                 code_path=code_path,
                                 explanations=explanations,
-                                artifacts={'model': model_path},
+                                artifacts={'model': model_path, 'explanations': explanations_path},
                                 oodd='default' if with_oodd else 'disabled',
                                 num_gpus=1 if with_gpu else 0)
+
+
+mlflow.models.set_model(ImageModel())
