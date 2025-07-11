@@ -17,6 +17,7 @@ Features
 * Pynavio.mlflow.to_navio function calls mlflow.pyfunc.save_model function, saving a model zip file as required by navio.
     * it enables inferring the conda environment (with pip requirements) and adding extra pip dependencies to the inferred environment
     * it enables adding sys dependencies to the navio model
+    * it enables adding optional metadata to the model
     * it also validates the models with Pynavio.mlflow.ModelValidator by default
 * Pynavio.mlflow.ModelValidator is a class that validates the model (prediction/example request/MLmodel metadata schema checks, warnings related nested types/big model sizes)
 * Pynavio.infer_external_dependencies is a helper function that infers the external dependencies based on the file path. Please refer to its doc string for limitations.

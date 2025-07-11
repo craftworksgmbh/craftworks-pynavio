@@ -320,3 +320,81 @@ def test_to_navio_extra_dependencies(tmp_path, extra_pip_packages,
                      conda_env)
     except Exception:
         raise pytest.fail("Unexpected Exception")
+
+
+@pytest.mark.parametrize("to_navio_kwargs, expected_metadata", [
+    (
+        {
+            "metadata": {"key1": "value1", "key2": "value2"},
+            "num_gpus": 2,
+        },
+        {
+            "key1": "value1",
+            "key2": "value2",
+            "request_schema": {"path": "artifacts/example_request.json"},
+            "explanations": "default",
+            "oodDetection": "default",
+            "gpus": 2,
+        }
+    ),
+    (
+        {
+            "metadata": None,
+            "num_gpus": 1,
+        },
+        {
+            "request_schema": {"path": "artifacts/example_request.json"},
+            "explanations": "default",
+            "oodDetection": "default",
+            "gpus": 1,
+        }
+    )
+])
+def test_to_navio_metadata(tmp_path, to_navio_kwargs, expected_metadata):
+    import yaml
+    import mlflow
+    import pynavio
+
+    from tempfile import TemporaryDirectory
+    from pathlib import Path
+
+    # Specify example request
+    TARGET = 'target'
+    _columns = ['x', 'y']
+    example_request = pynavio.make_example_request(
+        data={
+            TARGET: float(sum(range(len(_columns)))),
+            **{col: float(i) for i, col in enumerate(_columns)}
+        },
+        target=TARGET
+    )
+
+    # Create dummy model
+    class SampleModel(mlflow.pyfunc.PythonModel):
+
+        @pynavio.prediction_call
+        def predict(self, context, model_input):
+            return {
+                'prediction': [1.] * model_input.shape[0]
+            }
+
+    # Set model path
+    model_path = str(tmp_path / 'model')
+
+    # Setup model
+    with TemporaryDirectory():
+        pynavio.mlflow.to_navio(
+            model=SampleModel(),
+            path=model_path,
+            example_request=example_request,
+            pip_packages=['mlflow'],
+            **to_navio_kwargs,
+
+        )
+
+        path = Path(model_path) / 'MLmodel'
+        with path.open('r') as file:
+            cfg = yaml.safe_load(file)
+
+    # Assert correct metadata
+    assert cfg["metadata"] == expected_metadata
