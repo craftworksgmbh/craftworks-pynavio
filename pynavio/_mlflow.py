@@ -504,7 +504,7 @@ def check_model_serving(model_path: Union[str, Path],
     URL = f'http://127.0.0.1:{port}/invocations'
     process = subprocess.Popen(
         f'mlflow models serve -m {model_path} -p {port} --no-conda'.split())
-    time.sleep(5)
+    time.sleep(10)
     response = None
 
     try:

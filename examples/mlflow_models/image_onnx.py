@@ -81,9 +81,12 @@ def setup(with_data: bool,
 
         pip_packages = ['mlflow==2.9.2', 'onnxruntime==1.16.3', 'Pillow==9.3.0', 'pynavio==0.2.4']
 
-        pynavio.mlflow.to_navio(ImageModel(),
+        pynavio.mlflow.to_navio("examples/mlflow_models/image_onnx.py",
                                 example_request=example_request,
                                 pip_packages=pip_packages,
                                 path=path,
                                 code_path=code_path,
                                 artifacts={'model': model_path})
+
+
+mlflow.models.set_model(ImageModel())
